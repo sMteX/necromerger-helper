@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-necro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-necro}
+      POSTGRES_DB: ${POSTGRES_DB:-necro_prestige}
+    restart: unless-stopped
+    ports:
+      - "5345:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

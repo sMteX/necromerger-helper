@@ -1,0 +1,39 @@
+version: '3'
+
+vars:
+  TEMPLUI_PATH:
+    sh: go list -m -f '{{.Dir}}' github.com/templui/templui
+
+tasks:
+  setup:
+    desc: Install necessary tools
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest
+      - go install github.com/cosmtrek/air@latest
+      - go mod tidy
+
+  db:up:
+    desc: Start database
+    cmds:
+      - docker compose up -d
+
+  db:down:
+    desc: Stop database
+    cmds:
+      - docker compose down
+
+  templ:
+    desc: Watch templ files
+    cmds:
+      - templ generate --watch --proxy="http://localhost:8080" --open-browser=false
+
+  tailwind:
+    desc: Watch tailwind css changes
+    cmds:
+      - npx @tailwindcss/cli -i ./input.css -o ./assets/css/output.css --watch --content "./**/*.{templ,go}" --content "{{.TEMPLUI_PATH}}/**/*.templ"
+
+  dev:
+    desc: Run development server with hot reload
+    deps: [db:up]
+    cmds:
+      - air
