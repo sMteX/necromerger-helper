@@ -1,0 +1,304 @@
+# Game Mechanics: Necromerger Prestige Planner
+
+This document serves as a knowledge base for the game mechanics and planning logic.
+
+## Overview
+
+### Base gameplay facts
+- the game is a merger type
+- the goal of the game is to "feed The Devourer", which means dragging things to an entity in the middle of the screen
+  - this gives The Devourer a certain amount of `Food`, which is used to level up The Devourer (with the Food requirements rising each level)
+- user operates on a grid ("lair") of variable size (starts small, grows as The Devourer levels up - thresholds for lair space growth are pre-set)
+- the user has 3 types of resources - `Mana`, `Slime` and `Darkness`
+- the user can earn another types of resources called `Runes`, which are of different color/type - `Ice` (blue), `Poison` (green), `Blood` (red), `Moon` (yellow), `Death` (dark blue) and `Cosmic` (purple/pink)
+- the user can buy `Stations` for runes (types and costs are pre-set)
+  - these stations occupy lair space, and do one or more of the following:
+    - increase the resource cap
+    - can be tapped by the player to use resources to produce creatures ("minions") or items
+- there are about 25 creatures in the game, majority of which have levels
+  - stations produce items ("parts") that the player merges together to form either higher level parts, or minions
+  - merging minions increases their level
+  - player can feed almost anything to The Devourer, even parts give Food
+  - minions can have multiple of characteristics:
+    - they can produce resources (on a set timer, e.g. 10 Mana every 10 seconds)
+    - they can be dragged onto enemies to damage/kill them
+  - there are minions who are specialized at different things:
+    - some are better for damage
+    - some are better for resource generation
+    - some are better for feeding The Devourer
+    - some are completely special and have special effects/abilities (mid-game and later)
+- merging certain types of creatures also help summon `Champions`
+  - these are special NPCs with various amount of HP that need to be killed (or fed to the Devourer)
+  - upon killing a Champion, it drops a `Chest` of certain type
+  - this Chest can be then tapped by the player to produce `Rune Piles`
+  - each Chest has 5 taps by default (which can be later increased)
+  - each tap has a certain percentage chance to produce a certain type of Rune Piles
+    - e.g. Ice Chest has 60% chance to produce Level 1 Ice Rune Pile (worth 2 Ice Runes), 20% chance for Level 2 Ice Rune Pile (worth 5 Ice Runes), and 20% chance for Level 1 Poison Rune Pile
+    - these Rune piles can also be merged, which is always recommended - Level 1 = 2 runes, Level 2 = 5 runes, Level 3 = 12 runes
+- stations also have levels and can be merged to increase their level
+  - higher level stations produce higher level parts but also have higher resource cost per tap
+- The Devourer also has Cravings:
+  - it picks a certain amount of minions it wants the player to feed it
+  - when a player completes the Craving, they get a substantial amount of Food as reward
+- to unlock new stations and to give player some game goals, there are `Feats`
+  - these are like quests for the player to complete
+  - they are divided into `Tiers` (e.g. Tier 22 Feats)
+  - completing a Feat gives a preset reward
+  - completing all Feats in a Tier completes the Tier and unlocks new stations
+- to help the player make the game easier, the game introduces `Spells`
+  - these are divided into `Spell Pages` which unlock at specific Devourer levels
+  - there are 34 spells divided into 6 pages (last page is incomplete yet)
+  - each spell has multiple levels with predefined specific Rune costs
+  - when player buys a Spell for Runes, it's a passive effect that is in effect for the rest of the game
+
+## Prestige Reset Mechanics
+- starting from level 50, the player can choose to reset their game
+- this effect looks at certain things ("what the player has accomplished") and based on that, give them a certain amount of `Time Shards`
+- this act resets the players Runes, Devourer level, Spells, Feats, Stations, raises the Devourer level cap 
+- but keeps the player's `Gems` (which can be bought for real money or slowly accumulated through normal free to play gameplay), `Gold` (similarly to Gems) and few other things:
+  - `Astro Coins`, `Energy Cubes`, `Wobular` and `Time Shards` (which are all currencies accumulated in the late game and through prestiging)
+- upon confirmation, the game resets, the player is awarded a calculated amount of Time Shards
+
+### Time Shard calculation
+- there are four variables used to determine the amount of Time Shards (base amount, and then 3 percentage multipliers):
+  - **Devourer level** - every level increases the base amount of Time Shards (predetermined amounts)
+    - it is a must to max out the Devourer level before even considering to prestige
+    - base amounts based on the Devourer level cap at the point of prestiging:
+      - level 35 => 150 Time Shards
+      - level 40 => 275 Time Shards
+      - level 45 => 500 Time Shards
+      - level 50 => 750 Time Shards
+      - level 55 => 1000 Time Shards
+      - level 60 => 1500 Time Shards
+      - level 65 => 2000 Time Shards
+      - level 70 => 3250 Time Shards
+      - level 75 => 4500 Time Shards
+      - level 80 => 5750 Time Shards
+      - level 85 => 7500 Time Shards
+      - level 90 => 10000 Time Shards
+      - level 95 => 12500 Time Shards
+      - level 100 => 15000 Time Shards
+      - level 150 => 40000 Time Shards
+      - level 200 => 65000 Time Shards
+      - level 300 => 150000 Time Shards
+      - level 400 => 275000 Time Shards
+      - level 500 => 450000 Time Shards
+      - level 600 => 700000 Time Shards
+      - level 700 => 1050000 Time Shards
+      - level 800 => 1550000 Time Shards
+      - level 900 => 2250000 Time Shards
+      - level 1000 => 3250000 Time Shards
+  - **Feats** - `100%` base, every **completed** Tier of Feats gives +10% Time Shards
+    - partial completion of a Tier does not count (sometimes the player is blocked by a game mechanic, or a Devourer level cap)
+  - **Legendaries** - `100%` base
+    - `Legendaries` are special types of creatures that are produced when merging certain top level Stations (or even other Legendaries)
+    - each Legendary has a certain +% Time Shard boost (for the first one, and usually a little less for each additional one)
+    - there are 4 groups of Legendaries:
+      - `Group 1`:
+        - `Lich`, `Gorgon`, `Harpy`
+        - each gives +10% Time Shards for the first one, and +5% for each additional one
+        - when the player owns at least 1 of each, they "complete" the group and receive additional +20% Time Shards bonus
+      - `Group 2`:
+        - `Reaper`, `Cyclops`, `Archdemon`
+        - each gives +20% Time Shards for the first one, and +10% for each additional one
+        - +40% Time Shard bonus for completing this group
+        - Archdemon is capped at 3 or 4
+      - `Group 3`:
+        - `The Cursed`, `The Colossus`, `The Infernal`
+        - these are special and the player can only have 1 of each - +40% Time Shard bonus for each of them
+        - +80% Time Shard bonus for completing this group
+      - `Group 4`:
+        - `Robo Chicken`, `Shield Bot`, `Soul Stalker`
+        - Robo Chicken - +20% Time Shard (+10% for each additional one) - capped at 3 or 4
+        - Shield Bot - +30% Time Shard (+15% for each additional one) - capped at 3 or 4
+        - Soul Stalker - +40% Time Shard (+20% for each additional one) - uncapped
+        - +60% Time Shard bonus for completing this group
+    - **NOTE:** in the **very** late game, the player can unlock a feature that lets them claim the group bonus multiple times
+      - e.g. at +1 group bonus, they can have 2 of each in Group 1 and receive +40% Time Shard bonus instead of +20%
+  - **Other** - `100%` base
+    - most notably skins and `Time Pieces` consumed
+    - `Time Pieces` are items received from various sources in late game, that are again level 1/2/3 and which give +1/+2/+5% Time Shards
+- due to the nature of these variables, it is recommended (prior to prestiging) to:
+  - cap the Devourer to maximum
+  - complete all available Feats
+  - have at least 1 of each Legendary
+- this leaves just a single way to adjust how many Time Shards the player gets - **farming additional Legendaries**
+
+### The Inventor
+- The Inventor is a special NPC that is used to spend the Time Shards for `Experiments`
+- each experiment level has a predefined Time Shard cost that goes up roughly exponentially with each experiment level
+- the experiments are the crux to make new repetitions of the game (also called "runs") easier and quicker and more fun
+- there are experiments that increase the Food gain from feeding the Devourer, that increase all Damage, that increase the Craving rewards, that increase resource caps...
+- there are also experiments that increase the amount of Chest taps (separated per each Chest type)
+- and also a few special experiments that affect the key enemy types or other mechanics
+- these experiments are effective **only until the player prestiges again** => they need to be repurchased again (the costs don't change)
+
+#### Experiments
+- there are 2 "tiers" of experiments, pre-100 and post-100 (referring to the Devourer level, they unlock after reaching level 100 for the first time)
+- pre-100:
+  - **Seasoning Experiment** - increases the amount of Food from feeding the Devourer
+    - level 1 (25 Time Shards) = 0% -> 10%
+    - level 2 (250 Time Shards) = 10% -> 20%
+    - level 3 (750 Time Shards) = 20% -> 30%
+    - level 4 (1500 Time Shards) = 30% -> 40%
+    - level 5 (2500 Time Shards) = 40% -> 50%
+    - level 6 (10000 Time Shards) = 50% -> 60%
+    - level 7 (25000 Time Shards) = 60% -> 80%
+    - level 8 (75000 Time Shards) = 80% -> 100%
+    - level 9 (250000 Time Shards) = 100% -> 150%
+  - **Strength Experiment** - increases all Damage
+    - level 1 (25 Time Shards) = 0% -> 10%
+    - level 2 (250 Time Shards) = 10% -> 20%
+    - level 3 (750 Time Shards) = 20% -> 30%
+    - level 4 (1500 Time Shards) = 30% -> 40%
+    - level 5 (2500 Time Shards) = 40% -> 50%
+    - level 6 (10000 Time Shards) = 50% -> 60%
+    - level 7 (25000 Time Shards) = 60% -> 80%
+    - level 8 (75000 Time Shards) = 80% -> 100%
+    - level 9 (250000 Time Shards) = 100% -> 150%
+  - **Taste Experiment** - get more Food from Cravings
+    - level 1 (50 Time Shards) = 0% -> 20%
+    - level 2 (500 Time Shards) = 20% -> 40%
+    - level 3 (1000 Time Shards) = 40% -> 60%
+    - level 4 (2000 Time Shards) = 60% -> 80%
+    - level 5 (4000 Time Shards) = 80% -> 100%
+    - level 6 (20000 Time Shards) = 100% -> 125%
+    - level 7 (50000 Time Shards) = 125% -> 150%
+    - level 8 (100000 Time Shards) = 150% -> 200%
+    - level 9 (500000 Time Shards) = 200% -> 300%
+  - **Capacity Experiment** - increase Mana, Slime and Darkness caps
+    - level 1 (100 Time Shards) = 0% -> 5%
+    - level 2 (750 Time Shards) = 5% -> 10%
+    - level 3 (1500 Time Shards) = 10% -> 15%
+    - level 4 (2500 Time Shards) = 15% -> 20%
+    - level 5 (5000 Time Shards) = 20% -> 25%
+    - level 6 (25000 Time Shards) = 25% -> 30%
+    - level 7 (75000 Time Shards) = 30% -> 35%
+    - level 8 (150000 Time Shards) = 35% -> 40%
+    - level 9 (750000 Time Shards) = 40% -> 50%
+  - **Body Snatcher** (50 Time Shards) - unlocks The Body Snatcher
+    - this is a special kind of experiment, single level only
+  - **Weakening Experiment** - Reduces the Protector's health scale (Protector is a special Champion that starts with a fixed amount of HP, but each subsequent summon scales his HP up by a percentage)
+    - level 1 (750 Time Shards) = 500% -> 250%
+    - level 2 (15000 Time Shards) = 250% -> 175%
+    - level 3 (25000 Time Shards) = 175% -> 150%
+    - level 4 (50000 Time Shards) = 150% -> 140%
+    - level 5 (500000 Time Shards) = 140% -> 135%
+    - level 6 (5000000 Time Shards) = 135% -> 130%
+    - level 7 (25000000 Time Shards) = 130% -> 127%
+    - level 8 (100000000 Time Shards) = 127% -> 125%
+  - **Damage Cap Experiment** - Increase the Mech's Damage Cap scale (The Mech is a special Champion that has the same amount of HP each time, but has a damage cap = you can't deal more damage at one time than the cap value. The cap value gets smaller with each summon)
+    - level 1 (25000 Time Shards) = 50% -> 65%
+    - level 2 (1000000 Time Shards) = 65% -> 75%
+    - level 3 (50000000 Time Shards) = 75% -> 80%
+  - **Ice Chest Experiment** - increases the number of taps for Ice Chests
+    - level 1 (10 Time Shards) = +1
+    - level 2 (500 Time Shards) = +2
+    - level 3 (1500 Time Shards) = +3
+    - level 4 (5000 Time Shards) = +4
+    - level 5 (10000 Time Shards) = +5
+    - level 6 (50000 Time Shards) = +6
+    - level 7 (100000 Time Shards) = +7
+    - level 8 (500000 Time Shards) = +8
+    - level 9 (1000000 Time Shards) = +9
+  - **Poison Chest Experiment** - increases the number of taps for Poison Chests
+    - level 1 (25 Time Shards) = +1
+    - level 2 (1000 Time Shards) = +2
+    - level 3 (3000 Time Shards) = +3
+    - level 4 (7500 Time Shards) = +4
+    - level 5 (12500 Time Shards) = +5
+    - level 6 (75000 Time Shards) = +6
+    - level 7 (150000 Time Shards) = +7
+    - level 8 (500000 Time Shards) = +8
+    - level 9 (1500000 Time Shards) = +9
+  - **Blood Chest Experiment** - increases the number of taps for Blood Chests
+    - level 1 (50 Time Shards) = +1
+    - level 2 (2500 Time Shards) = +2
+    - level 3 (5000 Time Shards) = +3
+    - level 4 (10000 Time Shards) = +4
+    - level 5 (50000 Time Shards) = +5
+    - level 6 (100000 Time Shards) = +6
+    - level 7 (250000 Time Shards) = +7
+    - level 8 (750000 Time Shards) = +8
+    - level 9 (2500000 Time Shards) = +9
+  - **Moon Chest Experiment** - increases the number of taps for Moon Chests
+    - level 1 (250 Time Shards) = +1
+    - level 2 (3000 Time Shards) = +2
+    - level 3 (7500 Time Shards) = +3
+    - level 4 (15000 Time Shards) = +4
+    - level 5 (75000 Time Shards) = +5
+    - level 6 (150000 Time Shards) = +6
+    - level 7 (500000 Time Shards) = +7
+    - level 8 (1000000 Time Shards) = +8
+    - level 9 (5000000 Time Shards) = +9
+  - **Death Chest Experiment** - increases the number of taps for Death Chests
+    - level 1 (500 Time Shards) = +1
+    - level 2 (5000 Time Shards) = +2
+    - level 3 (10000 Time Shards) = +3
+    - level 4 (50000 Time Shards) = +4
+    - level 5 (150000 Time Shards) = +5
+    - level 6 (500000 Time Shards) = +6
+    - level 7 (1000000 Time Shards) = +7
+    - level 8 (5000000 Time Shards) = +8
+    - level 9 (10000000 Time Shards) = +9
+  - **Cosmic Chest Experiment** - increases the number of taps for Cosmic Chests
+    - level 1 (5000 Time Shards) = +1
+    - level 2 (10000 Time Shards) = +2
+    - level 3 (15000 Time Shards) = +3
+    - level 4 (75000 Time Shards) = +4
+    - level 5 (250000 Time Shards) = +5
+    - level 6 (1000000 Time Shards) = +6
+    - level 7 (5000000 Time Shards) = +7
+    - level 8 (10000000 Time Shards) = +8
+    - level 9 (25000000 Time Shards) = +9
+- post-100:
+  - these experiments are multiplicative and are applied after usual additive bonuses, that's what makes them much more powerful and expensive
+  - **Seasoning Experiment II** - get more Food when feeding the Devourer
+    - level 1 (100000 Time Shards) = x1 -> x5
+    - level 2 (500000 Time Shards) = x5 -> x10
+    - level 3 (1000000 Time Shards) = x10 -> x15
+    - level 4 (2000000 Time Shards) = x15 -> x20
+    - level 5 (3000000 Time Shards) = x20 -> x25
+    - level 6 (5000000 Time Shards) = x25 -> x30
+    - level 7 (10000000 Time Shards) = x30 -> x35
+    - level 8 (20000000 Time Shards) = x35 -> x40
+    - level 9 (50000000 Time Shards) = x40 -> x50
+  - **Strength Experiment II** - increases all Damage
+    - level 1 (100000 Time Shards) = x1 -> x1.2
+    - level 2 (500000 Time Shards) = x1.2 -> x1.4
+    - level 3 (1000000 Time Shards) = x1.4 -> x1.6
+    - level 4 (2000000 Time Shards) = x1.6 -> x1.8 
+    - level 5 (3000000 Time Shards) = x1.8 -> x2
+    - level 6 (5000000 Time Shards) = x2 -> x2.2
+    - level 7 (10000000 Time Shards) = x2.2 -> x2.4
+    - level 8 (20000000 Time Shards) = x2.4 -> x2.6
+    - level 9 (50000000 Time Shards) = x2.6 -> x3
+  - **Taste Experiment II** - get more Food from Cravings
+    - level 1 (200000 Time Shards) = x1 -> x2
+    - level 2 (1000000 Time Shards) = x2 -> x3
+    - level 3 (3000000 Time Shards) = x3 -> x4
+    - level 4 (5000000 Time Shards) = x4 -> x5
+    - level 5 (10000000 Time Shards) = x5 -> x6
+    - level 6 (20000000 Time Shards) = x6 -> x7
+    - level 7 (30000000 Time Shards) = x7 -> x8
+    - level 8 (50000000 Time Shards) = x8 -> x9
+    - level 9 (100000000 Time Shards) = x9 -> x10
+  - **Capacity Experiment II** - increase Mana, Slime and Darkness caps
+    - level 1 (200000 Time Shards) = x1 -> x1.1
+    - level 2 (1000000 Time Shards) = x1.1 -> x1.2
+    - level 3 (3000000 Time Shards) = x1.2 -> x1.3
+    - level 4 (5000000 Time Shards) = x1.3 -> x1.4
+    - level 5 (10000000 Time Shards) = x1.4 -> x1.5
+    - level 6 (20000000 Time Shards) = x1.5 -> x1.6
+    - level 7 (30000000 Time Shards) = x1.6 -> x1.8
+    - level 8 (50000000 Time Shards) = x1.8 -> x1.9
+    - level 9 (100000000 Time Shards) = x1.9 -> x2
+
+### Optimizing The Inventor
+- this is the goal of this application
+- it is to plan what the player needs to do in the game, in order to maximize the amount of Time Shards received at the point of prestiging
+- it's a balance between what experiments the user wants to buy/unlock and what they need to do to afford that (how many extra Legendaries to farm and how many Runes to do so)
+
+## Deterministic Calculations
+- **Logic Location:** All calculations should be handled in the Go backend.
+- **Frontend Role:** Updates visuals based on backend responses (via HTMX).

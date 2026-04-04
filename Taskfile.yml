@@ -30,7 +30,7 @@ tasks:
   tailwind:
     desc: Watch tailwind css changes
     cmds:
-      - npx @tailwindcss/cli -i ./input.css -o ./assets/css/output.css --watch --content "./**/*.{templ,go}" --content "{{.TEMPLUI_PATH}}/**/*.templ"
+      - npx @tailwindcss/cli -i ./src/styles/input.css -o ./assets/css/output.css --watch --content "./**/*.{templ,go}" --content "{{.TEMPLUI_PATH}}/**/*.templ"
 
   dev:
     desc: Run development server with hot reload

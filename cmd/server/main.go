@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sMteX/necro-prestige-planner/src/templates"
 )
 
 func main() {
@@ -43,11 +44,14 @@ func main() {
 
 	// Static files
 	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "assets"))
-	FileServer(r, "/assets", filesDir)
+	// When running from cmd/server, the root is two levels up
+	// However, usually we run from project root.
+	// Let's ensure it works if run from project root.
+	assetsDir := filepath.Join(workDir, "assets")
+	FileServer(r, "/assets", http.Dir(assetsDir))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		component := Index("World")
+		component := templates.Index("World")
 		component.Render(r.Context(), w)
 	})
 
