@@ -32,8 +32,23 @@ tasks:
     cmds:
       - npx @tailwindcss/cli -i ./src/styles/input.css -o ./assets/css/output.css --watch --content "./**/*.{templ,go}" --content "{{.TEMPLUI_PATH}}/**/*.templ"
 
+  sqlc:
+    desc: Generate sqlc code
+    cmds:
+      - sqlc generate
+
+  db:migrate:
+    desc: Run database migrations
+    cmds:
+      - goose -dir internal/db/migrations postgres "${DATABASE_URL:-postgres://necro:necro@localhost:5432/necro_prestige?sslmode=disable}" up
+
+  db:rollback:
+    desc: Rollback last database migration
+    cmds:
+      - goose -dir internal/db/migrations postgres "${DATABASE_URL:-postgres://necro:necro@localhost:5432/necro_prestige?sslmode=disable}" down
+
   dev:
     desc: Run development server with hot reload
-    deps: [db:up]
+    deps: [db:up, db:migrate]
     cmds:
       - air
