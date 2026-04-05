@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sMteX/necro-prestige-planner/internal/api"
 	"github.com/sMteX/necro-prestige-planner/src/templates"
 )
 
@@ -58,6 +59,10 @@ func main() {
 	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("HTMX is working! The server responded successfully."))
 	})
+
+	// API endpoints
+	r.Get("/health", api.HealthHandler)
+	r.Post("/recalculate", api.RecalculateHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
