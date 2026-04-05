@@ -14,22 +14,25 @@ import (
 
 const createPlan = `-- name: CreatePlan :one
 INSERT INTO plans (
-    name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, legendary_counts, experiment_levels, notes
+    name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, leftover_shards, legendary_counts, experiment_levels, possessed_runes, possessed_legendaries, notes
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
 RETURNING id
 `
 
 type CreatePlanParams struct {
-	Name             string                `json:"name"`
-	DevourerLevel    sql.NullInt32         `json:"devourer_level"`
-	FeatTiers        sql.NullInt32         `json:"feat_tiers"`
-	OtherMultiplier  sql.NullFloat64       `json:"other_multiplier"`
-	GroupBonusCount  sql.NullInt32         `json:"group_bonus_count"`
-	LegendaryCounts  pqtype.NullRawMessage `json:"legendary_counts"`
-	ExperimentLevels pqtype.NullRawMessage `json:"experiment_levels"`
-	Notes            sql.NullString        `json:"notes"`
+	Name                 string                `json:"name"`
+	DevourerLevel        sql.NullInt32         `json:"devourer_level"`
+	FeatTiers            sql.NullInt32         `json:"feat_tiers"`
+	OtherMultiplier      sql.NullFloat64       `json:"other_multiplier"`
+	GroupBonusCount      sql.NullInt32         `json:"group_bonus_count"`
+	LeftoverShards       sql.NullInt32         `json:"leftover_shards"`
+	LegendaryCounts      pqtype.NullRawMessage `json:"legendary_counts"`
+	ExperimentLevels     pqtype.NullRawMessage `json:"experiment_levels"`
+	PossessedRunes       pqtype.NullRawMessage `json:"possessed_runes"`
+	PossessedLegendaries pqtype.NullRawMessage `json:"possessed_legendaries"`
+	Notes                sql.NullString        `json:"notes"`
 }
 
 func (q *Queries) CreatePlan(ctx context.Context, arg CreatePlanParams) (int32, error) {
@@ -39,8 +42,11 @@ func (q *Queries) CreatePlan(ctx context.Context, arg CreatePlanParams) (int32, 
 		arg.FeatTiers,
 		arg.OtherMultiplier,
 		arg.GroupBonusCount,
+		arg.LeftoverShards,
 		arg.LegendaryCounts,
 		arg.ExperimentLevels,
+		arg.PossessedRunes,
+		arg.PossessedLegendaries,
 		arg.Notes,
 	)
 	var id int32
@@ -59,7 +65,7 @@ func (q *Queries) DeletePlan(ctx context.Context, id int32) error {
 }
 
 const getPlan = `-- name: GetPlan :one
-SELECT id, name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, legendary_counts, experiment_levels, notes, created_at, updated_at FROM plans
+SELECT id, name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, leftover_shards, legendary_counts, experiment_levels, possessed_runes, possessed_legendaries, notes, created_at, updated_at FROM plans
 WHERE id = $1 LIMIT 1
 `
 
@@ -73,8 +79,11 @@ func (q *Queries) GetPlan(ctx context.Context, id int32) (Plan, error) {
 		&i.FeatTiers,
 		&i.OtherMultiplier,
 		&i.GroupBonusCount,
+		&i.LeftoverShards,
 		&i.LegendaryCounts,
 		&i.ExperimentLevels,
+		&i.PossessedRunes,
+		&i.PossessedLegendaries,
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -123,23 +132,29 @@ SET
     feat_tiers = $4,
     other_multiplier = $5,
     group_bonus_count = $6,
-    legendary_counts = $7,
-    experiment_levels = $8,
-    notes = $9,
+    leftover_shards = $7,
+    legendary_counts = $8,
+    experiment_levels = $9,
+    possessed_runes = $10,
+    possessed_legendaries = $11,
+    notes = $12,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 `
 
 type UpdatePlanParams struct {
-	ID               int32                 `json:"id"`
-	Name             string                `json:"name"`
-	DevourerLevel    sql.NullInt32         `json:"devourer_level"`
-	FeatTiers        sql.NullInt32         `json:"feat_tiers"`
-	OtherMultiplier  sql.NullFloat64       `json:"other_multiplier"`
-	GroupBonusCount  sql.NullInt32         `json:"group_bonus_count"`
-	LegendaryCounts  pqtype.NullRawMessage `json:"legendary_counts"`
-	ExperimentLevels pqtype.NullRawMessage `json:"experiment_levels"`
-	Notes            sql.NullString        `json:"notes"`
+	ID                   int32                 `json:"id"`
+	Name                 string                `json:"name"`
+	DevourerLevel        sql.NullInt32         `json:"devourer_level"`
+	FeatTiers            sql.NullInt32         `json:"feat_tiers"`
+	OtherMultiplier      sql.NullFloat64       `json:"other_multiplier"`
+	GroupBonusCount      sql.NullInt32         `json:"group_bonus_count"`
+	LeftoverShards       sql.NullInt32         `json:"leftover_shards"`
+	LegendaryCounts      pqtype.NullRawMessage `json:"legendary_counts"`
+	ExperimentLevels     pqtype.NullRawMessage `json:"experiment_levels"`
+	PossessedRunes       pqtype.NullRawMessage `json:"possessed_runes"`
+	PossessedLegendaries pqtype.NullRawMessage `json:"possessed_legendaries"`
+	Notes                sql.NullString        `json:"notes"`
 }
 
 func (q *Queries) UpdatePlan(ctx context.Context, arg UpdatePlanParams) error {
@@ -150,8 +165,11 @@ func (q *Queries) UpdatePlan(ctx context.Context, arg UpdatePlanParams) error {
 		arg.FeatTiers,
 		arg.OtherMultiplier,
 		arg.GroupBonusCount,
+		arg.LeftoverShards,
 		arg.LegendaryCounts,
 		arg.ExperimentLevels,
+		arg.PossessedRunes,
+		arg.PossessedLegendaries,
 		arg.Notes,
 	)
 	return err

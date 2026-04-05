@@ -11,15 +11,18 @@ import (
 )
 
 type Plan struct {
-	ID               int32                 `json:"id"`
-	Name             string                `json:"name"`
-	DevourerLevel    sql.NullInt32         `json:"devourer_level"`
-	FeatTiers        sql.NullInt32         `json:"feat_tiers"`
-	OtherMultiplier  sql.NullFloat64       `json:"other_multiplier"`
-	GroupBonusCount  sql.NullInt32         `json:"group_bonus_count"`
-	LegendaryCounts  pqtype.NullRawMessage `json:"legendary_counts"`
-	ExperimentLevels pqtype.NullRawMessage `json:"experiment_levels"`
-	Notes            sql.NullString        `json:"notes"`
-	CreatedAt        sql.NullTime          `json:"created_at"`
-	UpdatedAt        sql.NullTime          `json:"updated_at"`
+	ID                   int32                 `json:"id"`
+	Name                 string                `json:"name"`
+	DevourerLevel        sql.NullInt32         `json:"devourer_level"`
+	FeatTiers            sql.NullInt32         `json:"feat_tiers"`
+	OtherMultiplier      sql.NullFloat64       `json:"other_multiplier"`
+	GroupBonusCount      sql.NullInt32         `json:"group_bonus_count"`
+	LeftoverShards       sql.NullInt32         `json:"leftover_shards"`
+	LegendaryCounts      pqtype.NullRawMessage `json:"legendary_counts"`
+	ExperimentLevels     pqtype.NullRawMessage `json:"experiment_levels"`
+	PossessedRunes       pqtype.NullRawMessage `json:"possessed_runes"`
+	PossessedLegendaries pqtype.NullRawMessage `json:"possessed_legendaries"`
+	Notes                sql.NullString        `json:"notes"`
+	CreatedAt            sql.NullTime          `json:"created_at"`
+	UpdatedAt            sql.NullTime          `json:"updated_at"`
 }

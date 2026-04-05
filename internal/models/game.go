@@ -1,5 +1,19 @@
 package models
 
+type StationID string
+
+const (
+	StationGrave          StationID = "grave"
+	StationSupplyCupboard StationID = "supply_cupboard"
+	StationFoulChicken    StationID = "foul_chicken"
+	StationAltar          StationID = "altar"
+	StationLectern        StationID = "lectern"
+	StationFridge         StationID = "fridge"
+	StationPortal         StationID = "portal"
+	StationCrashedSaucer  StationID = "crashed_saucer"
+	StationSoulGrinder    StationID = "soul_grinder"
+)
+
 type LegendaryGroup int
 
 const (
@@ -79,14 +93,28 @@ type Experiment struct {
 	IsSpecial bool // For things like Body Snatcher
 }
 
+type RuneType string
+
+const (
+	RuneIce    RuneType = "ice"
+	RunePoison RuneType = "poison"
+	RuneBlood  RuneType = "blood"
+	RuneMoon   RuneType = "moon"
+	RuneDeath  RuneType = "death"
+	RuneCosmic RuneType = "cosmic"
+)
+
 type Plan struct {
-	ID               int
-	Name             string
-	DevourerLevel    int
-	FeatTiers        int
-	OtherMultiplier  float64 // The "Other" category (skins, etc.)
-	GroupBonusCount  int     // Number of times group bonuses can be claimed (default 1)
-	LegendaryCounts  map[LegendaryID]int
-	ExperimentLevels map[ExperimentID]int
-	Notes            string
+	ID                   int
+	Name                 string
+	DevourerLevel        int
+	FeatTiers            int
+	OtherMultiplier      float64              // The "Other" category (skins, etc.)
+	GroupBonusCount      int                  // Number of times group bonuses can be claimed (default 1)
+	LeftoverShards       int                  // Shards remaining from previous prestige
+	LegendaryCounts      map[LegendaryID]int  // the planned amount of legendaries
+	ExperimentLevels     map[ExperimentID]int // the planned setup of experiments
+	PossessedRunes       map[RuneType]int
+	PossessedLegendaries map[LegendaryID]int
+	Notes                string
 }

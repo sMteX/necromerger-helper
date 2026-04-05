@@ -299,6 +299,79 @@ This document serves as a knowledge base for the game mechanics and planning log
 - it is to plan what the player needs to do in the game, in order to maximize the amount of Time Shards received at the point of prestiging
 - it's a balance between what experiments the user wants to buy/unlock and what they need to do to afford that (how many extra Legendaries to farm and how many Runes to do so)
 
-## Deterministic Calculations
-- **Logic Location:** All calculations should be handled in the Go backend.
+## Game details
+
+### Stations
+- I will list only stations that are relevant to the task at hand - that can be merged to legendaries
+- almost all stations have 5 levels (with exception of `Soul Grinder` which only has 2 levels)
+  - this means that Level 5 = 2x Level 4 = 4x Level 3 = 8x Level 2 = 16x Level 1
+- stations:
+  - `Grave` - costs 20 Ice Runes
+  - `Supply Cupboard` - costs 20 Poison Runes
+  - `Foul Chicken` - costs 30 Ice Runes and 15 Poison Runes
+  - `Altar` - costs 20 Blood Runes
+  - `Lectern` - costs 50 Ice Runes and 20 Moon Runes
+  - `Fridge` - costs 50 Poison Runes and 20 Moon Runes
+  - `Portal` - costs 30 Blood Runes and 30 Death Runes
+  - `Crashed Saucer` - costs 20 Cosmic Runes
+  - `Soul Grinder` - costs 200 Death Runes and 200 Cosmic Runes
+
+### Legendaries
+- here are again the individual legendaries and how they are created:
+- legendaries:
+  - `Group 1`:
+    - `Lich` - created by merging 2x Level 5 `Grave`, gives back 1x Level 1 `Grave` 
+    - `Gorgon` - created by merging 2x Level 5 `Supply Cupboard`, gives back 1x Level 1 `Supply Cupboard`
+    - `Harpy` - created by merging 2x Level 5 `Altar`, gives back 1x Level 1 `Altar`
+  - `Group 2`:
+    - `Reaper` - created by merging 2x Level 5 `Lectern`, gives back 1x Level 1 `Lectern`
+    - `Cyclops` - created by merging 2x Level 5 `Fridge`, gives back 1x Level 1 `Fridge`
+    - `Archdemon` - created by merging 2x Level 5 `Portal`, gives back 1x Level 1 `Portal`
+  - `Group 3`:
+    - `The Cursed` - created by merging `Lich` and `Reaper`, **doesn't give back anything**
+    - `The Colossus` - created by merging `Gorgon` and `Cyclops`, **doesn't give back anything**
+    - `The Infernal` - created by merging `Harpy` and `Archdemon`, **doesn't give back anything**
+  - `Group 4`:
+    - `Robo Chicken` - created by merging 2x Level 5 `Foul Chicken`, **doesn't give back anything**
+    - `Shield Bot` - created by merging 2x Level 5 `Crashed Saucer`, gives back 1x Level 1 `Crashed Saucer`
+    - `Soul Grinder` - created by merging 2x Level 5 `Soul Grinder`, gives back 1x Level 1 `Soul Grinder`
+- from this, you can deduce the individual cost of these legendaries
+
+
+## Application Architecture
+- **Backend Role:** Handles all the game logic and data storage.
 - **Frontend Role:** Updates visuals based on backend responses (via HTMX).
+
+### Overall design
+- somewhere at the top - select box with saved plans, with the last one edited being automatically loaded (utilize Local Storage?)
+- Time Shard inputs:
+  - Devourer level - should be a select box with max levels (50, 60, ..., 100, 150, 200, 300, 400, ..., 1000)
+  - Feats - select box for maximum completed feat tier (1 - 30)
+  - Other - corresponding to the multiplier in Time Shard calculation - integer input (non-negative), in percent
+  - leftover Time Shards (from previous prestige) - integer input (non-negative), added to total Time Shards
+- section for choosing Experiments:
+  - for each experiment:
+    - show the name, icon, description
+    - for each experiment level:
+      - show the level number, Time Shard cost (for individual level, **not** cumulative), its effect
+      - allow the player to select the individual levels with checkboxes (this way the player can see the effect and cost of each previous and future level)
+- section for choosing Legendaries:
+  - for each group:
+    - show the group number
+    - for each legendary in the group:
+      - show the name, and allow the player to select the amount of the legendaries (input or select box) - don't validate if they can buy that many, assume they can buy the maximum amount for each
+      - show the cumulative cost of runes for the selected amount 
+        - split the cost into `Total` and `Needed`
+        - `Total` - total cost of selected amount of legendaries
+        - `Needed` - the remaining amount of runes needed, after subtracting already possessed legendaries and runes
+- allow the user to input already possessed runes and legendaries in some form
+  - this will be used to calculate the `Needed` portion of legendary cost
+- in an appropriate "central" place, show:
+  - total Time Shards received
+    - also show the breakdown of that number into individual parts 
+      - this can be a tooltip on larger screen on hover
+      - on mobile, probably a clickable modal instead 
+    - i.e. base Time Shard amount, Feats contribution, Legendaries and Others
+  - spent Time Shards on Experiments
+  - resulting balance (`Remaining`)
+- somewhere to the side - an input box for the notes, and a button to save the plan with a name

@@ -8,9 +8,9 @@ ORDER BY updated_at DESC;
 
 -- name: CreatePlan :one
 INSERT INTO plans (
-    name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, legendary_counts, experiment_levels, notes
+    name, devourer_level, feat_tiers, other_multiplier, group_bonus_count, leftover_shards, legendary_counts, experiment_levels, possessed_runes, possessed_legendaries, notes
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
 RETURNING id;
 
@@ -22,9 +22,12 @@ SET
     feat_tiers = $4,
     other_multiplier = $5,
     group_bonus_count = $6,
-    legendary_counts = $7,
-    experiment_levels = $8,
-    notes = $9,
+    leftover_shards = $7,
+    legendary_counts = $8,
+    experiment_levels = $9,
+    possessed_runes = $10,
+    possessed_legendaries = $11,
+    notes = $12,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1;
 

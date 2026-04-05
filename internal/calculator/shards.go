@@ -48,9 +48,14 @@ func CalculateTimeShards(plan models.Plan) int {
 	for _, leg := range Legendaries {
 		count := plan.LegendaryCounts[leg.ID]
 		if count > 0 {
+			bonusCount := count
+			if leg.MaxInstances > 0 && bonusCount > leg.MaxInstances {
+				bonusCount = leg.MaxInstances
+			}
+
 			legBonus += leg.FirstBonus
-			if count > 1 {
-				legBonus += float64(count-1) * leg.Subsequent
+			if bonusCount > 1 {
+				legBonus += float64(bonusCount-1) * leg.Subsequent
 			}
 		}
 
@@ -78,5 +83,5 @@ func CalculateTimeShards(plan models.Plan) int {
 	otherMultiplier := 1.0 + plan.OtherMultiplier
 
 	total := float64(base) * featMultiplier * legMultiplier * otherMultiplier
-	return int(math.Floor(total))
+	return int(math.Floor(total)) + plan.LeftoverShards
 }
