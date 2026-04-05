@@ -4,6 +4,8 @@ vars:
   TEMPLUI_PATH:
     sh: go list -m -f '{{.Dir}}' github.com/templui/templui
 
+dotenv: ['.env']
+
 tasks:
   setup:
     desc: Install necessary tools

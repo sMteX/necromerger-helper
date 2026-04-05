@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-necro_prestige}
     restart: unless-stopped
     ports:
-      - "5345:5432"
+      - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
