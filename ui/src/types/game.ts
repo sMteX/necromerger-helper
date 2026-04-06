@@ -28,6 +28,7 @@ export interface ExperimentSummary {
   id: ExperimentID;
   currentLevel: number;
   currentLevelValue: string;
+  currentLevelCost: string;
   nextLevelCost: string;
   nextLevelValue: string;
   maxLevel: boolean;

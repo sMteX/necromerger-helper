@@ -8,13 +8,14 @@ interface Props {
   maxLevels: number;
   description: string;
   currentValue: string;
+  currentCost: string;
   nextCost: string;
   isMaxed: boolean;
   onLevelChange: (level: number) => void;
 }
 
 export const ExperimentCard: React.FC<Props> = ({ 
-  id, name, level, maxLevels, description, currentValue, nextCost, isMaxed, onLevelChange 
+  id, name, level, maxLevels, description, currentValue, currentCost, nextCost, isMaxed, onLevelChange 
 }) => {
   return (
     <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 hover:border-slate-600 transition-all group backdrop-blur-sm">
@@ -24,7 +25,7 @@ export const ExperimentCard: React.FC<Props> = ({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center mb-1">
-            <h4 className="text-lg font-black text-white leading-tight uppercase truncate pr-4">{name}</h4>
+            <h4 className="text-xl font-black text-white leading-tight uppercase truncate pr-4">{name}</h4>
             <div className="bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 shrink-0">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">
                 LVL {level}
@@ -55,18 +56,27 @@ export const ExperimentCard: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800/50">
+      <div className="grid grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-800/50">
         <div>
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Effect</p>
-          <span className="text-sm font-bold text-indigo-400 font-mono">{currentValue}</span>
+          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Effect</p>
+          <span className="text-base font-bold text-indigo-400 font-mono">{currentValue}</span>
         </div>
         <div className="text-right">
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Next Tier</p>
-          <div className="flex items-center gap-2 justify-end">
-             <span className={`text-sm font-bold font-mono ${isMaxed ? 'text-emerald-500' : 'text-white'}`}>
-                {isMaxed ? 'MAXED' : nextCost}
-              </span>
-              {!isMaxed && <img src="/assets/images/time_shard.png" className="w-4 h-4 opacity-80" alt="shards" />}
+          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Cost Breakdown</p>
+          <div className="flex flex-col items-end gap-0.5">
+             <div className="flex items-center gap-1">
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-tighter">Current:</span>
+                <span className="text-xs font-bold font-mono text-slate-400">
+                  {currentCost}
+                </span>
+             </div>
+             <div className="flex items-center gap-1">
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Next:</span>
+                <span className={`text-sm font-bold font-mono ${isMaxed ? 'text-emerald-500' : 'text-white'}`}>
+                  {isMaxed ? 'MAXED' : nextCost}
+                </span>
+                {!isMaxed && <img src="/assets/images/time_shard.png" className="w-3 h-3 opacity-80" alt="shards" />}
+             </div>
           </div>
         </div>
       </div>

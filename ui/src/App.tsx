@@ -14,7 +14,7 @@ const initialPlan: Plan = {
   devourerLevel: 35,
   featTiers: 0,
   otherMultiplier: 0,
-  groupBonusCount: 1,
+  groupBonusCount: 0,
   leftoverShards: 0,
   legendaryCounts: createEmptyCounts(legendaries.map(l => l.id)),
   experimentLevels: createEmptyCounts(Object.keys(experimentDescriptions) as ExperimentID[]),
@@ -101,30 +101,30 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col font-sans selection:bg-indigo-500/30">
       <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
-        <div className="max-w-[1600px] mx-auto flex h-20 items-center justify-between px-6">
+        <div className="max-w-[1600px] mx-auto flex h-auto min-h-20 items-center justify-between px-6 py-4 sm:py-0">
           <div className="flex items-center gap-4">
-            <div className="bg-indigo-600/20 p-2.5 rounded-2xl border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
-              <img src="/assets/images/time_shard.png" alt="Logo" className="w-8 h-8"/>
+            <div className="bg-indigo-600/20 p-2 sm:p-2.5 rounded-2xl border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+              <img src="/assets/images/time_shard.png" alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8"/>
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight uppercase leading-none mb-1">Necro Prestige</h1>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              <h1 className="text-base sm:text-xl font-black tracking-tight uppercase leading-none mb-1">Necro Prestige</h1>
+              <div className="hidden sm:flex text-[10px] font-black text-slate-500 uppercase tracking-widest items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Simulation Engine
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <button onClick={handleReset} className="px-4 py-2 bg-slate-900 hover:bg-red-500/10 hover:text-red-400 border border-slate-800 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Reset</button>
-            <button onClick={handleLoad} className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Load</button>
-            <button onClick={handleSave} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20">Save Plan</button>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <button onClick={handleReset} className="px-2 sm:px-4 py-2 bg-slate-900 hover:bg-red-500/10 hover:text-red-400 border border-slate-800 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">Reset</button>
+            <button onClick={handleLoad} className="px-2 sm:px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">Load</button>
+            <button onClick={handleSave} className="px-3 sm:px-6 py-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 whitespace-nowrap">Save Plan</button>
           </div>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden max-w-[1600px] mx-auto w-full">
-        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
           <div className="space-y-12">
             {/* General Inputs Section */}
             <section className="bg-slate-800/20 border border-slate-700/30 rounded-[32px] p-8">
@@ -137,36 +137,53 @@ const App: React.FC = () => {
                   <select 
                     value={plan.devourerLevel} 
                     onChange={(e) => updatePlan({ devourerLevel: parseInt(e.target.value) })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
                   >
                     {devourerLevels.map(lvl => <option key={lvl} value={lvl}>Level {lvl}</option>)}
                   </select>
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Feat Tiers (+10% each)</label>
-                  <input 
-                    type="number" 
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Highest completed Feat Tier</label>
+                  <select 
                     value={plan.featTiers} 
                     onChange={(e) => updatePlan({ featTiers: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  />
+                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+                  >
+                    <option value={0}>Tier 0 (None)</option>
+                    {Array.from({ length: 30 }).map((_, i) => (
+                      <option key={i + 1} value={i + 1}>Tier {i + 1}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Group Bonuses (Limit)</label>
-                  <input 
-                    type="number" 
+                  <select 
                     value={plan.groupBonusCount} 
                     onChange={(e) => updatePlan({ groupBonusCount: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  />
+                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+                  >
+                    <option value={0}>+0</option>
+                    <option value={1}>+1</option>
+                    <option value={2}>+2</option>
+                  </select>
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Other Multiplier (%)</label>
                   <input 
                     type="number" 
-                    step="0.01"
-                    value={plan.otherMultiplier * 100} 
-                    onChange={(e) => updatePlan({ otherMultiplier: (parseFloat(e.target.value) || 0) / 100 })}
+                    min="0"
+                    value={Math.round(plan.otherMultiplier * 100)} 
+                    onChange={(e) => updatePlan({ otherMultiplier: (parseInt(e.target.value) || 0) / 100 })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Prev. Time Shards</label>
+                  <input 
+                    type="number" 
+                    min="0"
+                    value={plan.leftoverShards} 
+                    onChange={(e) => updatePlan({ leftoverShards: parseInt(e.target.value) || 0 })}
                     className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
                 </div>
@@ -196,7 +213,7 @@ const App: React.FC = () => {
                     </div>
                     Tier 1: Basic Experiments
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                     {pre100Exps.map(id => {
                       const summary = results?.experiments[id];
                       return (
@@ -208,6 +225,7 @@ const App: React.FC = () => {
                           maxLevels={experimentMaxLevels[id]}
                           description={experimentDescriptions[id]}
                           currentValue={summary?.currentLevelValue || '0%'}
+                          currentCost={summary?.currentLevelCost || '0'}
                           nextCost={summary?.nextLevelCost || '0'}
                           isMaxed={summary?.maxLevel || false}
                           onLevelChange={(lvl) => updateExpLevel(id, lvl)}
@@ -224,7 +242,7 @@ const App: React.FC = () => {
                     </div>
                     Tier 2: Advanced Multipliers
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                     {post100Exps.map(id => {
                       const summary = results?.experiments[id];
                       return (
@@ -236,6 +254,7 @@ const App: React.FC = () => {
                           maxLevels={experimentMaxLevels[id]}
                           description={experimentDescriptions[id]}
                           currentValue={summary?.currentLevelValue || 'x1.0'}
+                          currentCost={summary?.currentLevelCost || '0'}
                           nextCost={summary?.nextLevelCost || '0'}
                           isMaxed={summary?.maxLevel || false}
                           onLevelChange={(lvl) => updateExpLevel(id, lvl)}
@@ -305,16 +324,35 @@ const App: React.FC = () => {
                     </div>
                     Legendaries On-Board
                   </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {legendaries.map(leg => (
-                      <div key={leg.id} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 flex flex-col items-center gap-3">
-                        <img src={`/assets/images/${leg.id}.webp`} className="w-8 h-8 object-contain opacity-60" alt={leg.name}/>
-                        <input 
-                          type="number" 
-                          value={plan.possessedLegendaries[leg.id] || 0}
-                          onChange={(e) => updatePossessedLegendary(leg.id, parseInt(e.target.value) || 0)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl text-center text-sm font-bold text-rose-400 py-2 focus:ring-1 focus:ring-rose-500 outline-none"
-                        />
+                      <div key={leg.id} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 hover:border-slate-600 transition-all group flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700/50 p-1 flex items-center justify-center shrink-0">
+                          <img src={`/assets/images/${leg.id}.webp`} className="w-10 h-10 object-contain opacity-60" alt={leg.name}/>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <h4 className="text-sm font-black text-white uppercase truncate">{leg.name}</h4>
+                        </div>
+                        <div className="flex items-center bg-slate-900 rounded-xl border border-slate-800 p-1">
+                          <button 
+                            onClick={() => updatePossessedLegendary(leg.id, Math.max(0, (plan.possessedLegendaries[leg.id] || 0) - 1))}
+                            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                          >
+                            -
+                          </button>
+                          <input 
+                            type="number" 
+                            value={plan.possessedLegendaries[leg.id] || 0}
+                            onChange={(e) => updatePossessedLegendary(leg.id, Math.max(0, parseInt(e.target.value) || 0))}
+                            className="w-8 text-center bg-transparent border-none text-sm font-bold text-rose-400 focus:ring-0"
+                          />
+                          <button 
+                            onClick={() => updatePossessedLegendary(leg.id, (plan.possessedLegendaries[leg.id] || 0) + 1)}
+                            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -340,7 +378,7 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <aside className="w-[400px] border-l border-slate-800 bg-slate-950 p-8 flex flex-col gap-8 overflow-y-auto custom-scrollbar">
+        <aside className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950 p-8 flex flex-col gap-8 overflow-y-auto custom-scrollbar">
           <div className="space-y-8">
             <header>
                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Simulation Result</h3>
@@ -390,7 +428,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Rune Deficiencies</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Runes needed</h4>
               <div className="grid grid-cols-1 gap-2">
                 {results && runeTypes.map(rune => {
                   const count = results.runeNeeded[rune];

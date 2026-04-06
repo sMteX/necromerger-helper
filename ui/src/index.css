@@ -24,4 +24,14 @@
   }
   .fade-in { animation-name: fade-in; }
   .slide-in-from-bottom-4 { animation-name: slide-in-from-bottom; }
+
+  /* Hide number input arrows */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 }

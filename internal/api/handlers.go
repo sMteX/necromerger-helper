@@ -13,6 +13,7 @@ type ExperimentSummary struct {
 	ID                models.ExperimentID `json:"id"`
 	CurrentLevel      int                 `json:"currentLevel"`
 	CurrentLevelValue string              `json:"currentLevelValue"`
+	CurrentLevelCost  string              `json:"currentLevelCost"`
 	NextLevelCost     string              `json:"nextLevelCost"`
 	NextLevelValue    string              `json:"nextLevelValue"`
 	MaxLevel          bool                `json:"maxLevel"`
@@ -64,13 +65,16 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 		if currentLevel > 0 {
 			prevVal := 0.0
 			if currentLevel-1 < len(exp.Levels) {
-				prevVal = exp.Levels[currentLevel-1].PrevValue
+				currentLv := exp.Levels[currentLevel-1]
+				prevVal = currentLv.PrevValue
+				summary.CurrentLevelCost = calculator.FormatLargeNumber(currentLv.Cost)
 				summary.CurrentLevelValue = fmt.Sprintf("%s -> %s",
 					calculator.FormatExperimentValue(exp.ID, exp.Tier, prevVal),
-					calculator.FormatExperimentValue(exp.ID, exp.Tier, exp.Levels[currentLevel-1].Value))
+					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.Value))
 			}
 		} else {
 			summary.CurrentLevelValue = calculator.FormatExperimentValue(exp.ID, exp.Tier, 0)
+			summary.CurrentLevelCost = "0"
 		}
 
 		if currentLevel < len(exp.Levels) {
@@ -90,31 +94,19 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := RecalculateResponse{
-		TotalShards:     shards,
-		BaseShards:      baseShards,
-		FeatMultiplier:  featMultiplier,
-		OtherMultiplier: 1.0 + plan.OtherMultiplier,
-		ExperimentCost:  expCost,
-		Remaining:       shards - expCost,
-		Experiments:     expSummaries,
-		RuneTotal:       totalRunes,
-		RuneNeeded:      neededRunes,
-		LegendaryRunes:  legRunes,
-	}
-
-	// Calculate legend multiplier for the breakdown
-	if baseShards > 0 && featMultiplier > 0 && resp.OtherMultiplier > 0 {
-		resp.LegendMultiplier = float64(shards-plan.LeftoverShards) / (float64(baseShards) * featMultiplier * resp.OtherMultiplier)
-	} else {
-		resp.LegendMultiplier = 1.0
+		TotalShards:      shards,
+		BaseShards:       baseShards,
+		FeatMultiplier:   featMultiplier,
+		LegendMultiplier: calculator.CalculateLegendMultiplier(plan),
+		OtherMultiplier:  1.0 + plan.OtherMultiplier,
+		ExperimentCost:   expCost,
+		Remaining:        shards - expCost,
+		Experiments:      expSummaries,
+		RuneTotal:        totalRunes,
+		RuneNeeded:       neededRunes,
+		LegendaryRunes:   legRunes,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
-}
-
-func ParsePlanFromJSON(r *http.Request) (models.Plan, error) {
-	var p models.Plan
-	err := json.NewDecoder(r.Body).Decode(&p)
-	return p, err
 }

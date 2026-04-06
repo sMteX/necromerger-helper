@@ -35,11 +35,16 @@ func CalculateTimeShards(plan models.Plan) int {
 	}
 
 	featMultiplier := 1.0 + (float64(plan.FeatTiers) * 0.10)
+	legMultiplier := CalculateLegendMultiplier(plan)
+	otherMultiplier := 1.0 + plan.OtherMultiplier
 
-	// Legendary Multiplier
+	total := float64(base) * featMultiplier * legMultiplier * otherMultiplier
+	return int(math.Floor(total)) + plan.LeftoverShards
+}
+
+func CalculateLegendMultiplier(plan models.Plan) float64 {
 	legBonus := 0.0
 	groupMinCounts := make(map[models.LegendaryGroup]int)
-	// Initialize groupMinCounts with a high value for each group to find the minimum
 	groups := []models.LegendaryGroup{models.Group1, models.Group2, models.Group3, models.Group4}
 	for _, g := range groups {
 		groupMinCounts[g] = math.MaxInt32
@@ -64,24 +69,20 @@ func CalculateTimeShards(plan models.Plan) int {
 		}
 	}
 
-	// Add group bonuses
 	groupBonuses := map[models.LegendaryGroup]float64{
 		models.Group1: 0.20, models.Group2: 0.40, models.Group3: 0.80, models.Group4: 0.60,
 	}
 
 	for group, minCount := range groupMinCounts {
-		if minCount == math.MaxInt32 {
+		if minCount == math.MaxInt32 || minCount == 0 {
 			continue
 		}
 		// The number of times group bonus is claimed is limited by the feature level
 		// and how many of each we actually have.
-		claims := int(math.Min(float64(minCount), float64(plan.GroupBonusCount)))
+		allowedClaims := 1 + plan.GroupBonusCount
+		claims := int(math.Min(float64(minCount), float64(allowedClaims)))
 		legBonus += float64(claims) * groupBonuses[group]
 	}
 
-	legMultiplier := 1.0 + legBonus
-	otherMultiplier := 1.0 + plan.OtherMultiplier
-
-	total := float64(base) * featMultiplier * legMultiplier * otherMultiplier
-	return int(math.Floor(total)) + plan.LeftoverShards
+	return 1.0 + legBonus
 }
