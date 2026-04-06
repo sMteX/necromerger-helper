@@ -1,0 +1,159 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/calculator"
+)
+
+var experimentDescriptions = map[models.ExperimentID]string{
+	models.ExpSeasoning:    "Increases the amount of Food from feeding the Devourer.",
+	models.ExpStrength:     "Increases all Damage dealt to Champions and enemies.",
+	models.ExpTaste:        "Increases the Food reward for completing Cravings.",
+	models.ExpCapacity:     "Increases Mana, Slime, and Darkness storage capacity.",
+	models.ExpBodySnatcher: "Unlocks The Body Snatcher to repeat Champion fights.",
+	models.ExpWeakening:    "Reduces the health scale of The Protector.",
+	models.ExpDamageCap:    "Increases the damage cap scale for The Mech.",
+	models.ExpIceChest:     "Increases the number of taps for Ice Chests.",
+	models.ExpPoisonChest:  "Increases the number of taps for Poison Chests.",
+	models.ExpBloodChest:   "Increases the number of taps for Blood Chests.",
+	models.ExpMoonChest:    "Increases the number of taps for Moon Chests.",
+	models.ExpDeathChest:   "Increases the number of taps for Death Chests.",
+	models.ExpCosmicChest:  "Increases the number of taps for Cosmic Chests.",
+	models.ExpSeasoning2:   "Multiplicative Food boost (Post-100 only).",
+	models.ExpStrength2:    "Multiplicative Damage boost (Post-100 only).",
+	models.ExpTaste2:       "Multiplicative Craving boost (Post-100 only).",
+	models.ExpCapacity2:    "Multiplicative Capacity boost (Post-100 only).",
+}
+
+templ ExperimentsSection(plan models.Plan) {
+	<section id="experiments-section" class="scroll-mt-24">
+		<h2 class="text-3xl font-black mb-8 text-white flex items-center gap-4 uppercase tracking-tighter">
+			<div class="bg-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-600/20">
+				<span class="text-white text-xl font-serif">Σ</span>
+			</div>
+			Experiment Planning
+		</h2>
+		
+		<div class="space-y-16">
+			<!-- Pre-100 -->
+			<div class="space-y-8">
+				<div class="flex items-center gap-4">
+					<h3 class="text-xl font-black text-indigo-400 uppercase tracking-widest whitespace-nowrap">Tier 1: Pre-100</h3>
+					<div class="h-px w-full bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
+					for _, exp := range calculator.GetPre100Experiments() {
+						@ExperimentCard(exp, plan.ExperimentLevels[exp.ID])
+					}
+				</div>
+			</div>
+
+			<!-- Post-100 -->
+			<div class="space-y-8">
+				<div class="flex items-center gap-4">
+					<h3 class="text-xl font-black text-emerald-400 uppercase tracking-widest whitespace-nowrap">Tier 2: Post-100</h3>
+					<div class="h-px w-full bg-gradient-to-r from-emerald-500/50 to-transparent"></div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
+					for _, exp := range calculator.GetPost100Experiments() {
+						@ExperimentCard(exp, plan.ExperimentLevels[exp.ID])
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+templ ExperimentCard(exp models.Experiment, selectedLevel int) {
+	<div 
+		data-exp-id={ string(exp.ID) }
+		class="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 hover:border-slate-600 transition-all group relative overflow-hidden backdrop-blur-sm"
+		x-data={ fmt.Sprintf("{ level: %d, maxLevel: %d }", selectedLevel, len(exp.Levels)) }
+	>
+		<div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-x-6 gap-y-4 items-start relative z-10">
+			<!-- Row 1: Image & Title -->
+			<div class="flex items-center gap-4 md:gap-6 col-span-1 md:col-span-2">
+				<div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-900 border border-slate-700/50 p-2 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform shrink-0">
+					<img src={ fmt.Sprintf("/static/%s.png", string(exp.ID)) } alt={ exp.Name } class="w-12 h-12 md:w-16 md:h-16 object-contain" onerror="this.src='/static/time_shard.png';this.style.opacity='0.2';"/>
+				</div>
+				<div class="flex-1 min-w-0">
+					<div class="flex justify-between items-center mb-1">
+						<h4 class="text-lg md:text-xl font-black text-white leading-tight uppercase truncate pr-4">{ exp.Name }</h4>
+						<div class="bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 shrink-0">
+							<span class="text-[10px] font-black text-slate-500 uppercase tracking-tighter" x-text="'LVL ' + level">LVL { fmt.Sprintf("%d", selectedLevel) }</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Row 2: Description -->
+			<div class="col-span-1 md:col-span-2">
+				<p class="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+					{ experimentDescriptions[exp.ID] }
+				</p>
+			</div>
+
+			<!-- Row 3: Slider -->
+			<div class="col-span-1 md:col-span-2 py-2">
+				<div class="relative">
+					<input type="range" 
+						name={ fmt.Sprintf("exp_%s", string(exp.ID)) } 
+						min="0" 
+						max={ fmt.Sprintf("%d", len(exp.Levels)) } 
+						x-model.number="level"
+						class="w-full h-2 bg-slate-900 rounded-full appearance-none cursor-pointer accent-indigo-500 focus:ring-2 focus:ring-indigo-500/20"/>
+					<div class="flex justify-between mt-3 px-1">
+						for i := 0; i <= len(exp.Levels); i++ {
+							<div class="w-1 h-1 rounded-full transition-colors duration-300"
+								:class={ fmt.Sprintf("level >= %d ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-slate-700'", i) }></div>
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Row 4: Value & Cost -->
+			<div class="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-800/50 mt-2">
+				<div class="flex flex-col flex-1">
+					<span class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Effect</span>
+					<div class="flex items-center gap-2 font-mono text-sm md:text-base font-bold text-indigo-400">
+						<span class="js-exp-value">
+							if selectedLevel > 0 {
+								{ fmt.Sprintf("%s -> %s", calculator.FormatExperimentValue(exp.ID, exp.Tier, exp.Levels[selectedLevel-1].PrevValue), calculator.FormatExperimentValue(exp.ID, exp.Tier, exp.Levels[selectedLevel-1].Value)) }
+							} else {
+								{ calculator.FormatExperimentValue(exp.ID, exp.Tier, 0) }
+							}
+						</span>
+					</div>
+				</div>
+				
+				<div class="flex flex-col items-start sm:items-end flex-1">
+					<span class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Next Tier</span>
+					<div class="flex items-center gap-2">
+						<span class="text-sm font-bold font-mono text-white js-exp-next-level">
+							if selectedLevel < len(exp.Levels) {
+								{ calculator.FormatLargeNumber(exp.Levels[selectedLevel].Cost) }
+							} else {
+								<span class="text-emerald-500">MAXED</span>
+							}
+						</span>
+						<img src="/static/time_shard.png" class="w-4 h-4 opacity-80" x-show={ fmt.Sprintf("level < %d", len(exp.Levels)) } alt=""/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+func calculateCumulativeCost(exp models.Experiment, currentLevel int) int {
+	cost := 0
+	for i := 0; i < currentLevel && i < len(exp.Levels); i++ {
+		cost += exp.Levels[i].Cost
+	}
+	return cost
+}
+
+func max(a, b int) int {
+	if a > b { return a }
+	return b
+}

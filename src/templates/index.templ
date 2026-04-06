@@ -1,58 +1,178 @@
 package templates
 
 import (
+	"fmt"
 	"github.com/templui/templui/components/button"
 	"github.com/templui/templui/components/card"
+	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 )
 
-templ Layout(title string) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>{ title }</title>
-			<link href="/assets/css/output.css" rel="stylesheet"/>
-			<script src="https://unpkg.com/htmx.org@2.0.0"></script>
-			<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-		</head>
-		<body class="bg-slate-50 text-slate-900 font-sans">
-			{ children... }
-		</body>
-	</html>
+templ Index(plan models.Plan) {
+	@Layout("Necro Prestige Planner") {
+		<div class="flex h-full flex-col overflow-hidden">
+			@Header()
+			
+			<div class="flex flex-1 overflow-hidden relative">
+				<!-- Sidebar (Desktop only) -->
+				<aside 
+					class="w-80 flex-col border-r border-slate-800 bg-slate-950 overflow-y-auto transition-all duration-300 ease-in-out"
+					:class="sidebarOpen ? 'flex' : 'hidden lg:hidden'"
+					x-cloak
+				>
+					<div class="p-6 space-y-6">
+						<div>
+							<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Current Plan</h3>
+							@card.Card(card.Props{Class: "bg-slate-900 border-slate-800 shadow-lg"}) {
+								<div class="p-4 space-y-2">
+									<div class="text-lg font-bold text-white truncate">{ plan.Name }</div>
+									<div class="text-xs text-slate-500 font-mono">ID: { fmt.Sprintf("%d", plan.ID) }</div>
+								</div>
+							}
+						</div>
+	
+						<div class="space-y-4">
+							<div class="flex items-center justify-between">
+								<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Plan Notes</h3>
+								<span class="text-[10px] text-slate-600 font-bold uppercase">Auto-saving</span>
+							</div>
+							<textarea 
+								name="notes"
+								form="planner-form"
+								class="w-full h-40 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none custom-scrollbar" 
+								placeholder="Add your notes here...">{ plan.Notes }</textarea>
+						</div>
+					</div>
+
+					<div class="mt-auto p-6 border-t border-slate-800 bg-slate-900/30">
+						<p class="text-xs text-slate-500 text-center leading-relaxed">
+							Optimize your Necromerger prestige runs with precision.
+						</p>
+					</div>
+				</aside>
+
+				<!-- Main content area -->
+				<main class="flex-1 overflow-y-auto bg-slate-900 scroll-smooth pb-40 lg:pb-8 lg:mr-96">
+					<form id="planner-form" class="p-4 sm:p-8 space-y-12 max-w-5xl mx-auto">
+						
+						<!-- Mobile Tabs Navigation -->
+						<div class="lg:hidden flex border-b border-slate-800 mb-6 -mx-4 px-4 sticky top-0 bg-slate-900/95 backdrop-blur-md z-10 shadow-md overflow-x-auto no-scrollbar">
+							<button type="button" 
+								class="px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap"
+								:class="activeTab === 'shards' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'"
+								@click="activeTab = 'shards'">
+								SHARDS
+							</button>
+							<button type="button" 
+								class="px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap"
+								:class="activeTab === 'legendaries' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'"
+								@click="activeTab = 'legendaries'">
+								LEGENDARIES
+							</button>
+							<button type="button" 
+								class="px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap"
+								:class="activeTab === 'experiments' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'"
+								@click="activeTab = 'experiments'">
+								EXPERIMENTS
+							</button>
+						</div>
+
+						<!-- Sections Container -->
+						<div class="space-y-12 lg:space-y-16">
+							<section id="shards-section" :class="activeTab === 'shards' || 'hidden lg:block'">
+								@ShardsSection(plan)
+							</section>
+							<section id="legendaries-section" :class="activeTab === 'legendaries' || 'hidden lg:block'">
+								@LegendariesSection(plan)
+							</section>
+							<section id="experiments-section" :class="activeTab === 'experiments' || 'hidden lg:block'">
+								@ExperimentsSection(plan)
+							</section>
+						</div>
+					</form>
+				</main>
+
+				<!-- Summary Header/Footer (Mobile Sticky) -->
+				@SummaryResults(calculator.CalculateTimeShards(plan), calculator.CalculateExperimentCost(plan), nil)
+			</div>
+		</div>
+	}
 }
 
-templ Index(name string) {
-	@Layout("Necro Prestige Planner") {
-		<main class="max-w-4xl mx-auto p-4 md:p-8">
-			@card.Card(card.Props{Class: "p-6"}) {
-				@card.Header(card.HeaderProps{}) {
-					@card.Title(card.TitleProps{}) {
-						Hello, { name }!
-					}
-					@card.Description(card.DescriptionProps{}) {
-						Welcome to the Necro Prestige Planner. This is a "Hello World" setup using Go, Chi, TemplUI, and Tailwind CSS.
-					}
-				}
-
-				@card.Content(card.ContentProps{Class: "mt-6"}) {
-					<div class="flex gap-4">
-						@button.Button(button.Props{
-							Variant: button.VariantDefault,
-							Attributes: templ.Attributes{
-								"hx-get":    "/hello",
-								"hx-target": "#response",
-							},
-						}) {
-							Try HTMX
-						}
+templ SummaryResults(totalShards, experimentCost int, runeNeeded map[models.RuneType]int) {
+	<div id="summary-results-sidebar" class="fixed bottom-0 left-0 right-0 lg:left-auto lg:right-0 lg:w-96 lg:top-16 lg:bottom-0 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950 p-4 sm:p-6 z-30 shadow-2xl lg:shadow-none flex flex-col">
+		<div class="flex lg:flex-col justify-between items-center lg:items-stretch h-full gap-4">
+			<div class="space-y-4 lg:space-y-8 flex-1 w-full overflow-y-auto pr-2 custom-scrollbar">
+				<div class="flex items-center gap-3 lg:gap-5">
+					<div class="bg-indigo-500/20 p-3 rounded-2xl">
+						<img src="/static/time_shard.png" class="w-8 h-8 sm:w-12 sm:h-12" alt="Shards"/>
 					</div>
-
-					<div id="response" class="mt-4 p-4 rounded bg-slate-100 min-h-[50px] flex items-center justify-center italic text-slate-500">
-						Click the button to see HTMX in action...
+					<div>
+						<div class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-widest font-black mb-1">Total Shards</div>
+						<div class="text-2xl sm:text-4xl font-black text-indigo-400 leading-none js-total-shards">{ fmt.Sprintf("%d", totalShards) }</div>
 					</div>
+				</div>
+				
+				<div class="hidden lg:block space-y-4 bg-slate-900/50 p-5 rounded-2xl border border-slate-800/50 shadow-inner">
+					<div class="flex justify-between text-sm">
+						<span class="text-slate-500 font-medium">Prestige Reward:</span>
+						<span class="font-mono text-slate-300 js-total-shards">{ fmt.Sprintf("%d", totalShards) }</span>
+					</div>
+					<div class="flex justify-between text-sm">
+						<span class="text-slate-500 font-medium">Experiment Costs:</span>
+						<span class="font-mono text-red-400 js-exp-cost">-{ fmt.Sprintf("%d", experimentCost) }</span>
+					</div>
+					<div class="pt-4 border-t border-slate-800/50 flex justify-between items-baseline">
+						<span class="text-xs font-black text-white uppercase tracking-tighter">Remaining Shards</span>
+						<span class={ "text-2xl font-black js-remaining-shards", templ.KV("text-emerald-400", totalShards - experimentCost >= 0), templ.KV("text-red-500", totalShards - experimentCost < 0) }>
+							{ fmt.Sprintf("%d", totalShards - experimentCost) }
+						</span>
+					</div>
+				</div>
+
+				<div class="hidden lg:block space-y-3">
+					<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Resource Shortfall</h4>
+					<div id="rune-deficiency-container" class="grid grid-cols-2 gap-2">
+						@RuneDeficiencyItem(models.RuneIce, 0)
+						@RuneDeficiencyItem(models.RunePoison, 0)
+						@RuneDeficiencyItem(models.RuneBlood, 0)
+						@RuneDeficiencyItem(models.RuneMoon, 0)
+						@RuneDeficiencyItem(models.RuneDeath, 0)
+						@RuneDeficiencyItem(models.RuneCosmic, 0)
+					</div>
+					<div id="rune-deficiency-empty" class="text-xs text-slate-600 italic hidden">
+						All requirements met.
+					</div>
+				</div>
+			</div>
+			
+			<div class="lg:mt-auto flex flex-col gap-2 w-full max-w-[160px] sm:max-w-[200px] lg:max-w-none">
+				<div class="lg:hidden text-right mb-1">
+					<div class="text-[10px] text-slate-500 uppercase font-black tracking-tighter">Net Balance</div>
+					<div class={ "text-lg sm:text-2xl font-black leading-none js-remaining-shards", templ.KV("text-emerald-400", totalShards - experimentCost >= 0), templ.KV("text-red-500", totalShards - experimentCost < 0) }>
+						{ fmt.Sprintf("%d", totalShards - experimentCost) }
+					</div>
+				</div>
+				@button.Button(button.Props{
+					Variant: button.VariantDefault,
+					Class:   "w-full py-4 text-sm sm:text-base font-black shadow-lg shadow-emerald-500/10 uppercase tracking-widest rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-all",
+					Attributes: templ.Attributes{
+						"onclick": "alert('Plan saved!')",
+					},
+				}) {
+					Save Profile
 				}
-			}
-		</main>
-	}
+			</div>
+		</div>
+	</div>
+}
+
+templ RuneDeficiencyItem(runeType models.RuneType, count int) {
+	<div data-rune-type={ string(runeType) } class={ "text-xs bg-slate-900 border border-slate-800 p-2 rounded flex justify-between items-center transition-all", templ.KV("hidden", count <= 0) }>
+		<div class="flex items-center gap-2">
+			<img src={ fmt.Sprintf("/static/%s_rune.png", string(runeType)) } class="w-3.5 h-3.5" alt={ string(runeType) }/>
+			<span class="text-slate-400 uppercase">{ string(runeType) }</span>
+		</div>
+		<span class="text-red-400 font-bold font-mono js-rune-count">{ fmt.Sprintf("%d", count) }</span>
+	</div>
 }

@@ -11,8 +11,12 @@ tasks:
     desc: Install necessary tools
     cmds:
       - go install github.com/a-h/templ/cmd/templ@latest
-      - go install github.com/cosmtrek/air@latest
+      - go install github.com/air-verse/air@latest
       - go mod tidy
+      - curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
+      - chmod +x tailwindcss-linux-x64
+      - mkdir -p .bin
+      - mv tailwindcss-linux-x64 .bin/tailwindcss
 
   db:up:
     desc: Start database
@@ -32,7 +36,9 @@ tasks:
   tailwind:
     desc: Watch tailwind css changes
     cmds:
-      - npx @tailwindcss/cli -i ./src/styles/input.css -o ./assets/css/output.css --watch --content "./**/*.{templ,go}" --content "{{.TEMPLUI_PATH}}/**/*.templ"
+      - echo '@source "../**/*.{templ,go}";' > src/styles/sources.css
+      - echo '@source "{{.TEMPLUI_PATH}}/**/*.templ";' >> src/styles/sources.css
+      - .bin/tailwindcss -i ./src/styles/input.css -o ./assets/css/output.css --watch
 
   sqlc:
     desc: Generate sqlc code
@@ -51,6 +57,5 @@ tasks:
 
   dev:
     desc: Run development server with hot reload
-    deps: [db:up, db:migrate]
     cmds:
       - air

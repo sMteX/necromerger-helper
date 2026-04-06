@@ -1,0 +1,136 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/calculator"
+)
+
+templ LegendariesSection(plan models.Plan) {
+	<section x-show="activeTab === 'legendaries' || window.innerWidth >= 1024">
+		<h2 class="text-2xl font-bold mb-6 text-white">Legendaries & Rune Inventory</h2>
+		
+		<div class="space-y-8">
+			<!-- Legendaries Grid -->
+			<div class="bg-slate-800/50 border border-slate-700/50 p-6 rounded-2xl shadow-inner">
+				<h3 class="text-lg font-semibold mb-6 text-slate-200 flex items-center gap-2">
+					<span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
+					Planned Legendaries
+				</h3>
+				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+					for _, leg := range calculator.Legendaries {
+						@LegendaryCounter(leg, plan.LegendaryCounts[leg.ID])
+					}
+				</div>
+			</div>
+
+			<!-- Rune Inventory -->
+			<div class="bg-slate-800/50 border border-slate-700/50 p-6 rounded-2xl shadow-inner">
+				<h3 class="text-lg font-semibold mb-6 text-slate-200 flex items-center gap-2">
+					<span class="w-1.5 h-6 bg-amber-500 rounded-full"></span>
+					Rune & Legendary Inventory
+				</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+					<!-- Possessed Runes -->
+					<div class="space-y-4">
+						<h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Possessed Runes</h4>
+						<div class="grid grid-cols-2 gap-4">
+							@RuneInput(models.RuneIce, plan.PossessedRunes[models.RuneIce])
+							@RuneInput(models.RunePoison, plan.PossessedRunes[models.RunePoison])
+							@RuneInput(models.RuneBlood, plan.PossessedRunes[models.RuneBlood])
+							@RuneInput(models.RuneMoon, plan.PossessedRunes[models.RuneMoon])
+							@RuneInput(models.RuneDeath, plan.PossessedRunes[models.RuneDeath])
+							@RuneInput(models.RuneCosmic, plan.PossessedRunes[models.RuneCosmic])
+						</div>
+					</div>
+
+					<!-- Possessed Legendaries -->
+					<div class="space-y-4">
+						<h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Already Possessed Legendaries</h4>
+						<div class="grid grid-cols-2 gap-4">
+							for _, leg := range calculator.Legendaries {
+								@InventoryLegendaryInput(leg, plan.PossessedLegendaries[leg.ID])
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+templ LegendaryCounter(leg models.Legendary, count int) {
+	<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col items-center gap-2 group hover:border-slate-700 transition-all shadow-lg relative overflow-hidden" 
+		data-leg-id={ string(leg.ID) }
+		x-data={ fmt.Sprintf("{ count: %d }", count) }>
+		<div class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter text-center h-8 flex items-center justify-center leading-tight">
+			{ leg.Name }
+		</div>
+		<div class="w-14 h-14 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center overflow-hidden shadow-inner group-hover:scale-105 transition-transform">
+			<img src={ fmt.Sprintf("/static/%s.webp", string(leg.ID)) } alt={ leg.Name } class="w-12 h-12 object-contain" onerror="this.src='/static/time_shard.png';this.style.opacity='0.2';"/>
+		</div>
+		
+		<!-- Rune Costs -->
+		<div class="flex flex-wrap justify-center gap-1 min-h-[1.5rem] js-leg-rune-costs">
+			for runeType, amount := range calculator.GetLegendaryRuneCost(leg.ID) {
+				if amount > 0 {
+					<div class="flex items-center gap-0.5 bg-slate-800/50 px-1 py-0.5 rounded border border-slate-700/50">
+						<img src={ fmt.Sprintf("/static/%s_rune.png", string(runeType)) } class="w-3 h-3" alt={ string(runeType) }/>
+						<span class="text-[9px] font-mono font-bold text-slate-400 js-leg-rune-count" 
+							data-rune-type={ string(runeType) } 
+							data-base-amount={ fmt.Sprintf("%d", amount) }>
+							if count > 0 {
+								{ fmt.Sprintf("%d", amount * count) }
+							} else {
+								{ fmt.Sprintf("%d", amount) }
+							}
+						</span>
+					</div>
+				}
+			}
+		</div>
+
+		<div class="flex items-center gap-2 mt-1">
+			<button type="button" @click="if(count > 0) { count--; $nextTick(() => updatePlanner()) }" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 active:scale-90 transition-all shadow-md">-</button>
+			<input type="hidden" name={ fmt.Sprintf("leg_%s", string(leg.ID)) } :value="count"/>
+			<span class="text-sm font-mono font-black text-white w-6 text-center" x-text="count"></span>
+			<button type="button" @click="count++; $nextTick(() => updatePlanner())" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 active:scale-90 transition-all shadow-md">+</button>
+		</div>
+	</div>
+}
+
+templ RuneInput(runeType models.RuneType, count int) {
+	<div class="flex items-center gap-3 bg-slate-900 border-2 border-slate-800 p-3 rounded-2xl hover:border-slate-700 transition-colors shadow-inner">
+		<div class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded-lg p-1.5 border border-slate-700/50">
+			<img src={ fmt.Sprintf("/static/%s_rune.png", string(runeType)) } class="w-full h-full object-contain" alt={ string(runeType) }/>
+		</div>
+		<div class="flex-1 min-w-0">
+			<label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{ string(runeType) }</label>
+			<input type="number" name={ fmt.Sprintf("rune_%s", string(runeType)) } value={ fmt.Sprintf("%d", count) } min="0"
+				class="w-full bg-transparent border-none p-0 text-lg font-mono font-bold text-white outline-none focus:ring-0"/>
+		</div>
+	</div>
+}
+
+templ InventoryLegendaryInput(leg models.Legendary, count int) {
+	<div class="flex items-center gap-3 bg-slate-900 border-2 border-slate-800 p-3 rounded-2xl hover:border-slate-700 transition-colors shadow-inner">
+		<img src={ fmt.Sprintf("/static/%s.webp", string(leg.ID)) } alt="" class="w-8 h-8 opacity-40 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'"/>
+		<div class="flex-1 min-w-0">
+			<label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest truncate mb-0.5">{ leg.Name }</label>
+			<input type="number" name={ fmt.Sprintf("inv_leg_%s", string(leg.ID)) } value={ fmt.Sprintf("%d", count) } min="0"
+				class="w-full bg-transparent border-none p-0 text-lg font-mono font-bold text-white outline-none focus:ring-0"/>
+		</div>
+	</div>
+}
+
+func getRuneColor(r models.RuneType) string {
+	switch r {
+	case models.RuneIce: return "bg-blue-400 shadow-blue-400/50"
+	case models.RunePoison: return "bg-green-400 shadow-green-400/50"
+	case models.RuneBlood: return "bg-red-500 shadow-red-500/50"
+	case models.RuneMoon: return "bg-yellow-200 shadow-yellow-200/50"
+	case models.RuneDeath: return "bg-purple-500 shadow-purple-500/50"
+	case models.RuneCosmic: return "bg-indigo-400 shadow-indigo-400/50"
+	default: return "bg-slate-400"
+	}
+}

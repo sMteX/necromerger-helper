@@ -1,6 +1,8 @@
 package calculator
 
 import (
+	"fmt"
+
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
 
@@ -221,4 +223,56 @@ func CalculateExperimentCost(plan models.Plan) int {
 		}
 	}
 	return total
+}
+
+func GetPre100Experiments() []models.Experiment {
+	var res []models.Experiment
+	for _, e := range Experiments {
+		if e.Tier == models.TierPre100 {
+			res = append(res, e)
+		}
+	}
+	return res
+}
+
+func GetPost100Experiments() []models.Experiment {
+	var res []models.Experiment
+	for _, e := range Experiments {
+		if e.Tier == models.TierPost100 {
+			res = append(res, e)
+		}
+	}
+	return res
+}
+
+func FormatLargeNumber(n int) string {
+	if n >= 1000000 {
+		return fmt.Sprintf("%.1fM", float64(n)/1000000.0)
+	}
+	if n >= 1000 {
+		return fmt.Sprintf("%.1fK", float64(n)/1000.0)
+	}
+	return fmt.Sprintf("%d", n)
+}
+
+func FormatExperimentValue(id models.ExperimentID, tier models.ExperimentTier, value float64) string {
+	switch id {
+	case models.ExpSeasoning, models.ExpStrength, models.ExpTaste, models.ExpCapacity, models.ExpDamageCap:
+		return fmt.Sprintf("%d%%", int(value*100))
+	case models.ExpWeakening:
+		return fmt.Sprintf("%.2f", value)
+	case models.ExpIceChest, models.ExpPoisonChest, models.ExpBloodChest, models.ExpMoonChest, models.ExpDeathChest, models.ExpCosmicChest:
+		return fmt.Sprintf("+%d", int(value))
+	case models.ExpBodySnatcher:
+		if value > 0 {
+			return "Yes"
+		}
+		return "No"
+	}
+
+	if tier == models.TierPost100 {
+		return fmt.Sprintf("x%.1f", value)
+	}
+
+	return fmt.Sprintf("%.1f", value)
 }

@@ -1,0 +1,100 @@
+package templates
+
+import (
+	"github.com/templui/templui/components/button"
+)
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en" class="h-full scroll-smooth">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+			<title>{ title }</title>
+			<link href="/assets/css/output.css" rel="stylesheet"/>
+			<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			<script src="/static/planner.js" defer></script>
+			<style>
+				[x-cloak] { display: none !important; }
+				.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+				.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+				.custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+				.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+				
+				/* Rune colors */
+				.rune-bg-ice { background-color: #38bdf8; }
+				.rune-bg-poison { background-color: #4ade80; }
+				.rune-bg-blood { background-color: #f87171; }
+				.rune-bg-moon { background-color: #fbbf24; }
+				.rune-bg-death { background-color: #818cf8; }
+				.rune-bg-cosmic { background-color: #f472b6; }
+			</style>
+		</head>
+		<body class="h-full bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500/30 overflow-hidden" x-data="{ showPlans: false, activeTab: 'shards', sidebarOpen: true }">
+			{ children... }
+		</body>
+	</html>
+}
+
+templ Header() {
+	<header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+		<div class="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+			<div class="flex items-center gap-4">
+				<button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition-colors">
+					<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+					</svg>
+				</button>
+				<div class="flex items-center gap-2">
+					<img src="/static/time_shard.png" alt="Logo" class="w-8 h-8"/>
+					<span class="text-xl font-bold tracking-tight text-white hidden sm:inline">Necro Prestige Planner</span>
+					<span class="text-xl font-bold tracking-tight text-white sm:hidden">NPP</span>
+				</div>
+			</div>
+			<div class="flex items-center gap-3">
+				<!-- Plans Selector -->
+				<div class="relative group" x-data="{ open: false }">
+					<button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+						<span class="text-xs font-black text-slate-400 uppercase tracking-widest">Plans</span>
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 transition-transform duration-300" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+					<div x-show="open" x-cloak 
+						x-transition:enter="transition ease-out duration-100"
+						x-transition:enter-start="opacity-0 scale-95"
+						x-transition:enter-end="opacity-100 scale-100"
+						class="absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl">
+						<div class="p-2 space-y-1">
+							<div class="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800/50 mb-1">Your Profiles</div>
+							<a href="#" class="flex items-center justify-between px-4 py-3 text-sm text-white hover:bg-indigo-600/20 hover:text-indigo-400 rounded-xl transition-all group/item">
+								<span class="font-bold truncate">Current Run</span>
+								<span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 group-hover/item:bg-indigo-500/20 group-hover/item:text-indigo-400 transition-colors">ACTIVE</span>
+							</a>
+							<div class="border-t border-slate-800/50 my-1"></div>
+							<button class="w-full text-left px-4 py-3 text-sm text-emerald-400 font-black hover:bg-emerald-400/10 rounded-xl transition-all flex items-center gap-2">
+								<span class="text-lg leading-none">+</span>
+								<span>NEW PLAN</span>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-full text-xs font-medium text-slate-400">
+					<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+					Synced
+				</div>
+				@button.Button(button.Props{
+					Variant: button.VariantDefault,
+					Size:    button.SizeSm,
+					Class:   "bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-95",
+					Attributes: templ.Attributes{
+						"onclick": "alert('Plan saved successfully!')",
+					},
+				}) {
+					Save
+				}
+			</div>
+		</div>
+	</header>
+}

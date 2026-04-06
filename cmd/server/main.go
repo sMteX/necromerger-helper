@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sMteX/necro-prestige-planner/internal/api"
+	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/src/templates"
 )
 
@@ -45,14 +46,24 @@ func main() {
 
 	// Static files
 	workDir, _ := os.Getwd()
-	// When running from cmd/server, the root is two levels up
-	// However, usually we run from project root.
 	// Let's ensure it works if run from project root.
 	assetsDir := filepath.Join(workDir, "assets")
 	FileServer(r, "/assets", http.Dir(assetsDir))
 
+	srcAssetsDir := filepath.Join(workDir, "src/assets")
+	FileServer(r, "/static", http.Dir(srcAssetsDir))
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		component := templates.Index("World")
+		// Default plan for initial load
+		plan := models.Plan{
+			Name:                 "New Plan",
+			LegendaryCounts:      make(map[models.LegendaryID]int),
+			ExperimentLevels:     make(map[models.ExperimentID]int),
+			PossessedRunes:       make(map[models.RuneType]int),
+			PossessedLegendaries: make(map[models.LegendaryID]int),
+			GroupBonusCount:      1,
+		}
+		component := templates.Index(plan)
 		component.Render(r.Context(), w)
 	})
 
@@ -62,7 +73,7 @@ func main() {
 
 	// API endpoints
 	r.Get("/health", api.HealthHandler)
-	r.Post("/recalculate", api.RecalculateHandler)
+	r.Post("/api/recalculate", api.RecalculateHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

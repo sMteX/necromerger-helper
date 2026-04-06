@@ -1,0 +1,2 @@
+@source "../**/*.{templ,go}";
+@source "github.com/templui/templui v1.9.4/**/*.templ";

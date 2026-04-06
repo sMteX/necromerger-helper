@@ -120,3 +120,31 @@ func CalculateTotalRunes(plan models.Plan) (total RuneCosts, needed RuneCosts) {
 
 	return total, needed
 }
+
+func GetLegendaryRuneCost(id models.LegendaryID) RuneCosts {
+	costs := make(RuneCosts)
+	recipe, ok := LegendaryRecipes[id]
+	if !ok {
+		return costs
+	}
+
+	if recipe.StationID != "" {
+		multiplier := int(math.Pow(2, float64(recipe.Levels)))
+		if recipe.ReturnsL1 {
+			multiplier -= 1
+		}
+		stationCost := StationCosts[recipe.StationID]
+		for runeType, amount := range stationCost {
+			costs[runeType] += amount * multiplier
+		}
+	}
+
+	for _, reqID := range recipe.Requires {
+		reqCosts := GetLegendaryRuneCost(reqID)
+		for runeType, amount := range reqCosts {
+			costs[runeType] += amount
+		}
+	}
+
+	return costs
+}
