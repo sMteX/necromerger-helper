@@ -24,6 +24,11 @@ export interface Plan {
   notes: string;
 }
 
+export interface PlanSummary {
+  id: number;
+  name: string;
+}
+
 export interface ExperimentSummary {
   id: ExperimentID;
   currentLevel: number;

@@ -52,3 +52,13 @@ tasks:
     deps: [ui:build]
     cmds:
       - air
+
+  docker:up:
+    desc: Start all services in Docker
+    cmds:
+      - docker compose up -d
+
+  docker:down:
+    desc: Stop all services in Docker
+    cmds:
+      - docker compose down

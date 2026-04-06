@@ -105,16 +105,16 @@ const (
 )
 
 type Plan struct {
-	ID                   int
-	Name                 string
-	DevourerLevel        int
-	FeatTiers            int
-	OtherMultiplier      float64              // The "Other" category (skins, etc.)
-	GroupBonusCount      int                  // Number of times group bonuses can be claimed (default 1)
-	LeftoverShards       int                  // Shards remaining from previous prestige
-	LegendaryCounts      map[LegendaryID]int  // the planned amount of legendaries
-	ExperimentLevels     map[ExperimentID]int // the planned setup of experiments
-	PossessedRunes       map[RuneType]int
-	PossessedLegendaries map[LegendaryID]int
-	Notes                string
+	ID                   int                  `json:"id"`
+	Name                 string               `json:"name"`
+	DevourerLevel        int                  `json:"devourerLevel"`
+	FeatTiers            int                  `json:"featTiers"`
+	OtherMultiplier      float64              `json:"otherMultiplier"`  // The "Other" category (skins, etc.)
+	GroupBonusCount      int                  `json:"groupBonusCount"`  // Number of times group bonuses can be claimed (default 1)
+	LeftoverShards       int                  `json:"leftoverShards"`   // Shards remaining from previous prestige
+	LegendaryCounts      map[LegendaryID]int  `json:"legendaryCounts"`  // the planned amount of legendaries
+	ExperimentLevels     map[ExperimentID]int `json:"experimentLevels"` // the planned setup of experiments
+	PossessedRunes       map[RuneType]int     `json:"possessedRunes"`
+	PossessedLegendaries map[LegendaryID]int  `json:"possessedLegendaries"`
+	Notes                string               `json:"notes"`
 }

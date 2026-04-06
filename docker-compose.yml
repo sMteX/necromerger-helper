@@ -5,6 +5,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-necro}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-necro}
       POSTGRES_DB: ${POSTGRES_DB:-necro_prestige}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-necro} -d ${POSTGRES_DB:-necro_prestige}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
     ports:
       - "5435:5432"

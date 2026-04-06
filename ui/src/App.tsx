@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Plan, CalculationResponse, ExperimentID, LegendaryID, RuneType } from './types/game';
+import type { Plan, CalculationResponse, ExperimentID, LegendaryID, RuneType, PlanSummary } from './types/game';
 import { ExperimentCard } from './components/ExperimentCard';
 import { LegendaryCard } from './components/LegendaryCard';
 import { experimentDescriptions, experimentMaxLevels, legendaries, runeTypes, devourerLevels } from './data';
@@ -9,7 +9,7 @@ const createEmptyCounts = <T extends string>(keys: T[]): Record<T, number> => {
 };
 
 const initialPlan: Plan = {
-  id: 1,
+  id: 0,
   name: "Current Run",
   devourerLevel: 35,
   featTiers: 0,
@@ -24,9 +24,48 @@ const initialPlan: Plan = {
 };
 
 const App: React.FC = () => {
+  const [plans, setPlans] = useState<PlanSummary[]>([]);
   const [plan, setPlan] = useState<Plan>(initialPlan);
   const [results, setResults] = useState<CalculationResponse | null>(null);
   const [activeTab, setActiveTab] = useState<'experiments' | 'legendaries' | 'resources'>('experiments');
+
+  const fetchPlans = async () => {
+    try {
+      const resp = await fetch('/api/plans');
+      if (resp.ok) {
+        const data = await resp.json();
+        setPlans(data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch plans", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlans();
+    
+    // Load plan ID from localStorage on mount
+    const savedId = localStorage.getItem('necro_prestige_plan_id');
+    if (savedId) {
+      loadPlan(parseInt(savedId));
+    }
+  }, []);
+
+  const loadPlan = async (id: number) => {
+    try {
+      const resp = await fetch(`/api/plans/${id}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setPlan(data);
+        localStorage.setItem('necro_prestige_plan_id', data.id.toString());
+      } else {
+        throw new Error("Failed to load plan");
+      }
+    } catch (err) {
+      console.error(err);
+      localStorage.removeItem('necro_prestige_plan_id');
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -79,22 +118,53 @@ const App: React.FC = () => {
   ];
 
   const handleReset = () => {
-    if (confirm("Are you sure you want to reset the entire plan?")) {
-      setPlan(initialPlan);
+    if (confirm("Are you sure you want to reset the current plan? This will only affect your session until you save.")) {
+      setPlan({ ...initialPlan, id: plan.id, name: plan.name });
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem('necro_prestige_plan', JSON.stringify(plan));
-    alert("Plan saved to local storage!");
+  const handleNewPlan = () => {
+    const name = prompt("Enter a name for the new plan:", "New Plan");
+    if (name) {
+      setPlan({ ...initialPlan, name });
+      localStorage.removeItem('necro_prestige_plan_id');
+    }
   };
 
-  const handleLoad = () => {
-    const saved = localStorage.getItem('necro_prestige_plan');
-    if (saved) {
-      setPlan(JSON.parse(saved));
-    } else {
-      alert("No saved plan found.");
+  const handleDelete = async () => {
+    if (plan.id === 0) return;
+    if (confirm(`Are you sure you want to delete the plan "${plan.name}"?`)) {
+      try {
+        const resp = await fetch(`/api/plans/${plan.id}`, { method: 'DELETE' });
+        if (resp.ok) {
+          setPlan(initialPlan);
+          localStorage.removeItem('necro_prestige_plan_id');
+          fetchPlans();
+        }
+      } catch (err) {
+        console.error("Delete error", err);
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const resp = await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan)
+      });
+      if (resp.ok) {
+        const savedPlan = await resp.json();
+        setPlan(savedPlan);
+        localStorage.setItem('necro_prestige_plan_id', savedPlan.id.toString());
+        fetchPlans();
+      } else {
+        alert("Failed to save plan.");
+      }
+    } catch (err) {
+      console.error("Save error", err);
+      alert("Error saving plan.");
     }
   };
 
@@ -107,7 +177,7 @@ const App: React.FC = () => {
               <img src="/assets/images/time_shard.png" alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8"/>
             </div>
             <div>
-              <h1 className="text-base sm:text-xl font-black tracking-tight uppercase leading-none mb-1">Necro Prestige</h1>
+              <h1 className="text-base sm:text-xl font-black tracking-tight uppercase leading-none mb-1">NecroMerger Prestige Calculator</h1>
               <div className="hidden sm:flex text-[10px] font-black text-slate-500 uppercase tracking-widest items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Simulation Engine
@@ -116,8 +186,40 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <button onClick={handleReset} className="px-2 sm:px-4 py-2 bg-slate-900 hover:bg-red-500/10 hover:text-red-400 border border-slate-800 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">Reset</button>
-            <button onClick={handleLoad} className="px-2 sm:px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">Load</button>
+            <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl px-2 gap-2 mr-2">
+               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest hidden sm:block">Plan:</label>
+               <select 
+                value={plan.id}
+                onChange={(e) => {
+                  const id = parseInt(e.target.value);
+                  if (id === 0) setPlan({ ...initialPlan });
+                  else loadPlan(id);
+                }}
+                className="bg-transparent border-none text-xs font-black text-indigo-400 py-2 focus:ring-0 outline-none cursor-pointer max-w-[150px] sm:max-w-none"
+               >
+                 <option value={0} className="bg-slate-950">Select a plan...</option>
+                 {plans.map(p => (
+                   <option key={p.id} value={p.id} className="bg-slate-950">{p.name}</option>
+                 ))}
+               </select>
+            </div>
+
+            <button onClick={handleNewPlan} className="p-2 bg-slate-900 hover:bg-emerald-500/10 hover:text-emerald-400 border border-slate-800 rounded-xl transition-all" title="New Plan">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+            
+            <button 
+              onClick={handleDelete} 
+              disabled={plan.id === 0}
+              className={`p-2 bg-slate-900 border border-slate-800 rounded-xl transition-all ${plan.id === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-red-500/10 hover:text-red-400'}`} 
+              title="Delete Plan"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </button>
+
+            <div className="w-px h-6 bg-slate-800 mx-1 hidden sm:block"></div>
+
+            <button onClick={handleReset} className="px-2 sm:px-4 py-2 bg-slate-900 hover:bg-red-500/20 hover:text-red-400 border border-red-500/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">Reset</button>
             <button onClick={handleSave} className="px-3 sm:px-6 py-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 whitespace-nowrap">Save Plan</button>
           </div>
         </div>
@@ -128,9 +230,20 @@ const App: React.FC = () => {
           <div className="space-y-12">
             {/* General Inputs Section */}
             <section className="bg-slate-800/20 border border-slate-700/30 rounded-[32px] p-8">
-              <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                <span className="w-8 h-px bg-slate-700"></span> General Parameters
-              </h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-3">
+                  <span className="w-8 h-px bg-slate-700"></span> General Parameters
+                </h2>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                   <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Plan Name:</span>
+                   <input 
+                    type="text"
+                    value={plan.name}
+                    onChange={(e) => updatePlan({ name: e.target.value })}
+                    className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-bold text-indigo-400 focus:ring-1 focus:ring-indigo-500 outline-none flex-1 sm:w-48"
+                   />
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Devourer Level</label>
@@ -371,10 +484,7 @@ const App: React.FC = () => {
                />
             </section>
             
-            <div className="flex justify-end gap-3 pb-20">
-              <button onClick={handleReset} className="px-8 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-red-400 transition-all">Reset All</button>
-              <button onClick={handleSave} className="px-12 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 transition-all">Save Simulation</button>
-            </div>
+            <div className="pb-20"></div>
           </div>
         </main>
 

@@ -15,6 +15,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sMteX/necro-prestige-planner/internal/api"
+	"github.com/sMteX/necro-prestige-planner/internal/db/sqlc"
 )
 
 //go:embed all:ui/dist
@@ -34,6 +35,9 @@ func main() {
 	}
 	defer db.Close()
 
+	queries := sqlc.New(db)
+	apiHandler := &api.Handler{Queries: queries}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -42,6 +46,10 @@ func main() {
 	r.Get("/health", api.HealthHandler)
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/recalculate", api.RecalculateHandler)
+		r.Get("/plans", apiHandler.ListPlansHandler)
+		r.Get("/plans/{id}", apiHandler.GetPlanHandler)
+		r.Post("/plans", apiHandler.SavePlanHandler)
+		r.Delete("/plans/{id}", apiHandler.DeletePlanHandler)
 	})
 
 	// Serve React app

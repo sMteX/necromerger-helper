@@ -1,13 +1,22 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
+	"github.com/sMteX/necro-prestige-planner/internal/db/sqlc"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sqlc-dev/pqtype"
 )
+
+type Handler struct {
+	Queries sqlc.Querier
+}
 
 type ExperimentSummary struct {
 	ID                models.ExperimentID `json:"id"`
@@ -36,6 +45,125 @@ type RecalculateResponse struct {
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
+}
+
+func (h *Handler) ListPlansHandler(w http.ResponseWriter, r *http.Request) {
+	plans, err := h.Queries.ListPlans(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(plans)
+}
+
+func (h *Handler) GetPlanHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	plan, err := h.Queries.GetPlan(r.Context(), int32(id))
+	if err != nil {
+		http.Error(w, "plan not found", http.StatusNotFound)
+		return
+	}
+
+	// Convert sqlc.Plan to models.Plan
+	mPlan := models.Plan{
+		ID:              int(plan.ID),
+		Name:            plan.Name,
+		DevourerLevel:   int(plan.DevourerLevel.Int32),
+		FeatTiers:       int(plan.FeatTiers.Int32),
+		OtherMultiplier: plan.OtherMultiplier.Float64,
+		GroupBonusCount: int(plan.GroupBonusCount.Int32),
+		LeftoverShards:  int(plan.LeftoverShards.Int32),
+		Notes:           plan.Notes.String,
+	}
+
+	json.Unmarshal(plan.LegendaryCounts.RawMessage, &mPlan.LegendaryCounts)
+	json.Unmarshal(plan.ExperimentLevels.RawMessage, &mPlan.ExperimentLevels)
+	json.Unmarshal(plan.PossessedRunes.RawMessage, &mPlan.PossessedRunes)
+	json.Unmarshal(plan.PossessedLegendaries.RawMessage, &mPlan.PossessedLegendaries)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(mPlan)
+}
+
+func (h *Handler) SavePlanHandler(w http.ResponseWriter, r *http.Request) {
+	var plan models.Plan
+	if err := json.NewDecoder(r.Body).Decode(&plan); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	legCounts, _ := json.Marshal(plan.LegendaryCounts)
+	expLevels, _ := json.Marshal(plan.ExperimentLevels)
+	posRunes, _ := json.Marshal(plan.PossessedRunes)
+	posLegs, _ := json.Marshal(plan.PossessedLegendaries)
+
+	if plan.ID > 0 {
+		err := h.Queries.UpdatePlan(r.Context(), sqlc.UpdatePlanParams{
+			ID:                   int32(plan.ID),
+			Name:                 plan.Name,
+			DevourerLevel:        sql.NullInt32{Int32: int32(plan.DevourerLevel), Valid: true},
+			FeatTiers:            sql.NullInt32{Int32: int32(plan.FeatTiers), Valid: true},
+			OtherMultiplier:      sql.NullFloat64{Float64: plan.OtherMultiplier, Valid: true},
+			GroupBonusCount:      sql.NullInt32{Int32: int32(plan.GroupBonusCount), Valid: true},
+			LeftoverShards:       sql.NullInt32{Int32: int32(plan.LeftoverShards), Valid: true},
+			LegendaryCounts:      pqtype.NullRawMessage{RawMessage: legCounts, Valid: true},
+			ExperimentLevels:     pqtype.NullRawMessage{RawMessage: expLevels, Valid: true},
+			PossessedRunes:       pqtype.NullRawMessage{RawMessage: posRunes, Valid: true},
+			PossessedLegendaries: pqtype.NullRawMessage{RawMessage: posLegs, Valid: true},
+			Notes:                sql.NullString{String: plan.Notes, Valid: true},
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		id, err := h.Queries.CreatePlan(r.Context(), sqlc.CreatePlanParams{
+			Name:                 plan.Name,
+			DevourerLevel:        sql.NullInt32{Int32: int32(plan.DevourerLevel), Valid: true},
+			FeatTiers:            sql.NullInt32{Int32: int32(plan.FeatTiers), Valid: true},
+			OtherMultiplier:      sql.NullFloat64{Float64: plan.OtherMultiplier, Valid: true},
+			GroupBonusCount:      sql.NullInt32{Int32: int32(plan.GroupBonusCount), Valid: true},
+			LeftoverShards:       sql.NullInt32{Int32: int32(plan.LeftoverShards), Valid: true},
+			LegendaryCounts:      pqtype.NullRawMessage{RawMessage: legCounts, Valid: true},
+			ExperimentLevels:     pqtype.NullRawMessage{RawMessage: expLevels, Valid: true},
+			PossessedRunes:       pqtype.NullRawMessage{RawMessage: posRunes, Valid: true},
+			PossessedLegendaries: pqtype.NullRawMessage{RawMessage: posLegs, Valid: true},
+			Notes:                sql.NullString{String: plan.Notes, Valid: true},
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		plan.ID = int(id)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(plan)
+}
+
+func (h *Handler) DeletePlanHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	err = h.Queries.DeletePlan(r.Context(), int32(id))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
