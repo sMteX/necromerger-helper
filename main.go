@@ -7,13 +7,24 @@ import (
 	"net/http"
 	"os"
 
+	scalar "github.com/MarceloPetrucio/go-scalar-api-reference"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sMteX/necro-prestige-planner/internal/api"
 	"github.com/sMteX/necro-prestige-planner/internal/db/sqlc"
+	"github.com/swaggo/swag"
+
+	_ "github.com/sMteX/necro-prestige-planner/docs"
 )
+
+//	@title			Necro Prestige Planner API
+//	@version		1.0
+//	@description	API for planning prestige resets and experiment spending in Necromerger
+
+//	@host		localhost:8085
+//	@BasePath	/
 
 func main() {
 	_ = godotenv.Load()
@@ -43,6 +54,38 @@ func main() {
 		r.Get("/plans/{id}", apiHandler.GetPlanHandler)
 		r.Post("/plans", apiHandler.SavePlanHandler)
 		r.Delete("/plans/{id}", apiHandler.DeletePlanHandler)
+	})
+
+	r.Get("/docs/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		doc, err := swag.ReadDoc()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(doc))
+	})
+
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		doc, err := swag.ReadDoc()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		htmlContent, err := scalar.ApiReferenceHTML(&scalar.Options{
+			SpecContent: doc,
+			DarkMode:    true,
+			CustomOptions: scalar.CustomOptions{
+				PageTitle: "Necro Prestige Planner API",
+			},
+			ShowSidebar: true,
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write([]byte(htmlContent))
 	})
 
 	port := os.Getenv("PORT")

@@ -7,6 +7,7 @@ tasks:
     desc: Install necessary tools
     cmds:
       - go install github.com/air-verse/air@latest
+      - go install github.com/swaggo/swag/cmd/swag@latest
       - go mod tidy
 
   db:up:
@@ -18,6 +19,11 @@ tasks:
     desc: Stop database
     cmds:
       - docker compose down
+
+  swag:
+    desc: Generate OpenAPI spec from code annotations
+    cmds:
+      - swag init --parseDependency --parseInternal
 
   sqlc:
     desc: Generate sqlc code

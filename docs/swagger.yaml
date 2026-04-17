@@ -1,0 +1,285 @@
+basePath: /
+definitions:
+  api.ExperimentSummary:
+    properties:
+      currentLevel:
+        type: integer
+      currentLevelCost:
+        type: string
+      currentLevelValue:
+        type: string
+      id:
+        $ref: '#/definitions/models.ExperimentID'
+      maxLevel:
+        type: boolean
+      nextLevelCost:
+        type: string
+      nextLevelValue:
+        type: string
+    type: object
+  api.PlanSummary:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  api.RecalculateResponse:
+    properties:
+      baseShards:
+        type: integer
+      experimentCost:
+        type: integer
+      experiments:
+        additionalProperties:
+          $ref: '#/definitions/api.ExperimentSummary'
+        type: object
+      featMultiplier:
+        type: number
+      legendMultiplier:
+        type: number
+      legendaryRunes:
+        additionalProperties:
+          $ref: '#/definitions/calculator.RuneCosts'
+        type: object
+      otherMultiplier:
+        type: number
+      remaining:
+        type: integer
+      runeNeeded:
+        additionalProperties:
+          type: integer
+        type: object
+      runeTotal:
+        additionalProperties:
+          type: integer
+        type: object
+      totalShards:
+        type: integer
+    type: object
+  calculator.RuneCosts:
+    additionalProperties:
+      type: integer
+    type: object
+  models.ExperimentID:
+    enum:
+    - seasoning
+    - strength
+    - taste
+    - capacity
+    - body_snatcher
+    - weakening
+    - damage_cap
+    - ice_chest
+    - poison_chest
+    - blood_chest
+    - moon_chest
+    - death_chest
+    - cosmic_chest
+    - seasoning_2
+    - strength_2
+    - taste_2
+    - capacity_2
+    type: string
+    x-enum-varnames:
+    - ExpSeasoning
+    - ExpStrength
+    - ExpTaste
+    - ExpCapacity
+    - ExpBodySnatcher
+    - ExpWeakening
+    - ExpDamageCap
+    - ExpIceChest
+    - ExpPoisonChest
+    - ExpBloodChest
+    - ExpMoonChest
+    - ExpDeathChest
+    - ExpCosmicChest
+    - ExpSeasoning2
+    - ExpStrength2
+    - ExpTaste2
+    - ExpCapacity2
+  models.Plan:
+    properties:
+      devourerLevel:
+        type: integer
+      experimentLevels:
+        additionalProperties:
+          type: integer
+        description: the planned setup of experiments
+        type: object
+      featTiers:
+        type: integer
+      groupBonusCount:
+        description: Number of times group bonuses can be claimed (default 1)
+        type: integer
+      id:
+        type: integer
+      leftoverShards:
+        description: Shards remaining from previous prestige
+        type: integer
+      legendaryCounts:
+        additionalProperties:
+          type: integer
+        description: the planned amount of legendaries
+        type: object
+      name:
+        type: string
+      notes:
+        type: string
+      otherMultiplier:
+        description: The "Other" category (skins, etc.)
+        type: number
+      possessedLegendaries:
+        additionalProperties:
+          type: integer
+        type: object
+      possessedRunes:
+        additionalProperties:
+          type: integer
+        type: object
+    type: object
+host: localhost:8085
+info:
+  contact: {}
+  description: API for planning prestige resets and experiment spending in Necromerger
+  title: Necro Prestige Planner API
+  version: "1.0"
+paths:
+  /api/plans:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.PlanSummary'
+            type: array
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: List all saved plans
+      tags:
+      - plans
+    post:
+      consumes:
+      - application/json
+      description: Creates a new plan when id is 0 or omitted, updates an existing
+        plan when id > 0
+      parameters:
+      - description: Plan data
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plan'
+        "400":
+          description: invalid request body
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Create or update a plan
+      tags:
+      - plans
+  /api/plans/{id}:
+    delete:
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: invalid id
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Delete a plan
+      tags:
+      - plans
+    get:
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plan'
+        "400":
+          description: invalid id
+          schema:
+            type: string
+        "404":
+          description: plan not found
+          schema:
+            type: string
+      summary: Get a plan by ID
+      tags:
+      - plans
+  /api/recalculate:
+    post:
+      consumes:
+      - application/json
+      description: Given a plan, returns total Time Shards earned at prestige, experiment
+        costs, rune requirements for planned legendaries, and per-experiment summaries
+      parameters:
+      - description: Plan to calculate
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.RecalculateResponse'
+        "400":
+          description: invalid request body
+          schema:
+            type: string
+      summary: Calculate Time Shards and resource costs for a plan
+      tags:
+      - calculator
+  /health:
+    get:
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health check
+      tags:
+      - system
+swagger: "2.0"
