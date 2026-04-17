@@ -8,7 +8,6 @@ tasks:
     cmds:
       - go install github.com/air-verse/air@latest
       - go mod tidy
-      - cd ui && npm install
 
   db:up:
     desc: Start database
@@ -19,18 +18,6 @@ tasks:
     desc: Stop database
     cmds:
       - docker compose down
-
-  ui:dev:
-    desc: Run vite dev server
-    dir: ui
-    cmds:
-      - npm run dev
-
-  ui:build:
-    desc: Build React app
-    dir: ui
-    cmds:
-      - npm run build
 
   sqlc:
     desc: Generate sqlc code
@@ -49,7 +36,6 @@ tasks:
 
   dev:
     desc: Run development server with hot reload
-    deps: [ui:build]
     cmds:
       - air
 
