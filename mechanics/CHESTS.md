@@ -1,0 +1,93 @@
+# Chests
+
+- there are 6 types of rune chests, 2 types of post-prestige chests and 1 other type
+- source - chests are spawned mostly after killing Champions (`Ice, Poison, Blood, Death, Cosmic, Galactic`)
+    - but are also rewarded from Feats and Devourer levels
+    - additionally:
+        - `Cosmic Chest` is a main way to get `Cosmic Runes`, and drop from `Telepads`, which is a station player buys
+          for `30 Blood Runes` and `30 Moon Runes`. The Telepad then spawns 3 enemies and upon defeating them, Telepad
+          is replaced by the Cosmic Chest
+            - this means, there is a certain conversion rate between Blood/Moon Runes and Cosmic Runes, e.g. 1 Cosmic =
+              0,9 Blood/Moon (given enough Cosmic Chest taps)
+        - `Energy Chest` is awarded exclusively from Feats and Devourer levels
+- all chests start with 5 independent taps
+    - pre-100 experiments add chest taps to *rune* chests
+    - skins then add +1 chest taps to *post-prestige* chests and also +1 to *all* chests (very late game, very
+      expensive)
+- rune chests
+    - usually exist in "normal" size, but there are ways to add a small percentage chance to make chest a "big" one (on
+      spawn)
+    - `Ice Chest`
+        - normal chest:
+            - 60% chance of L1 Ice Rune pile
+            - 20% chance of L2 Ice Rune pile
+            - 20% chance of L1 Poison Rune pile
+        - big chest:
+            - 40% chance of L1 Ice Rune pile
+            - 35% chance of L2 Ice Rune pile
+            - 5% chance of L3 Ice Rune pile
+            - 15% chance of L1 Poison Rune pile
+            - 5% chance of L2 Poison Rune pile
+    - `Poison Chest`
+        - normal chest:
+            - 60% chance of L1 Poison Rune pile
+            - 20% chance of L2 Poison Rune pile
+            - 20% chance of L1 Blood Rune pile
+        - big chest:
+            - 40% chance of L1 Poison Rune pile
+            - 35% chance of L2 Poison Rune pile
+            - 5% chance of L3 Poison Rune pile
+            - 15% chance of L1 Blood Rune pile
+            - 5% chance of L2 Blood Rune pile
+    - `Blood Chest`
+        - normal chest:
+            - 60% chance of L1 Blood Rune pile
+            - 20% chance of L2 Blood Rune pile
+            - 20% chance of L1 Moon Rune pile
+        - big chest:
+            - 40% chance of L1 Blood Rune pile
+            - 35% chance of L2 Blood Rune pile
+            - 5% chance of L3 Blood Rune pile
+            - 15% chance of L1 Moon Rune pile
+            - 5% chance of L2 Moon Rune pile
+    - `Moon Chest`
+        - normal chest:
+            - 60% chance of L1 Moon Rune pile
+            - 20% chance of L2 Moon Rune pile
+            - 20% chance of L1 Death Rune pile
+        - big chest:
+            - 40% chance of L1 Moon Rune pile
+            - 35% chance of L2 Moon Rune pile
+            - 5% chance of L3 Moon Rune pile
+            - 15% chance of L1 Death Rune pile
+            - 5% chance of L2 Death Rune pile
+    - `Death Chest`
+        - normal chest:
+            - 80% chance of L1 Death Rune pile
+            - 20% chance of L2 Death Rune pile
+        - big chest:
+            - 60% chance of L1 Death Rune pile
+            - 35% chance of L2 Death Rune pile
+            - 5% chance of L3 Death Rune pile
+    - `Cosmic Chest`
+        - normal chest:
+            - 80% chance of L1 Cosmic Rune pile
+            - 20% chance of L2 Cosmic Rune pile
+        - big chest:
+            - 60% chance of L1 Cosmic Rune pile
+            - 35% chance of L2 Cosmic Rune pile
+            - 5% chance of L3 Cosmic Rune pile
+- post-prestige chests
+    - `Galactic Chest`
+        - 60% chance of L1 Astro Coin pile
+        - 20% chance of L2 Astro Coin pile
+        - 20% chance of L1 Energy Cube pile
+    - `Energy Chest`
+        - 80% chance of L1 Energy Cube pile
+        - 20% chance of L2 Energy Cube pile
+- other chests
+    - `Valuable Chest` - contains Gold and Gems (not useful for our purposes for now, omitting the percentages)
+- all piles from chests can and should be always merged if possible
+  - L1 pile = 2 units (runes / Astro Coins / Energy Cubes)
+  - L2 pile = 5 units (runes / Astro Coins / Energy Cubes)
+  - L3 pile = 12 units (runes / Astro Coins / Energy Cubes
