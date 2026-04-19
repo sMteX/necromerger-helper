@@ -40,6 +40,11 @@ tasks:
     cmds:
       - goose -dir internal/db/migrations postgres "${DATABASE_URL:-postgres://necro:necro@localhost:5432/necro_prestige?sslmode=disable}" down
 
+  tui:
+    desc: Run the resource cap TUI
+    cmds:
+      - go run ./cmd/tui
+
   dev:
     desc: Run development server with hot reload
     cmds:
