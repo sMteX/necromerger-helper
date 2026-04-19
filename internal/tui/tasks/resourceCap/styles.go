@@ -1,4 +1,4 @@
-package tui
+package resourceCap
 
 import (
 	"image/color"
