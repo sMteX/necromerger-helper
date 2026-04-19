@@ -18,35 +18,6 @@ type Handler struct {
 	Queries sqlc.Querier
 }
 
-type PlanSummary struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type ExperimentSummary struct {
-	ID                models.ExperimentID `json:"id"`
-	CurrentLevel      int                 `json:"currentLevel"`
-	CurrentLevelValue string              `json:"currentLevelValue"`
-	CurrentLevelCost  string              `json:"currentLevelCost"`
-	NextLevelCost     string              `json:"nextLevelCost"`
-	NextLevelValue    string              `json:"nextLevelValue"`
-	MaxLevel          bool                `json:"maxLevel"`
-}
-
-type RecalculateResponse struct {
-	TotalShards      int                                         `json:"totalShards"`
-	BaseShards       int                                         `json:"baseShards"`
-	FeatMultiplier   float64                                     `json:"featMultiplier"`
-	LegendMultiplier float64                                     `json:"legendMultiplier"`
-	OtherMultiplier  float64                                     `json:"otherMultiplier"`
-	ExperimentCost   int                                         `json:"experimentCost"`
-	Remaining        int                                         `json:"remaining"`
-	Experiments      map[models.ExperimentID]ExperimentSummary   `json:"experiments"`
-	RuneTotal        map[models.RuneType]int                     `json:"runeTotal"`
-	RuneNeeded       map[models.RuneType]int                     `json:"runeNeeded"`
-	LegendaryRunes   map[models.LegendaryID]calculator.RuneCosts `json:"legendaryRunes"`
-}
-
 // HealthHandler godoc
 //
 //	@Summary	Health check
@@ -107,7 +78,6 @@ func (h *Handler) GetPlanHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert sqlc.Plan to models.Plan
 	mPlan := models.Plan{
 		ID:              int(plan.ID),
 		Name:            plan.Name,
@@ -130,16 +100,16 @@ func (h *Handler) GetPlanHandler(w http.ResponseWriter, r *http.Request) {
 
 // SavePlanHandler godoc
 //
-//	@Summary	Create or update a plan
+//	@Summary		Create or update a plan
 //	@Description	Creates a new plan when id is 0 or omitted, updates an existing plan when id > 0
-//	@Tags		plans
-//	@Accept		json
-//	@Produce	json
-//	@Param		plan	body		models.Plan	true	"Plan data"
-//	@Success	200		{object}	models.Plan
-//	@Failure	400		{string}	string	"invalid request body"
-//	@Failure	500		{string}	string	"internal server error"
-//	@Router		/api/plans [post]
+//	@Tags			plans
+//	@Accept			json
+//	@Produce		json
+//	@Param			plan	body		models.Plan	true	"Plan data"
+//	@Success		200		{object}	models.Plan
+//	@Failure		400		{string}	string	"invalid request body"
+//	@Failure		500		{string}	string	"internal server error"
+//	@Router			/api/plans [post]
 func (h *Handler) SavePlanHandler(w http.ResponseWriter, r *http.Request) {
 	var plan models.Plan
 	if err := json.NewDecoder(r.Body).Decode(&plan); err != nil {
@@ -247,24 +217,17 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 	expCost := calculator.CalculateExperimentCost(plan)
 	totalRunes, neededRunes := calculator.CalculateTotalRunes(plan)
 
-	// Experiment summaries
 	expSummaries := make(map[models.ExperimentID]ExperimentSummary)
 	for _, exp := range calculator.Experiments {
 		currentLevel := plan.ExperimentLevels[exp.ID]
-
-		summary := ExperimentSummary{
-			ID:           exp.ID,
-			CurrentLevel: currentLevel,
-		}
+		summary := ExperimentSummary{ID: exp.ID, CurrentLevel: currentLevel}
 
 		if currentLevel > 0 {
-			prevVal := 0.0
 			if currentLevel-1 < len(exp.Levels) {
 				currentLv := exp.Levels[currentLevel-1]
-				prevVal = currentLv.PrevValue
 				summary.CurrentLevelCost = calculator.FormatLargeNumber(currentLv.Cost)
 				summary.CurrentLevelValue = fmt.Sprintf("%s -> %s",
-					calculator.FormatExperimentValue(exp.ID, exp.Tier, prevVal),
+					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.PrevValue),
 					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.Value))
 			}
 		} else {
@@ -282,7 +245,6 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 		expSummaries[exp.ID] = summary
 	}
 
-	// Legendary rune costs
 	legRunes := make(map[models.LegendaryID]calculator.RuneCosts)
 	for id := range calculator.LegendaryRecipes {
 		legRunes[id] = calculator.GetLegendaryRuneCost(id)
@@ -304,4 +266,140 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+// ResourceCapHandler godoc
+//
+//	@Summary		Calculate resource caps and station requirements for a Feat threshold
+//	@Description	Returns current Mana/Slime/Darkness caps, whether the requested Feat threshold is met, and (if not) how many stations of each level are needed per resource to close the gap. Percentage inputs are decimals (0.06 = 6%).
+//	@Tags			calculator
+//	@Accept			json
+//	@Produce		json
+//	@Param			threshold	path		string				true	"Combined storage threshold"	Enums(200k, 400k, 600k, 800k)
+//	@Param			request		body		ResourceCapRequest	true	"Player state"
+//	@Success		200			{object}	ResourceCapResponse
+//	@Failure		400			{string}	string	"invalid threshold or request body"
+//	@Router			/api/resource-cap/{threshold} [post]
+func ResourceCapHandler(w http.ResponseWriter, r *http.Request) {
+	thresholdKey := chi.URLParam(r, "threshold")
+	threshold, ok := ValidThresholds[thresholdKey]
+	if !ok {
+		http.Error(w, "invalid threshold: must be one of 200k, 400k, 600k, 800k", http.StatusBadRequest)
+		return
+	}
+
+	var req ResourceCapRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	input := mapToCalculatorInput(req)
+	result := calculator.CalculateResourceCaps(input)
+	combined := result.Mana + result.Slime + result.Darkness
+
+	resp := ResourceCapResponse{
+		Mana:      result.Mana,
+		Slime:     result.Slime,
+		Darkness:  result.Darkness,
+		Combined:  combined,
+		Threshold: threshold,
+		Met:       combined >= threshold,
+		Delta:     combined - threshold,
+	}
+
+	if !resp.Met {
+		manaTarget, slimeTarget, darkTarget := calculator.ResourceTargets(threshold, req.FixedTargets)
+
+		manaGap := max(0, manaTarget-result.Mana)
+		slimeGap := max(0, slimeTarget-result.Slime)
+		darkGap := max(0, darkTarget-result.Darkness)
+
+		resp.GapAnalysis = map[models.ResourceType]ResourceGapAnalysis{
+			models.ResourceMana: {
+				Current: result.Mana,
+				Target:  manaTarget,
+				Gap:     manaGap,
+				Options: toAPIOptions(calculator.ManaStationOptions(manaGap, result.ManaMulti)),
+			},
+			models.ResourceSlime: {
+				Current: result.Slime,
+				Target:  slimeTarget,
+				Gap:     slimeGap,
+				Options: toAPIOptions(calculator.SlimeStationOptions(slimeGap, result.SlimeMulti)),
+			},
+			models.ResourceDarkness: {
+				Current: result.Darkness,
+				Target:  darkTarget,
+				Gap:     darkGap,
+				Options: toAPIOptions(calculator.DarknessStationOptions(darkGap, result.DarkMulti)),
+			},
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func toAPIOptions(src []calculator.StationOptionResult) []StationOption {
+	if src == nil {
+		return nil
+	}
+	out := make([]StationOption, len(src))
+	for i, s := range src {
+		runeCost := make(map[models.RuneType]int, len(s.RuneCost))
+		for k, v := range s.RuneCost {
+			runeCost[k] = v
+		}
+		out[i] = StationOption{Level: s.Level, Count: s.Count, RuneCost: runeCost}
+	}
+	return out
+}
+
+func mapToCalculatorInput(req ResourceCapRequest) calculator.ResourceCapInput {
+	servOResource := models.ResourceType("")
+	servOUpgraded := false
+	if req.ServO != nil {
+		servOResource = req.ServO.Resource
+		servOUpgraded = req.ServO.Upgraded
+	}
+
+	pearl := req.PearlBonus
+	if pearl == nil {
+		pearl = map[models.ResourceType]float64{}
+	}
+
+	return calculator.ResourceCapInput{
+		ManaPools:  req.ManaPools.toSlice(),
+		SlimeVats:  req.SlimeVats.toSlice(),
+		DarkStores: req.DarkStores.toSlice(),
+
+		ServOResource: servOResource,
+		ServOUpgraded: servOUpgraded,
+
+		WizardSkin:   req.Skins.Wizard,
+		OozingSkin:   req.Skins.Oozing,
+		SidSkin:      req.Skins.Sid,
+		SantaSkin:    req.Skins.Santa,
+		BirthdaySkin: req.Skins.Birthday,
+		WitchSkin:    req.Skins.Witch,
+		GoodSkin:     req.Skins.Good,
+		RoyaltySkin:  req.Skins.Royalty,
+
+		GoldenBoosts: req.GoldenBoosts,
+
+		ManaSpell:         req.Spells.Mana,
+		SlimeSpell:        req.Spells.Slime,
+		DarknessSpell:     req.Spells.Darkness,
+		AllResourcesSpell: req.Spells.AllResources,
+
+		ManaRelic:         req.Relics.Mana,
+		SlimeRelic:        req.Relics.Slime,
+		DarknessRelic:     req.Relics.Darkness,
+		AllResourcesRelic: req.Relics.AllResources,
+
+		CapacityExp1: req.CapacityExp1,
+		PearlBonus:   pearl,
+		CapacityExp2: req.CapacityExp2,
+	}
 }

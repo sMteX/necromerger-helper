@@ -54,6 +54,7 @@ func main() {
 		r.Get("/plans/{id}", apiHandler.GetPlanHandler)
 		r.Post("/plans", apiHandler.SavePlanHandler)
 		r.Delete("/plans/{id}", apiHandler.DeletePlanHandler)
+		r.Post("/resource-cap/{threshold}", api.ResourceCapHandler)
 	})
 
 	r.Get("/docs/swagger.json", func(w http.ResponseWriter, r *http.Request) {

@@ -104,6 +104,14 @@ const (
 	RuneCosmic RuneType = "cosmic"
 )
 
+type ResourceType string
+
+const (
+	ResourceMana     ResourceType = "mana"
+	ResourceSlime    ResourceType = "slime"
+	ResourceDarkness ResourceType = "darkness"
+)
+
 type Plan struct {
 	ID                   int                  `json:"id"`
 	Name                 string               `json:"name"`

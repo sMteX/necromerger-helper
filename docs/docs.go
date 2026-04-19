@@ -202,6 +202,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/resource-cap/{threshold}": {
+            "post": {
+                "description": "Returns current Mana/Slime/Darkness caps, whether the requested Feat threshold is met, and (if not) how many stations of each level are needed per resource to close the gap. Percentage inputs are decimals (0.06 = 6%).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calculator"
+                ],
+                "summary": "Calculate resource caps and station requirements for a Feat threshold",
+                "parameters": [
+                    {
+                        "enum": [
+                            "200k",
+                            "400k",
+                            "600k",
+                            "800k"
+                        ],
+                        "type": "string",
+                        "description": "Combined storage threshold",
+                        "name": "threshold",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ResourceCapRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ResourceCapResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid threshold or request body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "produces": [
@@ -310,6 +363,235 @@ const docTemplate = `{
                 }
             }
         },
+        "api.RelicLevels": {
+            "type": "object",
+            "properties": {
+                "allResources": {
+                    "type": "integer"
+                },
+                "darkness": {
+                    "type": "integer"
+                },
+                "mana": {
+                    "type": "integer"
+                },
+                "slime": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.ResourceCapRequest": {
+            "type": "object",
+            "properties": {
+                "capacityExp1": {
+                    "description": "CapacityExp1 is the Capacity Experiment I level (0-9).",
+                    "type": "integer"
+                },
+                "capacityExp2": {
+                    "description": "CapacityExp2 is the Capacity Experiment II level (0-9).",
+                    "type": "integer"
+                },
+                "darkStores": {
+                    "$ref": "#/definitions/api.StationCounts"
+                },
+                "fixedTargets": {
+                    "description": "FixedTargets lets the player pin a specific cap goal for one resource.\nRemaining combined threshold is then split across the other two.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "goldenBoosts": {
+                    "type": "boolean"
+                },
+                "manaPools": {
+                    "$ref": "#/definitions/api.StationCounts"
+                },
+                "pearlBonus": {
+                    "description": "PearlBonus is the per-resource pearl % bonus as shown in game statistics\n(already includes the all-resources pearl contribution).",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "relics": {
+                    "$ref": "#/definitions/api.RelicLevels"
+                },
+                "servO": {
+                    "$ref": "#/definitions/api.ServOConfig"
+                },
+                "skins": {
+                    "$ref": "#/definitions/api.ResourceSkins"
+                },
+                "slimeVats": {
+                    "$ref": "#/definitions/api.StationCounts"
+                },
+                "spells": {
+                    "$ref": "#/definitions/api.SpellLevels"
+                }
+            }
+        },
+        "api.ResourceCapResponse": {
+            "type": "object",
+            "properties": {
+                "combined": {
+                    "type": "integer"
+                },
+                "darkness": {
+                    "type": "integer"
+                },
+                "delta": {
+                    "description": "Delta is positive when the player exceeds the threshold, negative when short.",
+                    "type": "integer"
+                },
+                "gapAnalysis": {
+                    "description": "GapAnalysis is only present when the threshold is not met.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/api.ResourceGapAnalysis"
+                    }
+                },
+                "mana": {
+                    "type": "integer"
+                },
+                "met": {
+                    "type": "boolean"
+                },
+                "slime": {
+                    "type": "integer"
+                },
+                "threshold": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.ResourceGapAnalysis": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "integer"
+                },
+                "gap": {
+                    "type": "integer"
+                },
+                "options": {
+                    "description": "one entry per station level (1-6)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.StationOption"
+                    }
+                },
+                "target": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.ResourceSkins": {
+            "type": "object",
+            "properties": {
+                "birthday": {
+                    "description": "+5% Slime",
+                    "type": "boolean"
+                },
+                "good": {
+                    "description": "+2% All",
+                    "type": "boolean"
+                },
+                "oozing": {
+                    "description": "+2000 Slime",
+                    "type": "boolean"
+                },
+                "royalty": {
+                    "description": "+5% All",
+                    "type": "boolean"
+                },
+                "santa": {
+                    "description": "Multiplicative skins",
+                    "type": "boolean"
+                },
+                "sid": {
+                    "description": "+2000 Darkness",
+                    "type": "boolean"
+                },
+                "witch": {
+                    "description": "+5% Darkness",
+                    "type": "boolean"
+                },
+                "wizard": {
+                    "description": "Base boost skins (flat cap increase)",
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.ServOConfig": {
+            "type": "object",
+            "properties": {
+                "resource": {
+                    "$ref": "#/definitions/models.ResourceType"
+                },
+                "upgraded": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.SpellLevels": {
+            "type": "object",
+            "properties": {
+                "allResources": {
+                    "type": "integer"
+                },
+                "darkness": {
+                    "type": "integer"
+                },
+                "mana": {
+                    "type": "integer"
+                },
+                "slime": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.StationCounts": {
+            "type": "object",
+            "properties": {
+                "l1": {
+                    "type": "integer"
+                },
+                "l2": {
+                    "type": "integer"
+                },
+                "l3": {
+                    "type": "integer"
+                },
+                "l4": {
+                    "type": "integer"
+                },
+                "l5": {
+                    "type": "integer"
+                },
+                "l6": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.StationOption": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "runeCost": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "calculator.RuneCosts": {
             "type": "object",
             "additionalProperties": {
@@ -414,6 +696,19 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "models.ResourceType": {
+            "type": "string",
+            "enum": [
+                "mana",
+                "slime",
+                "darkness"
+            ],
+            "x-enum-varnames": [
+                "ResourceMana",
+                "ResourceSlime",
+                "ResourceDarkness"
+            ]
         }
     }
 }`

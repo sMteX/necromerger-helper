@@ -57,6 +57,166 @@ definitions:
       totalShards:
         type: integer
     type: object
+  api.RelicLevels:
+    properties:
+      allResources:
+        type: integer
+      darkness:
+        type: integer
+      mana:
+        type: integer
+      slime:
+        type: integer
+    type: object
+  api.ResourceCapRequest:
+    properties:
+      capacityExp1:
+        description: CapacityExp1 is the Capacity Experiment I level (0-9).
+        type: integer
+      capacityExp2:
+        description: CapacityExp2 is the Capacity Experiment II level (0-9).
+        type: integer
+      darkStores:
+        $ref: '#/definitions/api.StationCounts'
+      fixedTargets:
+        additionalProperties:
+          type: integer
+        description: |-
+          FixedTargets lets the player pin a specific cap goal for one resource.
+          Remaining combined threshold is then split across the other two.
+        type: object
+      goldenBoosts:
+        type: boolean
+      manaPools:
+        $ref: '#/definitions/api.StationCounts'
+      pearlBonus:
+        additionalProperties:
+          format: float64
+          type: number
+        description: |-
+          PearlBonus is the per-resource pearl % bonus as shown in game statistics
+          (already includes the all-resources pearl contribution).
+        type: object
+      relics:
+        $ref: '#/definitions/api.RelicLevels'
+      servO:
+        $ref: '#/definitions/api.ServOConfig'
+      skins:
+        $ref: '#/definitions/api.ResourceSkins'
+      slimeVats:
+        $ref: '#/definitions/api.StationCounts'
+      spells:
+        $ref: '#/definitions/api.SpellLevels'
+    type: object
+  api.ResourceCapResponse:
+    properties:
+      combined:
+        type: integer
+      darkness:
+        type: integer
+      delta:
+        description: Delta is positive when the player exceeds the threshold, negative
+          when short.
+        type: integer
+      gapAnalysis:
+        additionalProperties:
+          $ref: '#/definitions/api.ResourceGapAnalysis'
+        description: GapAnalysis is only present when the threshold is not met.
+        type: object
+      mana:
+        type: integer
+      met:
+        type: boolean
+      slime:
+        type: integer
+      threshold:
+        type: integer
+    type: object
+  api.ResourceGapAnalysis:
+    properties:
+      current:
+        type: integer
+      gap:
+        type: integer
+      options:
+        description: one entry per station level (1-6)
+        items:
+          $ref: '#/definitions/api.StationOption'
+        type: array
+      target:
+        type: integer
+    type: object
+  api.ResourceSkins:
+    properties:
+      birthday:
+        description: +5% Slime
+        type: boolean
+      good:
+        description: +2% All
+        type: boolean
+      oozing:
+        description: +2000 Slime
+        type: boolean
+      royalty:
+        description: +5% All
+        type: boolean
+      santa:
+        description: Multiplicative skins
+        type: boolean
+      sid:
+        description: +2000 Darkness
+        type: boolean
+      witch:
+        description: +5% Darkness
+        type: boolean
+      wizard:
+        description: Base boost skins (flat cap increase)
+        type: boolean
+    type: object
+  api.ServOConfig:
+    properties:
+      resource:
+        $ref: '#/definitions/models.ResourceType'
+      upgraded:
+        type: boolean
+    type: object
+  api.SpellLevels:
+    properties:
+      allResources:
+        type: integer
+      darkness:
+        type: integer
+      mana:
+        type: integer
+      slime:
+        type: integer
+    type: object
+  api.StationCounts:
+    properties:
+      l1:
+        type: integer
+      l2:
+        type: integer
+      l3:
+        type: integer
+      l4:
+        type: integer
+      l5:
+        type: integer
+      l6:
+        type: integer
+    type: object
+  api.StationOption:
+    properties:
+      count:
+        type: integer
+      level:
+        type: integer
+      runeCost:
+        additionalProperties:
+          type: integer
+        type: object
+    type: object
   calculator.RuneCosts:
     additionalProperties:
       type: integer
@@ -139,6 +299,16 @@ definitions:
           type: integer
         type: object
     type: object
+  models.ResourceType:
+    enum:
+    - mana
+    - slime
+    - darkness
+    type: string
+    x-enum-varnames:
+    - ResourceMana
+    - ResourceSlime
+    - ResourceDarkness
 host: localhost:8085
 info:
   contact: {}
@@ -268,6 +438,44 @@ paths:
           schema:
             type: string
       summary: Calculate Time Shards and resource costs for a plan
+      tags:
+      - calculator
+  /api/resource-cap/{threshold}:
+    post:
+      consumes:
+      - application/json
+      description: Returns current Mana/Slime/Darkness caps, whether the requested
+        Feat threshold is met, and (if not) how many stations of each level are needed
+        per resource to close the gap. Percentage inputs are decimals (0.06 = 6%).
+      parameters:
+      - description: Combined storage threshold
+        enum:
+        - 200k
+        - 400k
+        - 600k
+        - 800k
+        in: path
+        name: threshold
+        required: true
+        type: string
+      - description: Player state
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ResourceCapRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResourceCapResponse'
+        "400":
+          description: invalid threshold or request body
+          schema:
+            type: string
+      summary: Calculate resource caps and station requirements for a Feat threshold
       tags:
       - calculator
   /health:
