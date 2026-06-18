@@ -32,7 +32,9 @@ func (m *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	switch *m.currentTask {
 	case taskResourceCap:
-		return m.resourceCapModel.Update(msg)
+		newModel, cmd := m.resourceCapModel.Update(msg)
+		m.resourceCapModel = newModel.(resourceCap.Model)
+		return m, cmd
 	case taskPrestigePlan:
 		// TODO: implement me
 		return m, nil

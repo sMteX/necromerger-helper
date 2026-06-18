@@ -30,6 +30,13 @@ func (m *AppModel) handleUpdateMainMenu(msg tea.Msg) (tea.Model, tea.Cmd) {
 				t = taskPrestigePlan
 			}
 			m.currentTask = &t
+			// The submodel needs a WindowSizeMsg to initialize its layout, but bubbletea
+			// only sends one at program start — before any task is selected. Synthesize it
+			// so the submodel receives it on the next update cycle.
+			w, h := m.windowWidth, m.windowHeight
+			return m, func() tea.Msg {
+				return tea.WindowSizeMsg{Width: w, Height: h}
+			}
 		}
 	}
 	return m, nil
