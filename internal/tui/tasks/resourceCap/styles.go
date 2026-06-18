@@ -5,6 +5,7 @@ import (
 
 	"charm.land/lipgloss/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 // ── Resource colours ─────────────────────────────────────────────────────────
@@ -37,14 +38,6 @@ var (
 	colorMuted  = lipgloss.Color("#6B7280")
 	colorActive = lipgloss.Color("#F9FAFB")
 	colorAccent = lipgloss.Color("#60A5FA")
-	colorGood   = lipgloss.Color("#4ADE80")
-	colorBad    = lipgloss.Color("#F87171")
-
-	// Rune type colours
-	colorIce    = lipgloss.Color("#7DD3FC")
-	colorPoison = lipgloss.Color("#86EFAC")
-	colorBlood  = lipgloss.Color("#FCA5A5")
-	colorMoon   = lipgloss.Color("#FDE68A")
 )
 
 // ── Styles ────────────────────────────────────────────────────────────────────
@@ -93,11 +86,11 @@ var (
 				PaddingLeft(1).
 				PaddingRight(1)
 
-	styleMetYes = lipgloss.NewStyle().Bold(true).Foreground(colorGood)
-	styleMetNo  = lipgloss.NewStyle().Bold(true).Foreground(colorBad)
+	styleMetYes = lipgloss.NewStyle().Bold(true).Foreground(shared.ColorGood)
+	styleMetNo  = lipgloss.NewStyle().Bold(true).Foreground(shared.ColorBad)
 
-	styleRuneIce    = lipgloss.NewStyle().Foreground(colorIce)
-	styleRunePoison = lipgloss.NewStyle().Foreground(colorPoison)
-	styleRuneBlood  = lipgloss.NewStyle().Foreground(colorBlood)
-	styleRuneMoon   = lipgloss.NewStyle().Foreground(colorMoon)
+	styleRuneIce    = lipgloss.NewStyle().Foreground(shared.ColorIce)
+	styleRunePoison = lipgloss.NewStyle().Foreground(shared.ColorPoison)
+	styleRuneBlood  = lipgloss.NewStyle().Foreground(shared.ColorBlood)
+	styleRuneMoon   = lipgloss.NewStyle().Foreground(shared.ColorMoon)
 )

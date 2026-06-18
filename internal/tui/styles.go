@@ -4,10 +4,9 @@ import "charm.land/lipgloss/v2"
 
 var (
 	// Colors
-	colorBackground = lipgloss.Color("#1a1a1a")
-	colorBorder     = lipgloss.Color("#7D56F4") // Purplish/Blue
-	colorHighlight  = lipgloss.Color("#00a7f8") // Pinkish/Purple for active
-	colorDim        = lipgloss.Color("#626262") // Gray for inactive
+	colorBorder    = lipgloss.Color("#7D56F4") // Purplish/Blue
+	colorHighlight = lipgloss.Color("#00a7f8") // Pinkish/Purple for active
+	colorDim       = lipgloss.Color("#626262") // Gray for inactive
 
 	// Styles
 	styleMenuHeader = lipgloss.NewStyle().
