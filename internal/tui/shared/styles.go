@@ -14,7 +14,7 @@ type colors struct {
 	Border color.Color
 }
 type styles struct {
-	MainContainer, SubContainer, Header lipgloss.Style
+	MainContainer, SubContainer, Header, Help lipgloss.Style
 }
 
 var (
@@ -40,6 +40,7 @@ var (
 		SubContainer: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(Colors.Border).
-			Padding(0, 2),
+			Padding(1, 2),
+		Help: lipgloss.NewStyle().Foreground(Colors.Dim),
 	}
 )

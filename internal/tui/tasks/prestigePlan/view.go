@@ -115,24 +115,34 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 }
 
 func (m Model) renderMainContent(maxWidth, maxHeight int) string {
-	// TODO: change based on tab
-	return shared.Styles.SubContainer.Width(maxWidth).Height(maxHeight).Align(lipgloss.Center, lipgloss.Center).Render("Main content")
+	var content string
+	switch m.selectedTab {
+	case 0:
+		content = m.renderBaseTab()
+	default:
+		content = "Main content placeholder"
+	}
+	return shared.Styles.SubContainer.Width(maxWidth).Height(maxHeight).Render(content)
 }
 
 func (m Model) renderHelp() string {
 	maxWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
-	helpStyle := lipgloss.NewStyle().Foreground(shared.Colors.Dim)
 
-	// TODO: context aware help
-	units := []string{
-		helpStyle.Render("↑ / ↓  navigate"),
-		helpStyle.Render("← / →  navigate"),
-		helpStyle.Render("F1 - F4  switch tab"),
-		helpStyle.Render("q / ctrl+c  exit"),
+	var units []string
+	switch m.selectedTab {
+	case 0:
+		units = m.getBaseTabHelp()
+	default:
+		units = []string{
+			shared.Styles.Help.Render("↑ / ↓  navigate"),
+			shared.Styles.Help.Render("← / →  navigate"),
+			shared.Styles.Help.Render("F1 - F4  switch tab"),
+			shared.Styles.Help.Render("q / ctrl+c  exit"),
+		}
 	}
 	var lines []string
 
-	separator := helpStyle.Render("  ·  ")
+	separator := shared.Styles.Help.Render("  ·  ")
 	separatorWidth := lipgloss.Width(separator)
 	line := ""
 	lineWidth := 0
