@@ -13,6 +13,9 @@ const (
 )
 
 type AppModel struct {
+	windowWidth, windowHeight int
+
+	cursor      int
 	currentTask *taskType
 
 	resourceCapModel resourceCap.Model
