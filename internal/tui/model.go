@@ -24,6 +24,11 @@ type AppModel struct {
 }
 
 func (m *AppModel) Init() tea.Cmd {
+	// TODO: remove, temp
+	m.currentTask = func() *taskType {
+		t := taskPrestigePlan
+		return &t
+	}()
 	m.resourceCapModel = resourceCap.New()
 	m.prestigePlanModel = prestigePlan.New()
 	return nil

@@ -8,6 +8,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 func (m Model) View() tea.View {
@@ -227,22 +228,22 @@ func (m Model) renderOutput() string {
 	b.WriteString(styleSectionHeader.Render("Resource caps") + "\n\n")
 	b.WriteString(fmt.Sprintf("  %s  %s\n",
 		resourceStyle(models.ResourceMana).Render("Mana:"),
-		styleValue.Render(formatNum(m.result.Mana))))
+		styleValue.Render(shared.FormatNumberLong(m.result.Mana))))
 	b.WriteString(fmt.Sprintf("  %s  %s\n",
 		resourceStyle(models.ResourceSlime).Render("Slime:"),
-		styleValue.Render(formatNum(m.result.Slime))))
+		styleValue.Render(shared.FormatNumberLong(m.result.Slime))))
 	b.WriteString(fmt.Sprintf("  %s  %s\n",
 		resourceStyle(models.ResourceDarkness).Render("Darkness:"),
-		styleValue.Render(formatNum(m.result.Darkness))))
+		styleValue.Render(shared.FormatNumberLong(m.result.Darkness))))
 	b.WriteString("\n")
-	b.WriteString(fmt.Sprintf("  Combined:  %s\n", styleValue.Render(formatNum(combined))))
+	b.WriteString(fmt.Sprintf("  Combined:  %s\n", styleValue.Render(shared.FormatNumberLong(combined))))
 
 	// Threshold with inline gap delta
 	var deltaStyled string
 	if delta >= 0 {
-		deltaStyled = styleMetYes.Render("+" + formatNum(delta))
+		deltaStyled = styleMetYes.Render("+" + shared.FormatNumberLong(delta))
 	} else {
-		deltaStyled = styleMetNo.Render(formatNum(delta))
+		deltaStyled = styleMetNo.Render(shared.FormatNumberLong(delta))
 	}
 	b.WriteString(fmt.Sprintf("  Threshold: %s  %s\n",
 		styleValue.Render(thresholdLabels[m.thresholdIdx]),
@@ -321,15 +322,15 @@ func (m Model) renderResourceColumn(
 	}[res]
 
 	b.WriteString(rs.Bold(true).Render(label) + "\n")
-	b.WriteString(fmt.Sprintf("cur  %s\n", styleValue.Render(formatNum(cur))))
-	b.WriteString(fmt.Sprintf("tgt  %s\n", styleValue.Render(formatNum(tgt))))
+	b.WriteString(fmt.Sprintf("cur  %s\n", styleValue.Render(shared.FormatNumberLong(cur))))
+	b.WriteString(fmt.Sprintf("tgt  %s\n", styleValue.Render(shared.FormatNumberLong(tgt))))
 
 	if gap <= 0 {
-		b.WriteString(fmt.Sprintf("gap  %s\n", styleMetYes.Render(formatNum(gap))))
+		b.WriteString(fmt.Sprintf("gap  %s\n", styleMetYes.Render(shared.FormatNumberLong(gap))))
 		b.WriteString("\n")
 		b.WriteString(styleMetYes.Render("Already met") + "\n")
 	} else {
-		b.WriteString(fmt.Sprintf("gap  %s\n", styleMetNo.Render(formatNum(gap))))
+		b.WriteString(fmt.Sprintf("gap  %s\n", styleMetNo.Render(shared.FormatNumberLong(gap))))
 		b.WriteString("\n")
 		opts := stationOptionsFor(res, gap, multis[res])
 		for _, opt := range opts {
@@ -372,31 +373,8 @@ func renderRuneCost(costs calculator.RuneCosts) string {
 			continue
 		}
 		// Right-align in 6 chars BEFORE applying color so ANSI codes don't skew width.
-		padded := fmt.Sprintf("%6s", formatNum(amt))
+		padded := fmt.Sprintf("%6s", shared.FormatNumberLong(amt))
 		parts = append(parts, runeStyles[rt].Render(padded))
 	}
 	return strings.Join(parts, " ")
-}
-
-// formatNum formats an integer with comma separators.
-func formatNum(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	negative := n < 0
-	if negative {
-		n = -n
-	}
-	s := fmt.Sprintf("%d", n)
-	var result []byte
-	for i, c := range s {
-		if i > 0 && (len(s)-i)%3 == 0 {
-			result = append(result, ',')
-		}
-		result = append(result, byte(c))
-	}
-	if negative {
-		return "-" + string(result)
-	}
-	return string(result)
 }

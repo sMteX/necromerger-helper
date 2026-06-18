@@ -3,15 +3,16 @@ package tui
 import (
 	"charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 func (m *AppModel) renderMainMenu() tea.View {
 	content := lipgloss.JoinVertical(lipgloss.Center,
-		styleMenuHeader.Render("NecroMerger helper"),
+		shared.Styles.Header.Render("NecroMerger helper"),
 		m.renderMainMenuChoices(),
 	)
-	fw, fh := styleMainContainer.GetFrameSize()
-	content = styleMainContainer.
+	fw, fh := shared.Styles.MainContainer.GetFrameSize()
+	content = shared.Styles.MainContainer.
 		Width(m.windowWidth-fw).
 		Height(m.windowHeight-fh).
 		Align(lipgloss.Center, lipgloss.Top).

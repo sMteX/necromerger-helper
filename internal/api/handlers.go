@@ -11,6 +11,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/db/sqlc"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -225,7 +226,7 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 		if currentLevel > 0 {
 			if currentLevel-1 < len(exp.Levels) {
 				currentLv := exp.Levels[currentLevel-1]
-				summary.CurrentLevelCost = calculator.FormatLargeNumber(currentLv.Cost)
+				summary.CurrentLevelCost = shared.FormatLargeNumber(currentLv.Cost)
 				summary.CurrentLevelValue = fmt.Sprintf("%s -> %s",
 					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.PrevValue),
 					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.Value))
@@ -237,7 +238,7 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if currentLevel < len(exp.Levels) {
 			nextLevel := exp.Levels[currentLevel]
-			summary.NextLevelCost = calculator.FormatLargeNumber(nextLevel.Cost)
+			summary.NextLevelCost = shared.FormatLargeNumber(nextLevel.Cost)
 			summary.NextLevelValue = calculator.FormatExperimentValue(exp.ID, exp.Tier, nextLevel.Value)
 		} else {
 			summary.MaxLevel = true

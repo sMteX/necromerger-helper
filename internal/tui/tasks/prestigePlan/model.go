@@ -15,7 +15,8 @@ const (
 )
 
 type Model struct {
-	selectedTab int
+	selectedTab               int
+	windowHeight, windowWidth int
 
 	baseInputs         prestigePlanModelBaseInputs
 	plannedLegendaries map[models.LegendaryID]int
@@ -24,7 +25,9 @@ type Model struct {
 	currentRunes       map[models.RuneType]int
 	currentLegendaries map[models.LegendaryID]int
 
-	totalRunes map[models.RuneType]int
+	totalRunesNeeded map[models.RuneType]int
+
+	calculatedOutputs prestigePlanCalculatedOutputs
 }
 
 type prestigePlanModelBaseInputs struct {
@@ -33,6 +36,17 @@ type prestigePlanModelBaseInputs struct {
 	otherMultiplier float64
 	groupBonusCount int
 	leftoverShards  int
+}
+
+type prestigePlanCalculatedOutputs struct {
+	baseShards            int
+	leftoverShards        int
+	featMultiplier        float64
+	legendariesMultiplier float64
+	othersMultiplier      float64
+	totalShards           int
+	spentShards           int
+	netShards             int
 }
 
 func (m Model) Init() tea.Cmd {
@@ -105,13 +119,23 @@ func New() Model {
 			models.ShieldBot:   4,
 			models.SoulStalker: 4,
 		},
-		totalRunes: map[models.RuneType]int{
+		totalRunesNeeded: map[models.RuneType]int{
 			models.RuneIce:    10000,
 			models.RunePoison: 10000,
 			models.RuneBlood:  10000,
 			models.RuneMoon:   10000,
 			models.RuneDeath:  10000,
 			models.RuneCosmic: 10000,
+		},
+		calculatedOutputs: prestigePlanCalculatedOutputs{
+			baseShards:            1000000,
+			leftoverShards:        45678,
+			featMultiplier:        3.70,
+			legendariesMultiplier: 11.25,
+			othersMultiplier:      1.72,
+			totalShards:           4653675,
+			spentShards:           4594835,
+			netShards:             63189,
 		},
 	}
 }

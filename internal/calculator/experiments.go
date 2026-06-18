@@ -245,16 +245,6 @@ func GetPost100Experiments() []models.Experiment {
 	return res
 }
 
-func FormatLargeNumber(n int) string {
-	if n >= 1000000 {
-		return fmt.Sprintf("%.1fM", float64(n)/1000000.0)
-	}
-	if n >= 1000 {
-		return fmt.Sprintf("%.1fK", float64(n)/1000.0)
-	}
-	return fmt.Sprintf("%d", n)
-}
-
 func FormatExperimentValue(id models.ExperimentID, tier models.ExperimentTier, value float64) string {
 	switch id {
 	case models.ExpSeasoning, models.ExpStrength, models.ExpTaste, models.ExpCapacity, models.ExpDamageCap:

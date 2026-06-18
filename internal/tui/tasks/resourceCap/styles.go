@@ -86,11 +86,11 @@ var (
 				PaddingLeft(1).
 				PaddingRight(1)
 
-	styleMetYes = lipgloss.NewStyle().Bold(true).Foreground(shared.ColorGood)
-	styleMetNo  = lipgloss.NewStyle().Bold(true).Foreground(shared.ColorBad)
+	styleMetYes = lipgloss.NewStyle().Bold(true).Foreground(shared.Colors.Good)
+	styleMetNo  = lipgloss.NewStyle().Bold(true).Foreground(shared.Colors.Bad)
 
-	styleRuneIce    = lipgloss.NewStyle().Foreground(shared.ColorIce)
-	styleRunePoison = lipgloss.NewStyle().Foreground(shared.ColorPoison)
-	styleRuneBlood  = lipgloss.NewStyle().Foreground(shared.ColorBlood)
-	styleRuneMoon   = lipgloss.NewStyle().Foreground(shared.ColorMoon)
+	styleRuneIce    = lipgloss.NewStyle().Foreground(shared.Colors.RuneIce)
+	styleRunePoison = lipgloss.NewStyle().Foreground(shared.Colors.RunePoison)
+	styleRuneBlood  = lipgloss.NewStyle().Foreground(shared.Colors.RuneBlood)
+	styleRuneMoon   = lipgloss.NewStyle().Foreground(shared.Colors.RuneMoon)
 )
