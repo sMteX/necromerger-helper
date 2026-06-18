@@ -7,20 +7,21 @@ import (
 )
 
 type colors struct {
-	Good, Bad color.Color
+	Good, Bad, Dim color.Color
 
 	RuneIce, RunePoison, RuneBlood, RuneMoon color.Color
 
 	Border color.Color
 }
 type styles struct {
-	MainContainer, Header lipgloss.Style
+	MainContainer, SubContainer, Header lipgloss.Style
 }
 
 var (
 	Colors = colors{
 		Good:       lipgloss.Color("#4ADE80"),
 		Bad:        lipgloss.Color("#F87171"),
+		Dim:        lipgloss.Color("#626262"),
 		RuneIce:    lipgloss.Color("#7DD3FC"),
 		RunePoison: lipgloss.Color("#86EFAC"),
 		RuneBlood:  lipgloss.Color("#FCA5A5"),
@@ -36,5 +37,9 @@ var (
 			Bold(true).
 			Foreground(Colors.Border).
 			MarginBottom(1),
+		SubContainer: lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(Colors.Border).
+			Padding(0, 2),
 	}
 )

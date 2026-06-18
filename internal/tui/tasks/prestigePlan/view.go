@@ -12,26 +12,44 @@ import (
 
 func (m Model) View() tea.View {
 	fw, fh := shared.Styles.MainContainer.GetFrameSize()
+
+	// elements with more or less fixed size - will be subtracted from the available space to figure out the main content
+	header := shared.Styles.Header.Render("Prestige planner")
+	tabSelector := m.renderTabSelector()
+	help := m.renderHelp()
+
+	totalHeight := lipgloss.Height(header) + lipgloss.Height(tabSelector) + lipgloss.Height(help)
+	mainContentHeight := m.windowHeight - totalHeight - fh
+	summaryWidth := m.summaryWidth()
+
 	content := lipgloss.JoinVertical(lipgloss.Left,
-		shared.Styles.Header.Render("Prestige planner"),
-		m.renderTabSelector(),
+		header,
+		tabSelector,
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			m.renderMainContent(80, 40),
-			m.renderSummary(25, 16), // 25 = min width, 16 = min height
+			// TODO: min main content size
+			m.renderMainContent(m.windowWidth-fw-summaryWidth, mainContentHeight),
+			m.renderSummary(summaryWidth, mainContentHeight), // 25 = min width, 16 = min height
 		),
 		// TODO: help, dynamic sizing, min terminal size
+		help,
 	)
 	content = shared.Styles.MainContainer.
-		Width(m.windowWidth - fw).
-		Height(m.windowHeight - fh).
+		Width(m.windowWidth).
+		Height(m.windowHeight).
 		//Align(lipgloss.Center, lipgloss.Top).
 		Render(content)
 
 	return tea.View{
-		Content: content,
+		Content:   content,
+		AltScreen: true,
 	}
 }
-
+func (m Model) summaryWidth() int {
+	availableWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
+	// prefer around 20% of the window width, but >= 25
+	preferred := math.Floor(float64(availableWidth) / 5.0)
+	return int(math.Max(25, preferred))
+}
 func (m Model) renderTabSelector() string {
 	choiceStyle := lipgloss.NewStyle().PaddingRight(3)
 	choiceSelectedStyle := choiceStyle.Bold(true).Foreground(shared.Colors.Good)
@@ -51,8 +69,7 @@ func (m Model) renderTabSelector() string {
 	return lipgloss.NewStyle().MarginBottom(1).Render(lipgloss.JoinHorizontal(lipgloss.Top, choices...))
 }
 func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
-	summaryContainerStyle := shared.Styles.MainContainer.Padding(0, 2)
-	fw, fh := summaryContainerStyle.GetFrameSize()
+	fw := shared.Styles.SubContainer.GetHorizontalFrameSize()
 	var lines []string
 	valueStyle := lipgloss.NewStyle().Width(10).Align(lipgloss.Right)
 	labelStyle := lipgloss.NewStyle().Width(summaryWidth - fw - 10)
@@ -91,12 +108,48 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 			netStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.netShards)),
 		),
 	)
-	return summaryContainerStyle.
-		// width is baked into the styles
-		Height(summaryHeight - fh).
+	return shared.Styles.SubContainer.
+		Width(summaryWidth).
+		Height(summaryHeight).
 		Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
 
 func (m Model) renderMainContent(maxWidth, maxHeight int) string {
-	return ""
+	// TODO: change based on tab
+	return shared.Styles.SubContainer.Width(maxWidth).Height(maxHeight).Align(lipgloss.Center, lipgloss.Center).Render("Main content")
+}
+
+func (m Model) renderHelp() string {
+	maxWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
+	helpStyle := lipgloss.NewStyle().Foreground(shared.Colors.Dim)
+
+	// TODO: context aware help
+	units := []string{
+		helpStyle.Render("↑ / ↓  navigate"),
+		helpStyle.Render("← / →  navigate"),
+		helpStyle.Render("F1 - F4  switch tab"),
+		helpStyle.Render("q / ctrl+c  exit"),
+	}
+	var lines []string
+
+	separator := helpStyle.Render("  ·  ")
+	separatorWidth := lipgloss.Width(separator)
+	line := ""
+	lineWidth := 0
+	for _, u := range units {
+		unitWidth := lipgloss.Width(u)
+		if line == "" {
+			line, lineWidth = u, unitWidth
+		} else if lineWidth+separatorWidth+unitWidth <= maxWidth {
+			line += separator + u
+			lineWidth += separatorWidth + unitWidth
+		} else {
+			lines = append(lines, line)
+			line, lineWidth = u, unitWidth
+		}
+	}
+	if line != "" {
+		lines = append(lines, line)
+	}
+	return lipgloss.NewStyle().MarginTop(1).Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
