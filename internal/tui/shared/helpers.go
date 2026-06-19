@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
@@ -68,4 +69,12 @@ func FormatExperimentValue(id models.ExperimentID, tier models.ExperimentTier, v
 	}
 
 	return fmt.Sprintf("%.1f", value)
+}
+
+// PadRight pads a string from the right with a string (or space if unspecified)
+func PadRight(s string, width int, pad ...string) string {
+	if len(pad) == 0 {
+		pad = []string{" "}
+	}
+	return s + strings.Repeat(pad[0], width-len(s))
 }

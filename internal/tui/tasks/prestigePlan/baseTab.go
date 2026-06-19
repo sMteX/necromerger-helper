@@ -72,11 +72,11 @@ func (m *Model) renderBaseTabInput(i fieldIndex) string {
 	field := m.fields[i]
 	if m.cursor == int(i) {
 		if field.step > 0 || len(field.options) > 0 {
-			return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + valueStyle.Foreground(shared.Colors.Good).AlignHorizontal(lipgloss.Center).Render("← "+field.input.Value()+" →")
+			return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + valueStyle.Foreground(shared.Colors.Good).AlignHorizontal(lipgloss.Left).Render(shared.PadRight("< "+field.input.Value()+" >", valueStyle.GetWidth()))
 		}
-		return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + field.input.View()
+		return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + "  " + field.input.View()
 	}
-	return labelStyle.Render(field.label) + valueStyle.Render(field.input.Value())
+	return labelStyle.Render(field.label) + valueStyle.Render(shared.PadRight("  "+field.input.Value(), valueStyle.GetWidth()))
 }
 
 func (m *Model) getBaseTabHelp() []string {
