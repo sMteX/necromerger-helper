@@ -229,18 +229,18 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 				currentLv := exp.Levels[currentLevel-1]
 				summary.CurrentLevelCost = shared.FormatLargeNumber(currentLv.Cost)
 				summary.CurrentLevelValue = fmt.Sprintf("%s -> %s",
-					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.PrevValue),
-					calculator.FormatExperimentValue(exp.ID, exp.Tier, currentLv.Value))
+					shared.FormatExperimentValue(exp.ID, exp.Tier, currentLv.PrevValue),
+					shared.FormatExperimentValue(exp.ID, exp.Tier, currentLv.Value))
 			}
 		} else {
-			summary.CurrentLevelValue = calculator.FormatExperimentValue(exp.ID, exp.Tier, 0)
+			summary.CurrentLevelValue = shared.FormatExperimentValue(exp.ID, exp.Tier, 0)
 			summary.CurrentLevelCost = "0"
 		}
 
 		if currentLevel < len(exp.Levels) {
 			nextLevel := exp.Levels[currentLevel]
 			summary.NextLevelCost = shared.FormatLargeNumber(nextLevel.Cost)
-			summary.NextLevelValue = calculator.FormatExperimentValue(exp.ID, exp.Tier, nextLevel.Value)
+			summary.NextLevelValue = shared.FormatExperimentValue(exp.ID, exp.Tier, nextLevel.Value)
 		} else {
 			summary.MaxLevel = true
 		}

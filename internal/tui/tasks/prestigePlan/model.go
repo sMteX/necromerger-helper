@@ -62,7 +62,7 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	// testing data
 	return Model{
-		selectedTab: 2,
+		selectedTab: 3,
 		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,

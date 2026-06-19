@@ -1,8 +1,6 @@
 package calculator
 
 import (
-	"fmt"
-
 	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
@@ -42,26 +40,4 @@ func GetPost100Experiments() []models.Experiment {
 		}
 	}
 	return res
-}
-
-func FormatExperimentValue(id models.ExperimentID, tier models.ExperimentTier, value float64) string {
-	switch id {
-	case models.ExpSeasoning, models.ExpStrength, models.ExpTaste, models.ExpCapacity, models.ExpDamageCap:
-		return fmt.Sprintf("%d%%", int(value*100))
-	case models.ExpWeakening:
-		return fmt.Sprintf("%.2f", value)
-	case models.ExpIceChest, models.ExpPoisonChest, models.ExpBloodChest, models.ExpMoonChest, models.ExpDeathChest, models.ExpCosmicChest:
-		return fmt.Sprintf("+%d", int(value))
-	case models.ExpBodySnatcher:
-		if value > 0 {
-			return "Yes"
-		}
-		return "No"
-	}
-
-	if tier == models.TierPost100 {
-		return fmt.Sprintf("x%.1f", value)
-	}
-
-	return fmt.Sprintf("%.1f", value)
 }
