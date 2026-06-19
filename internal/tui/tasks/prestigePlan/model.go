@@ -25,6 +25,7 @@ type Model struct {
 	currentRunes       map[models.RuneType]int
 	currentLegendaries map[models.LegendaryID]int
 
+	// doesn't subtract current runes
 	totalRunesNeeded map[models.RuneType]int
 
 	calculatedOutputs calculatedOutputs
@@ -61,7 +62,7 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	// testing data
 	return Model{
-		selectedTab: 1,
+		selectedTab: 2,
 		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,

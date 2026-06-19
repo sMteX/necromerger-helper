@@ -9,7 +9,7 @@ import (
 type colors struct {
 	Good, Bad, Dim color.Color
 
-	RuneIce, RunePoison, RuneBlood, RuneMoon color.Color
+	RuneIce, RunePoison, RuneBlood, RuneMoon, RuneDeath, RuneCosmic color.Color
 
 	Border color.Color
 }
@@ -26,6 +26,8 @@ var (
 		RunePoison: lipgloss.Color("#86EFAC"),
 		RuneBlood:  lipgloss.Color("#FCA5A5"),
 		RuneMoon:   lipgloss.Color("#FDE68A"),
+		RuneDeath:  lipgloss.Color("#6200b3"),
+		RuneCosmic: lipgloss.Color("#ee00ff"),
 		Border:     lipgloss.Color("#7D56F4"),
 	}
 	Styles = styles{

@@ -121,6 +121,8 @@ func (m Model) renderMainContent(maxWidth, maxHeight int) string {
 		content = m.renderBaseTab()
 	case 1:
 		content = m.renderLegendariesTab()
+	case 2:
+		content = m.renderRuneTab()
 	default:
 		content = "Main content placeholder"
 	}
@@ -136,6 +138,8 @@ func (m Model) renderHelp() string {
 		units = m.getBaseTabHelp()
 	case 1:
 		units = m.getLegendariesTabHelp()
+	case 2:
+		units = m.getRuneTabHelp()
 	default:
 		units = []string{
 			shared.Styles.Help.Render("↑ / ↓  navigate"),

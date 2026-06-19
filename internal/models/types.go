@@ -96,12 +96,12 @@ type Experiment struct {
 type RuneType string
 
 const (
-	RuneIce    RuneType = "ice"
-	RunePoison RuneType = "poison"
-	RuneBlood  RuneType = "blood"
-	RuneMoon   RuneType = "moon"
-	RuneDeath  RuneType = "death"
-	RuneCosmic RuneType = "cosmic"
+	RuneIce    RuneType = "Ice"
+	RunePoison RuneType = "Poison"
+	RuneBlood  RuneType = "Blood"
+	RuneMoon   RuneType = "Moon"
+	RuneDeath  RuneType = "Death"
+	RuneCosmic RuneType = "Cosmic"
 )
 
 type ResourceType string
