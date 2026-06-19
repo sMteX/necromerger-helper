@@ -60,7 +60,7 @@ func (m Model) renderTabSelector() string {
 		"[F4] Experiments",
 	}
 	for i := range len(choices) {
-		if m.selectedTab == i {
+		if int(m.selectedTab) == i {
 			choices[i] = choiceSelectedStyle.Render(choices[i])
 		} else {
 			choices[i] = choiceStyle.Render(choices[i])
@@ -117,13 +117,13 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 func (m Model) renderMainContent(maxWidth, maxHeight int) string {
 	var content string
 	switch m.selectedTab {
-	case 0:
+	case planTabBase:
 		content = m.renderBaseTab()
-	case 1:
+	case planTabLegendaries:
 		content = m.renderLegendariesTab()
-	case 2:
+	case planTabRunes:
 		content = m.renderRuneTab()
-	case 3:
+	case planTabExperiments:
 		content = m.renderExperimentsTab()
 	default:
 		content = "Main content placeholder"
@@ -136,13 +136,13 @@ func (m Model) renderHelp() string {
 
 	var units []string
 	switch m.selectedTab {
-	case 0:
+	case planTabBase:
 		units = m.getBaseTabHelp()
-	case 1:
+	case planTabLegendaries:
 		units = m.getLegendariesTabHelp()
-	case 2:
+	case planTabRunes:
 		units = m.getRuneTabHelp()
-	case 3:
+	case planTabExperiments:
 		units = m.getExperimentsTabHelp()
 	default:
 		units = []string{

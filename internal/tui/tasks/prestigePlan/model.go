@@ -15,7 +15,7 @@ const (
 )
 
 type Model struct {
-	selectedTab               int
+	selectedTab               planTab
 	windowHeight, windowWidth int
 
 	baseInputs         baseInputs
@@ -62,7 +62,7 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	// testing data
 	return Model{
-		selectedTab: 3,
+		selectedTab: planTabBase,
 		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,
