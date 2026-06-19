@@ -197,9 +197,9 @@ func (m *Model) currentInput() *textinput.Model {
 }
 
 type inputField struct {
-	// TODO: select-like behavior => values instead of step - arrows control individual values
-	label          string // not going to be used every time, but it's convenient to have it here
-	step           int    // step == 0 means the field is text-only; step > 0 enables ←/→ increment/decrement.
+	label          string   // not going to be used every time, but it's convenient to have it here
+	step           int      // step == 0 means the field is text-only; step > 0 enables ←/→ increment/decrement.
+	options        []string // if len(options) > 0, step is ignored and the field is a select-like
 	width          int
 	characterLimit int
 	validate       func(string) error

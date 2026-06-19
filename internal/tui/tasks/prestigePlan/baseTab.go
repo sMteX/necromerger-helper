@@ -1,7 +1,7 @@
 package prestigePlan
 
 import (
-	"fmt"
+	"slices"
 	"strconv"
 
 	tea "charm.land/bubbletea/v2"
@@ -11,10 +11,13 @@ import (
 
 func (m *Model) addBaseTabFields() {
 	m.fields[fieldBaseDevourerLevel] = inputField{
-		label:          "Devourer Level",
-		step:           1,
+		label: "Devourer Level",
+		options: []string{"35", "40", "45", "50", "55", "60", "65", "70",
+			"75", "80", "85", "90", "95", "100", "150",
+			"200", "300", "400", "500", "600", "700",
+			"800", "900", "1000"},
 		width:          8,
-		characterLimit: 3,
+		characterLimit: 4,
 		initialValue:   strconv.Itoa(m.baseInputs.devourerLevel),
 		validate:       inputValidationIntInRange(1, 1000),
 	}
@@ -26,23 +29,13 @@ func (m *Model) addBaseTabFields() {
 		initialValue:   strconv.Itoa(m.baseInputs.featTiers),
 		validate:       inputValidationIntInRange(1, 35),
 	}
-	// TODO: an int field instead?
 	m.fields[fieldBaseOtherMultiplier] = inputField{
-		label:          "'Others' Multiplier",
+		label:          "'Others' Multiplier [%]",
 		step:           0,
 		width:          8,
-		characterLimit: 4,
-		initialValue:   fmt.Sprintf("%.2f", m.baseInputs.otherMultiplier),
-		validate: func(s string) error {
-			v, err := strconv.ParseFloat(s, 64)
-			if err != nil {
-				return fmt.Errorf("must be a number")
-			}
-			if v < 1.0 {
-				return fmt.Errorf("must be ≥ 1.0")
-			}
-			return nil
-		},
+		characterLimit: 3,
+		initialValue:   strconv.Itoa(int(m.baseInputs.otherMultiplier * 100)),
+		validate:       inputValidationIntInRange(100, 1000),
 	}
 	m.fields[fieldBaseGroupBonusCount] = inputField{
 		label:          "Leg. Group Bonus Count",
@@ -78,7 +71,7 @@ func (m *Model) renderBaseTabInput(i fieldIndex) string {
 
 	field := m.fields[i]
 	if m.cursor == int(i) {
-		if field.step > 0 {
+		if field.step > 0 || len(field.options) > 0 {
 			return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + valueStyle.Foreground(shared.Colors.Good).AlignHorizontal(lipgloss.Center).Render("← "+field.input.Value()+" →")
 		}
 		return labelStyle.Foreground(shared.Colors.Good).Render(field.label) + field.input.View()
@@ -116,7 +109,27 @@ func (m *Model) handleBaseTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		// For text-only fields (step == 0), fall through so the textinput handles
 		// cursor movement within the text.
 		field := m.fields[fieldIndex(m.cursor)]
-		if field.step > 0 {
+		if len(field.options) > 0 {
+			cur := m.currentInput().Value()
+			idx := slices.Index(field.options, cur)
+			// probably safety check
+			if idx < 0 {
+				idx = 0
+			}
+			if msg.String() == "left" && idx > 0 {
+				idx--
+			} else if msg.String() == "right" && idx < len(field.options)-1 {
+				idx++
+			} else {
+				// at either end of the options
+				return m, nil
+			}
+			newVal := field.options[idx]
+			m.currentInput().SetValue(newVal)
+			m.parseBaseTabFieldValues(fieldIndex(m.cursor), newVal)
+			// TODO: recalculate m.calculatedOutputs from m.baseInputs
+			return m, nil
+		} else if field.step > 0 {
 			cur, err := strconv.Atoi(m.currentInput().Value())
 			if err != nil {
 				return m, nil
@@ -133,7 +146,7 @@ func (m *Model) handleBaseTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 			}
-			m.fields[m.cursor].input.SetValue(newVal)
+			m.currentInput().SetValue(newVal)
 			m.parseBaseTabFieldValues(fieldIndex(m.cursor), newVal)
 			// TODO: recalculate m.calculatedOutputs from m.baseInputs
 			return m, nil
@@ -162,8 +175,8 @@ func (m *Model) parseBaseTabFieldValues(i fieldIndex, value string) {
 			m.baseInputs.featTiers = v
 		}
 	case fieldBaseOtherMultiplier:
-		if v, err := strconv.ParseFloat(value, 64); err == nil {
-			m.baseInputs.otherMultiplier = v
+		if v, err := strconv.Atoi(value); err == nil {
+			m.baseInputs.otherMultiplier = float64(v / 100.0)
 		}
 	case fieldBaseGroupBonusCount:
 		if v, err := strconv.Atoi(value); err == nil {
