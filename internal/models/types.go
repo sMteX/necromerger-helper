@@ -126,3 +126,12 @@ type Plan struct {
 	PossessedLegendaries map[LegendaryID]int  `json:"possessedLegendaries"`
 	Notes                string               `json:"notes"`
 }
+
+type LegendaryRecipe struct {
+	StationID StationID
+	Levels    int
+	ReturnsL1 bool
+	Requires  []LegendaryID // For Group 3
+}
+
+type RuneCosts map[RuneType]int

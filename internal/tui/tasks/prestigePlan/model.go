@@ -18,7 +18,7 @@ type Model struct {
 	selectedTab               int
 	windowHeight, windowWidth int
 
-	baseInputs         prestigePlanModelBaseInputs
+	baseInputs         baseInputs
 	plannedLegendaries map[models.LegendaryID]int
 	plannedExperiments map[models.ExperimentID]int
 
@@ -27,10 +27,10 @@ type Model struct {
 
 	totalRunesNeeded map[models.RuneType]int
 
-	calculatedOutputs prestigePlanCalculatedOutputs
+	calculatedOutputs calculatedOutputs
 }
 
-type prestigePlanModelBaseInputs struct {
+type baseInputs struct {
 	devourerLevel   int
 	featTiers       int
 	otherMultiplier float64
@@ -38,7 +38,12 @@ type prestigePlanModelBaseInputs struct {
 	leftoverShards  int
 }
 
-type prestigePlanCalculatedOutputs struct {
+type calculatedOutputs struct {
+	summary               calculatedSummary
+	legendaryBonuses      map[models.LegendaryID]float64
+	legendaryGroupBonuses map[models.LegendaryGroup]float64
+}
+type calculatedSummary struct {
 	baseShards            int
 	leftoverShards        int
 	featMultiplier        float64
@@ -56,8 +61,8 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	// testing data
 	return Model{
-		selectedTab: 0,
-		baseInputs: prestigePlanModelBaseInputs{
+		selectedTab: 1,
+		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,
 			otherMultiplier: 1.72,
@@ -127,15 +132,37 @@ func New() Model {
 			models.RuneDeath:  10000,
 			models.RuneCosmic: 10000,
 		},
-		calculatedOutputs: prestigePlanCalculatedOutputs{
-			baseShards:            1000000,
-			leftoverShards:        45678,
-			featMultiplier:        3.70,
-			legendariesMultiplier: 11.25,
-			othersMultiplier:      1.72,
-			totalShards:           4653675,
-			spentShards:           4594835,
-			netShards:             63189,
+		calculatedOutputs: calculatedOutputs{
+			summary: calculatedSummary{
+				baseShards:            1000000,
+				leftoverShards:        45678,
+				featMultiplier:        3.70,
+				legendariesMultiplier: 11.25,
+				othersMultiplier:      1.72,
+				totalShards:           4653675,
+				spentShards:           4594835,
+				netShards:             63189,
+			},
+			legendaryBonuses: map[models.LegendaryID]float64{
+				models.Lich:        0.35,
+				models.Gorgon:      0.1,
+				models.Harpy:       0.1,
+				models.Reaper:      0.15,
+				models.Cyclops:     0.15,
+				models.Archdemon:   1,
+				models.TheCursed:   0.2,
+				models.TheColossus: 0.2,
+				models.TheInfernal: 0.2,
+				models.RoboChicken: 1,
+				models.ShieldBot:   1,
+				models.SoulStalker: 3.25,
+			},
+			legendaryGroupBonuses: map[models.LegendaryGroup]float64{
+				models.Group1: 1,
+				models.Group2: 0.5,
+				models.Group3: 0.75,
+				models.Group4: 0.75,
+			},
 		},
 	}
 }

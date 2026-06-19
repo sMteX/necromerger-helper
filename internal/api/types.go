@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
 
@@ -23,17 +22,17 @@ type ExperimentSummary struct {
 }
 
 type RecalculateResponse struct {
-	TotalShards      int                                         `json:"totalShards"`
-	BaseShards       int                                         `json:"baseShards"`
-	FeatMultiplier   float64                                     `json:"featMultiplier"`
-	LegendMultiplier float64                                     `json:"legendMultiplier"`
-	OtherMultiplier  float64                                     `json:"otherMultiplier"`
-	ExperimentCost   int                                         `json:"experimentCost"`
-	Remaining        int                                         `json:"remaining"`
-	Experiments      map[models.ExperimentID]ExperimentSummary   `json:"experiments"`
-	RuneTotal        map[models.RuneType]int                     `json:"runeTotal"`
-	RuneNeeded       map[models.RuneType]int                     `json:"runeNeeded"`
-	LegendaryRunes   map[models.LegendaryID]calculator.RuneCosts `json:"legendaryRunes"`
+	TotalShards      int                                       `json:"totalShards"`
+	BaseShards       int                                       `json:"baseShards"`
+	FeatMultiplier   float64                                   `json:"featMultiplier"`
+	LegendMultiplier float64                                   `json:"legendMultiplier"`
+	OtherMultiplier  float64                                   `json:"otherMultiplier"`
+	ExperimentCost   int                                       `json:"experimentCost"`
+	Remaining        int                                       `json:"remaining"`
+	Experiments      map[models.ExperimentID]ExperimentSummary `json:"experiments"`
+	RuneTotal        map[models.RuneType]int                   `json:"runeTotal"`
+	RuneNeeded       map[models.RuneType]int                   `json:"runeNeeded"`
+	LegendaryRunes   map[models.LegendaryID]models.RuneCosts   `json:"legendaryRunes"`
 }
 
 // --- Resource cap calculator types ---

@@ -3,33 +3,12 @@ package calculator
 import (
 	"math"
 
+	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
 
-var DevourerBaseShards = map[int]int{
-	35: 150, 40: 275, 45: 500, 50: 750, 55: 1000, 60: 1500, 65: 2000, 70: 3250,
-	75: 4500, 80: 5750, 85: 7500, 90: 10000, 95: 12500, 100: 15000, 150: 40000,
-	200: 65000, 300: 150000, 400: 275000, 500: 450000, 600: 700000, 700: 1050000,
-	800: 1550000, 900: 2250000, 1000: 3250000,
-}
-
-var Legendaries = []models.Legendary{
-	{ID: models.Lich, Name: "Lich", Group: models.Group1, FirstBonus: 0.10, Subsequent: 0.05},
-	{ID: models.Gorgon, Name: "Gorgon", Group: models.Group1, FirstBonus: 0.10, Subsequent: 0.05},
-	{ID: models.Harpy, Name: "Harpy", Group: models.Group1, FirstBonus: 0.10, Subsequent: 0.05},
-	{ID: models.Reaper, Name: "Reaper", Group: models.Group2, FirstBonus: 0.20, Subsequent: 0.10},
-	{ID: models.Cyclops, Name: "Cyclops", Group: models.Group2, FirstBonus: 0.20, Subsequent: 0.10},
-	{ID: models.Archdemon, Name: "Archdemon", Group: models.Group2, FirstBonus: 0.20, Subsequent: 0.10, MaxInstances: 4},
-	{ID: models.TheCursed, Name: "The Cursed", Group: models.Group3, FirstBonus: 0.40, MaxInstances: 1},
-	{ID: models.TheColossus, Name: "The Colossus", Group: models.Group3, FirstBonus: 0.40, MaxInstances: 1},
-	{ID: models.TheInfernal, Name: "The Infernal", Group: models.Group3, FirstBonus: 0.40, MaxInstances: 1},
-	{ID: models.RoboChicken, Name: "Robo Chicken", Group: models.Group4, FirstBonus: 0.20, Subsequent: 0.10, MaxInstances: 4},
-	{ID: models.ShieldBot, Name: "Shield Bot", Group: models.Group4, FirstBonus: 0.30, Subsequent: 0.15, MaxInstances: 4},
-	{ID: models.SoulStalker, Name: "Soul Stalker", Group: models.Group4, FirstBonus: 0.40, Subsequent: 0.20},
-}
-
 func CalculateTimeShards(plan models.Plan) int {
-	base := DevourerBaseShards[plan.DevourerLevel]
+	base := data.DevourerBaseShards[plan.DevourerLevel]
 	if base == 0 {
 		return 0
 	}
@@ -50,7 +29,7 @@ func CalculateLegendMultiplier(plan models.Plan) float64 {
 		groupMinCounts[g] = math.MaxInt32
 	}
 
-	for _, leg := range Legendaries {
+	for _, leg := range data.Legendaries {
 		count := plan.LegendaryCounts[leg.ID]
 		if count > 0 {
 			bonusCount := count

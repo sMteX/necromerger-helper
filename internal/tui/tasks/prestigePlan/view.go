@@ -77,17 +77,17 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 	lines = append(lines, shared.Styles.Header.Render("Time Shard Summary"))
 
 	values := [][]string{
-		{"Base", shared.FormatNumberLong(m.calculatedOutputs.baseShards)},
-		{"Leftovers", shared.FormatNumberLong(m.calculatedOutputs.leftoverShards)},
-		{"× Feats", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.featMultiplier*100))},
-		{"× Leggos", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.legendariesMultiplier*100))},
-		{"× Others", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.othersMultiplier*100))},
+		{"Base", shared.FormatNumberLong(m.calculatedOutputs.summary.baseShards)},
+		{"Leftovers", shared.FormatNumberLong(m.calculatedOutputs.summary.leftoverShards)},
+		{"× Feats", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.featMultiplier*100))},
+		{"× Leggos", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.legendariesMultiplier*100))},
+		{"× Others", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.othersMultiplier*100))},
 	}
 	for _, v := range values {
 		lines = append(lines, lipgloss.JoinHorizontal(lipgloss.Top, labelStyle.Render(v[0]), valueStyle.Render(v[1])))
 	}
 	netStyle := func() lipgloss.Style {
-		if m.calculatedOutputs.netShards > 0 {
+		if m.calculatedOutputs.summary.netShards > 0 {
 			return valueStyle.Foreground(shared.Colors.Good)
 		}
 		return valueStyle.Foreground(shared.Colors.Bad)
@@ -96,16 +96,16 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 		strings.Repeat("─", summaryWidth-fw),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Render("Total"),
-			valueStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.totalShards)),
+			valueStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.summary.totalShards)),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Foreground(shared.Colors.Bad).Render("Spent"),
-			valueStyle.Foreground(shared.Colors.Bad).Render(shared.FormatNumberLong(-m.calculatedOutputs.spentShards)),
+			valueStyle.Foreground(shared.Colors.Bad).Render(shared.FormatNumberLong(-m.calculatedOutputs.summary.spentShards)),
 		),
 		strings.Repeat("─", summaryWidth-fw),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Render("Net"),
-			netStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.netShards)),
+			netStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.summary.netShards)),
 		),
 	)
 	return shared.Styles.SubContainer.
@@ -119,6 +119,8 @@ func (m Model) renderMainContent(maxWidth, maxHeight int) string {
 	switch m.selectedTab {
 	case 0:
 		content = m.renderBaseTab()
+	case 1:
+		content = m.renderLegendariesTab()
 	default:
 		content = "Main content placeholder"
 	}
@@ -132,6 +134,8 @@ func (m Model) renderHelp() string {
 	switch m.selectedTab {
 	case 0:
 		units = m.getBaseTabHelp()
+	case 1:
+		units = m.getLegendariesTabHelp()
 	default:
 		units = []string{
 			shared.Styles.Help.Render("↑ / ↓  navigate"),

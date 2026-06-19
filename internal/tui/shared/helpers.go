@@ -37,3 +37,9 @@ func FormatLargeNumber(n int) string {
 	}
 	return fmt.Sprintf("%d", n)
 }
+
+// FormatPercentageBonus formats the percentage input as `+X%`
+// e.g. 1.25 -> +125%
+func FormatPercentageBonus(bonus float64) string {
+	return fmt.Sprintf("+%.0f%%", bonus*100)
+}

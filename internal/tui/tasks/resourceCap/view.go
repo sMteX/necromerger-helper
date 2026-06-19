@@ -358,7 +358,7 @@ func stationOptionsFor(res models.ResourceType, gap int, multi float64) []calcul
 // renderRuneCost renders rune costs as coloured numbers only (no text labels).
 // Each amount is right-aligned in a 6-char field (supports up to 5-digit costs)
 // so columns stay aligned across all station levels.
-func renderRuneCost(costs calculator.RuneCosts) string {
+func renderRuneCost(costs models.RuneCosts) string {
 	runeStyles := map[models.RuneType]lipgloss.Style{
 		models.RuneIce:    styleRuneIce,
 		models.RunePoison: styleRunePoison,

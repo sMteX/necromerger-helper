@@ -3,6 +3,7 @@ package calculator
 import (
 	"math"
 
+	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
 
@@ -12,9 +13,9 @@ var slimeVatCaps = []int{1500, 3000, 5000, 7500, 10000, 15000}
 var darkStoreCaps = []int{1000, 2000, 3000, 5000, 7000, 10000}
 
 // L1 rune costs for each resource cap station type.
-var manaPoolL1Cost = RuneCosts{models.RuneIce: 10, models.RunePoison: 5}
-var slimeVatL1Cost = RuneCosts{models.RunePoison: 10, models.RuneBlood: 5}
-var darkStoreL1Cost = RuneCosts{models.RuneBlood: 10, models.RuneMoon: 5}
+var manaPoolL1Cost = models.RuneCosts{models.RuneIce: 10, models.RunePoison: 5}
+var slimeVatL1Cost = models.RuneCosts{models.RunePoison: 10, models.RuneBlood: 5}
+var darkStoreL1Cost = models.RuneCosts{models.RuneBlood: 10, models.RuneMoon: 5}
 
 // Per-resource relic bonus per level (index = level - 1), as decimals.
 var perResourceRelicBonus = []float64{0.02, 0.04, 0.06, 0.08, 0.10, 0.13, 0.16, 0.20, 0.25, 0.30}
@@ -72,7 +73,7 @@ type ResourceCapResult struct {
 type StationOptionResult struct {
 	Level    int
 	Count    int
-	RuneCost RuneCosts
+	RuneCost models.RuneCosts
 }
 
 func relicBonus(level int, table []float64) float64 {
@@ -94,7 +95,7 @@ func capacityExp1Bonus(level int) float64 {
 	if level <= 0 {
 		return 0
 	}
-	for _, exp := range Experiments {
+	for _, exp := range data.Experiments {
 		if exp.ID == models.ExpCapacity && level <= len(exp.Levels) {
 			return exp.Levels[level-1].Value
 		}
@@ -106,7 +107,7 @@ func capacityExp2Multiplier(level int) float64 {
 	if level <= 0 {
 		return 1.0
 	}
-	for _, exp := range Experiments {
+	for _, exp := range data.Experiments {
 		if exp.ID == models.ExpCapacity2 && level <= len(exp.Levels) {
 			return exp.Levels[level-1].Value
 		}
@@ -234,7 +235,7 @@ func ResourceTargets(threshold int, fixed map[models.ResourceType]int) (mana, sl
 
 // StationOptions returns how many stations of each level (1-6) are needed to close gap,
 // given the effective multiplier already applied to base cap contributions.
-func StationOptions(gap int, caps []int, l1Cost RuneCosts, multiplier float64) []StationOptionResult {
+func StationOptions(gap int, caps []int, l1Cost models.RuneCosts, multiplier float64) []StationOptionResult {
 	if gap <= 0 {
 		return nil
 	}
@@ -243,7 +244,7 @@ func StationOptions(gap int, caps []int, l1Cost RuneCosts, multiplier float64) [
 		effectiveCap := float64(caps[i]) * multiplier
 		count := int(math.Ceil(float64(gap) / effectiveCap))
 		l1Equivalent := count * (1 << i) // 2^i L1 stations needed per one level-(i+1) station
-		runeCost := make(RuneCosts, len(l1Cost))
+		runeCost := make(models.RuneCosts, len(l1Cost))
 		for rune, unitCost := range l1Cost {
 			runeCost[rune] = l1Equivalent * unitCost
 		}

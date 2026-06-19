@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
+	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/db/sqlc"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
@@ -212,14 +213,14 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shards := calculator.CalculateTimeShards(plan)
-	baseShards := calculator.DevourerBaseShards[plan.DevourerLevel]
+	baseShards := data.DevourerBaseShards[plan.DevourerLevel]
 	featMultiplier := 1.0 + (float64(plan.FeatTiers) * 0.10)
 
 	expCost := calculator.CalculateExperimentCost(plan)
 	totalRunes, neededRunes := calculator.CalculateTotalRunes(plan)
 
 	expSummaries := make(map[models.ExperimentID]ExperimentSummary)
-	for _, exp := range calculator.Experiments {
+	for _, exp := range data.Experiments {
 		currentLevel := plan.ExperimentLevels[exp.ID]
 		summary := ExperimentSummary{ID: exp.ID, CurrentLevel: currentLevel}
 
@@ -246,8 +247,8 @@ func RecalculateHandler(w http.ResponseWriter, r *http.Request) {
 		expSummaries[exp.ID] = summary
 	}
 
-	legRunes := make(map[models.LegendaryID]calculator.RuneCosts)
-	for id := range calculator.LegendaryRecipes {
+	legRunes := make(map[models.LegendaryID]models.RuneCosts)
+	for id := range data.LegendaryRecipes {
 		legRunes[id] = calculator.GetLegendaryRuneCost(id)
 	}
 
