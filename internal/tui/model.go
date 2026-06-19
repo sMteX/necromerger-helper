@@ -20,7 +20,7 @@ type AppModel struct {
 	currentTask *taskType
 
 	resourceCapModel  resourceCap.Model
-	prestigePlanModel prestigePlan.Model
+	prestigePlanModel *prestigePlan.Model
 }
 
 func (m *AppModel) Init() tea.Cmd {
@@ -45,7 +45,7 @@ func (m *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	case taskPrestigePlan:
 		newModel, cmd := m.prestigePlanModel.Update(msg)
-		m.prestigePlanModel = newModel.(prestigePlan.Model)
+		m.prestigePlanModel = newModel.(*prestigePlan.Model)
 		return m, cmd
 	default:
 		panic("unknown task type")

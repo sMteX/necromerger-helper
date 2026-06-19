@@ -10,7 +10,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
-func (m Model) renderRuneTab() string {
+func (m *Model) renderRuneTab() string {
 	runeColumn := lipgloss.NewStyle().Width(10)
 	valueColumn := lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Right)
 
@@ -40,7 +40,7 @@ var runeColorMap = map[models.RuneType]color.Color{
 	models.RuneCosmic: shared.Colors.RuneCosmic,
 }
 
-func (m Model) renderRuneTableRow(rune models.RuneType) string {
+func (m *Model) renderRuneTableRow(rune models.RuneType) string {
 	runeColumn := lipgloss.NewStyle().Width(10)
 	valueColumn := lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Right)
 
@@ -59,7 +59,7 @@ func (m Model) renderRuneTableRow(rune models.RuneType) string {
 		needColumn.Render(shared.FormatNumberLong(needRunes))
 }
 
-func (m Model) getRuneTabHelp() []string {
+func (m *Model) getRuneTabHelp() []string {
 	return []string{
 		shared.Styles.Help.Render("↑ / ↓  navigate"),
 		shared.Styles.Help.Render("F1 - F4  switch tab"),

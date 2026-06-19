@@ -1,6 +1,10 @@
 package prestigePlan
 
 import (
+	"fmt"
+	"strconv"
+
+	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
@@ -17,6 +21,9 @@ const (
 type Model struct {
 	selectedTab               planTab
 	windowHeight, windowWidth int
+
+	cursor int // controls which input is selected - TODO: move to sub-models?
+	fields []inputField
 
 	baseInputs         baseInputs
 	plannedLegendaries map[models.LegendaryID]int
@@ -55,13 +62,13 @@ type calculatedSummary struct {
 	netShards             int
 }
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func New() Model {
+func New() *Model {
 	// testing data
-	return Model{
+	m := Model{
 		selectedTab: planTabBase,
 		baseInputs: baseInputs{
 			devourerLevel:   200,
@@ -165,5 +172,63 @@ func New() Model {
 				models.Group4: 0.75,
 			},
 		},
+	}
+	m.fields = make([]inputField, fieldIndexCount)
+	m.addBaseTabFields()
+	m.initializeInputModels()
+	return &m
+}
+
+func (m *Model) initializeInputModels() {
+	for i, field := range m.fields {
+		f := textinput.New()
+		f.Prompt = ""
+		f.CharLimit = field.characterLimit
+		f.Validate = field.validate
+		f.SetVirtualCursor(true)
+		f.SetWidth(field.width)
+		f.SetValue(field.initialValue)
+		m.fields[i].input = f
+	}
+}
+
+func (m *Model) currentInput() *textinput.Model {
+	return &m.fields[m.cursor].input
+}
+
+type inputField struct {
+	// TODO: select-like behavior => values instead of step - arrows control individual values
+	label          string // not going to be used every time, but it's convenient to have it here
+	step           int    // step == 0 means the field is text-only; step > 0 enables ←/→ increment/decrement.
+	width          int
+	characterLimit int
+	validate       func(string) error
+	initialValue   string
+	input          textinput.Model
+}
+
+type fieldIndex int8
+
+const (
+	// Base fields
+	fieldBaseDevourerLevel fieldIndex = iota
+	fieldBaseFeatTiers
+	fieldBaseOtherMultiplier
+	fieldBaseGroupBonusCount
+	fieldBaseLeftoverShards
+	// special constant that automatically updates and refers to the amount of these constants (like `len(fieldIndex)`)
+	fieldIndexCount
+)
+
+func inputValidationIntInRange(min, max int) func(string) error {
+	return func(s string) error {
+		v, err := strconv.Atoi(s)
+		if err != nil {
+			return fmt.Errorf("must be a whole number")
+		}
+		if v < min || v > max {
+			return fmt.Errorf("must be between %d and %d", min, max)
+		}
+		return nil
 	}
 }

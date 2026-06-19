@@ -10,7 +10,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
-func (m Model) renderLegendariesTab() string {
+func (m *Model) renderLegendariesTab() string {
 	// TODO: clean up this duplicated style mess
 	nameColumn := lipgloss.NewStyle().Width(15)
 	countColumn := lipgloss.NewStyle().Width(4).AlignHorizontal(lipgloss.Right)
@@ -44,12 +44,12 @@ func (m Model) renderLegendariesTab() string {
 	)
 }
 
-func (m Model) renderLegendaryGroupHeading(group models.LegendaryGroup, tableWidth int) string {
+func (m *Model) renderLegendaryGroupHeading(group models.LegendaryGroup, tableWidth int) string {
 	groupHeading := lipgloss.NewStyle().Foreground(shared.Colors.Good).MarginTop(1)
 	return groupHeading.Render(renderGroupHeadingText(fmt.Sprintf("Group %d", group), shared.FormatPercentageBonus(m.calculatedOutputs.legendaryGroupBonuses[group]), tableWidth))
 }
 
-func (m Model) renderLegendaryRow(legendary models.LegendaryID) string {
+func (m *Model) renderLegendaryRow(legendary models.LegendaryID) string {
 	nameColumn := lipgloss.NewStyle().Width(15)
 	countColumn := lipgloss.NewStyle().Width(4).AlignHorizontal(lipgloss.Right)
 	bonusColumn := lipgloss.NewStyle().Width(8 + 3).AlignHorizontal(lipgloss.Right).PaddingRight(3)
@@ -79,7 +79,7 @@ func renderGroupHeadingText(name, bonus string, width int) string {
 	return fmt.Sprintf("── %s %s %s ──", name, strings.Repeat("─", innerFillLength), bonus)
 }
 
-func (m Model) getLegendariesTabHelp() []string {
+func (m *Model) getLegendariesTabHelp() []string {
 	return []string{
 		shared.Styles.Help.Render("↑ / ↓  navigate"),
 		shared.Styles.Help.Render("← / →  navigate"),

@@ -10,7 +10,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
-func (m Model) renderExperimentsTab() string {
+func (m *Model) renderExperimentsTab() string {
 	// TODO: clean up this duplicated style mess
 	nameColumn := lipgloss.NewStyle().Width(20)
 	levelColumn := lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center)
@@ -58,7 +58,7 @@ func renderExperimentHeadingText(text string, width int) string {
 	return lipgloss.NewStyle().Foreground(shared.Colors.Good).MarginTop(1).Render(fmt.Sprintf("── %s %s", text, strings.Repeat("─", fillLength)))
 }
 
-func (m Model) renderExperimentRow(experiment models.ExperimentID) string {
+func (m *Model) renderExperimentRow(experiment models.ExperimentID) string {
 	nameColumn := lipgloss.NewStyle().Width(20)
 	levelColumn := lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center)
 	effectColumn := lipgloss.NewStyle().Width(20).AlignHorizontal(lipgloss.Center)
@@ -97,7 +97,7 @@ func (m Model) renderExperimentRow(experiment models.ExperimentID) string {
 	)
 }
 
-func (m Model) getEffectText(experiment models.ExperimentID, tier models.ExperimentTier, level *models.ExperimentLevel) string {
+func (m *Model) getEffectText(experiment models.ExperimentID, tier models.ExperimentTier, level *models.ExperimentLevel) string {
 	arrow := " → "
 	if level == nil {
 		return "──"
@@ -109,7 +109,7 @@ func (m Model) getEffectText(experiment models.ExperimentID, tier models.Experim
 	)
 }
 
-func (m Model) getExperimentsTabHelp() []string {
+func (m *Model) getExperimentsTabHelp() []string {
 	return []string{
 		shared.Styles.Help.Render("↑ / ↓  navigate"),
 		shared.Styles.Help.Render("← / →  change level"),

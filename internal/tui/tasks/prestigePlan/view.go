@@ -10,7 +10,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
-func (m Model) View() tea.View {
+func (m *Model) View() tea.View {
 	fw, fh := shared.Styles.MainContainer.GetFrameSize()
 
 	// elements with more or less fixed size - will be subtracted from the available space to figure out the main content
@@ -44,13 +44,13 @@ func (m Model) View() tea.View {
 		AltScreen: true,
 	}
 }
-func (m Model) summaryWidth() int {
+func (m *Model) summaryWidth() int {
 	availableWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
 	// prefer around 20% of the window width, but >= 25
 	preferred := math.Floor(float64(availableWidth) / 5.0)
 	return int(math.Max(25, preferred))
 }
-func (m Model) renderTabSelector() string {
+func (m *Model) renderTabSelector() string {
 	choiceStyle := lipgloss.NewStyle().PaddingRight(3)
 	choiceSelectedStyle := choiceStyle.Bold(true).Foreground(shared.Colors.Good)
 	choices := []string{
@@ -68,7 +68,7 @@ func (m Model) renderTabSelector() string {
 	}
 	return lipgloss.NewStyle().MarginBottom(1).Render(lipgloss.JoinHorizontal(lipgloss.Top, choices...))
 }
-func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
+func (m *Model) renderSummary(summaryWidth, summaryHeight int) string {
 	fw := shared.Styles.SubContainer.GetHorizontalFrameSize()
 	var lines []string
 	valueStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
@@ -114,7 +114,7 @@ func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 		Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
 
-func (m Model) renderMainContent(maxWidth, maxHeight int) string {
+func (m *Model) renderMainContent(maxWidth, maxHeight int) string {
 	var content string
 	switch m.selectedTab {
 	case planTabBase:
@@ -131,7 +131,7 @@ func (m Model) renderMainContent(maxWidth, maxHeight int) string {
 	return shared.Styles.SubContainer.Width(maxWidth).Height(maxHeight).Render(content)
 }
 
-func (m Model) renderHelp() string {
+func (m *Model) renderHelp() string {
 	maxWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
 
 	var units []string
