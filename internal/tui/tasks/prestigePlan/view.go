@@ -71,7 +71,7 @@ func (m Model) renderTabSelector() string {
 func (m Model) renderSummary(summaryWidth, summaryHeight int) string {
 	fw := shared.Styles.SubContainer.GetHorizontalFrameSize()
 	var lines []string
-	valueStyle := lipgloss.NewStyle().Width(10).Align(lipgloss.Right)
+	valueStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
 	labelStyle := lipgloss.NewStyle().Width(summaryWidth - fw - 10)
 
 	lines = append(lines, shared.Styles.Header.Render("Time Shard Summary"))

@@ -18,7 +18,7 @@ func (m Model) renderRuneTab() string {
 		lipgloss.NewStyle().Bold(true).Render(
 			runeColumn.Render("Rune") + valueColumn.Render("Have") + valueColumn.Render("Total") + valueColumn.Render("Need"),
 		),
-		strings.Repeat("─", 37),
+		strings.Repeat("─", runeColumn.GetWidth()+3*valueColumn.GetWidth()),
 		m.renderRuneTableRow(models.RuneIce),
 		m.renderRuneTableRow(models.RunePoison),
 		m.renderRuneTableRow(models.RuneBlood),
@@ -31,15 +31,16 @@ func (m Model) renderRuneTab() string {
 	)
 }
 
+var runeColorMap = map[models.RuneType]color.Color{
+	models.RuneIce:    shared.Colors.RuneIce,
+	models.RunePoison: shared.Colors.RunePoison,
+	models.RuneBlood:  shared.Colors.RuneBlood,
+	models.RuneMoon:   shared.Colors.RuneMoon,
+	models.RuneDeath:  shared.Colors.RuneDeath,
+	models.RuneCosmic: shared.Colors.RuneCosmic,
+}
+
 func (m Model) renderRuneTableRow(rune models.RuneType) string {
-	runeColors := map[models.RuneType]color.Color{
-		models.RuneIce:    shared.Colors.RuneIce,
-		models.RunePoison: shared.Colors.RunePoison,
-		models.RuneBlood:  shared.Colors.RuneBlood,
-		models.RuneMoon:   shared.Colors.RuneMoon,
-		models.RuneDeath:  shared.Colors.RuneDeath,
-		models.RuneCosmic: shared.Colors.RuneCosmic,
-	}
 	runeColumn := lipgloss.NewStyle().Width(10)
 	valueColumn := lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Right)
 
@@ -52,7 +53,7 @@ func (m Model) renderRuneTableRow(rune models.RuneType) string {
 
 	needRunes := int(math.Max(float64(m.totalRunesNeeded[rune]-m.currentRunes[rune]), 0))
 
-	return runeColumn.Foreground(runeColors[rune]).Render(string(rune)) +
+	return runeColumn.Foreground(runeColorMap[rune]).Render(string(rune)) +
 		valueColumn.Render(shared.FormatNumberLong(m.currentRunes[rune])) +
 		valueColumn.Render(shared.FormatNumberLong(m.totalRunesNeeded[rune])) +
 		needColumn.Render(shared.FormatNumberLong(needRunes))

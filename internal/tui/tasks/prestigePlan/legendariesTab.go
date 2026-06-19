@@ -14,15 +14,14 @@ func (m Model) renderLegendariesTab() string {
 	// TODO: clean up this duplicated style mess
 	nameColumn := lipgloss.NewStyle().Width(15)
 	countColumn := lipgloss.NewStyle().Width(4).AlignHorizontal(lipgloss.Right)
-	bonusColumn := lipgloss.NewStyle().Width(8 + 3).AlignHorizontal(lipgloss.Right)
+	bonusColumn := lipgloss.NewStyle().Width(8 + 3).AlignHorizontal(lipgloss.Right).PaddingRight(3)
 	arrow := lipgloss.NewStyle().Render("  →  ")
 
 	tableWidth := nameColumn.GetWidth() + 2*countColumn.GetWidth() + lipgloss.Width(arrow) + bonusColumn.GetWidth()
-	rightPadding := "   "
 
 	//var lines []string
 	lines := []string{
-		nameColumn.Bold(true).Render("Legendary") + countColumn.Bold(true).Render("Have") + arrow + countColumn.Bold(true).Render("Plan") + bonusColumn.Bold(true).Render("Bonus"+rightPadding),
+		nameColumn.Bold(true).Render("Legendary") + countColumn.Bold(true).Render("Have") + arrow + countColumn.Bold(true).Render("Plan") + bonusColumn.Bold(true).Render("Bonus"),
 		m.renderLegendaryGroupHeading(models.Group1, tableWidth),
 		m.renderLegendaryRow(models.Lich),
 		m.renderLegendaryRow(models.Gorgon),
@@ -53,9 +52,8 @@ func (m Model) renderLegendaryGroupHeading(group models.LegendaryGroup, tableWid
 func (m Model) renderLegendaryRow(legendary models.LegendaryID) string {
 	nameColumn := lipgloss.NewStyle().Width(15)
 	countColumn := lipgloss.NewStyle().Width(4).AlignHorizontal(lipgloss.Right)
-	bonusColumn := lipgloss.NewStyle().Width(8 + 3).AlignHorizontal(lipgloss.Right)
+	bonusColumn := lipgloss.NewStyle().Width(8 + 3).AlignHorizontal(lipgloss.Right).PaddingRight(3)
 	arrow := lipgloss.NewStyle().Render("  →  ")
-	rightPadding := "   "
 
 	haveColumn := func() lipgloss.Style {
 		if m.currentLegendaries[legendary] >= m.plannedLegendaries[legendary] {
@@ -69,7 +67,7 @@ func (m Model) renderLegendaryRow(legendary models.LegendaryID) string {
 		haveColumn.Render(fmt.Sprintf("%d", m.currentLegendaries[legendary])) +
 		arrow +
 		countColumn.Render(fmt.Sprintf("%d", m.plannedLegendaries[legendary])) +
-		bonusColumn.Render(shared.FormatPercentageBonus(m.calculatedOutputs.legendaryBonuses[legendary])+rightPadding)
+		bonusColumn.Render(shared.FormatPercentageBonus(m.calculatedOutputs.legendaryBonuses[legendary]))
 }
 
 func renderGroupHeadingText(name, bonus string, width int) string {
