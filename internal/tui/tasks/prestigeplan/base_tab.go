@@ -1,4 +1,4 @@
-package prestigePlan
+package prestigeplan
 
 import (
 	"slices"

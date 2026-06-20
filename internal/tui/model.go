@@ -2,7 +2,7 @@ package tui
 
 import (
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigePlan"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/resourceCap"
 )
 
@@ -20,7 +20,7 @@ type AppModel struct {
 	currentTask *taskType
 
 	resourceCapModel  resourceCap.Model
-	prestigePlanModel *prestigePlan.Model
+	prestigePlanModel *prestigeplan.Model
 }
 
 func (m *AppModel) Init() tea.Cmd {
@@ -30,7 +30,7 @@ func (m *AppModel) Init() tea.Cmd {
 		return &t
 	}()
 	m.resourceCapModel = resourceCap.New()
-	m.prestigePlanModel = prestigePlan.New()
+	m.prestigePlanModel = prestigeplan.New()
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (m *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	case taskPrestigePlan:
 		newModel, cmd := m.prestigePlanModel.Update(msg)
-		m.prestigePlanModel = newModel.(*prestigePlan.Model)
+		m.prestigePlanModel = newModel.(*prestigeplan.Model)
 		return m, cmd
 	default:
 		panic("unknown task type")
