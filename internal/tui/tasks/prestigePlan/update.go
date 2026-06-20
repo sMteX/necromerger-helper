@@ -20,12 +20,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleKey(msg)
 	}
 	// Non-key messages (cursor blink ticks) must reach the active textinput.
-	if m.selectedTab == planTabBase {
-		var cmd tea.Cmd
-		m.fields[fieldIndex(m.cursor)].input, cmd = m.currentInput().Update(msg)
-		return m, cmd
-	}
-	return m, nil
+	var cmd tea.Cmd
+	m.fields[fieldIndex(m.cursor)].input, cmd = m.currentInput().Update(msg)
+	return m, cmd
 }
 
 func (m *Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
@@ -33,28 +30,31 @@ func (m *Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+c", "q":
 		return m, tea.Quit
 	case "f1", "f2", "f3", "f4":
-		prev := m.selectedTab
+		// blur the previous input
+		m.currentInput().Blur()
 		switch msg.String() {
 		case "f1":
 			m.selectedTab = planTabBase
+			m.cursor = int(fieldBaseDevourerLevel)
 		case "f2":
 			m.selectedTab = planTabLegendaries
+			m.cursor = int(fieldLegendariesLichHave)
 		case "f3":
 			m.selectedTab = planTabRunes
+			m.cursor = int(fieldRunesIce)
 		case "f4":
 			m.selectedTab = planTabExperiments
+			m.cursor = int(fieldExperimentsSeasoning1)
 		}
-		if prev == planTabBase && m.selectedTab != planTabBase {
-			m.currentInput().Blur()
-		} else if prev != planTabBase && m.selectedTab == planTabBase {
-			return m, m.currentInput().Focus()
-		}
-		return m, nil
+		// focus the new input
+		return m, m.currentInput().Focus()
 	}
 
 	switch m.selectedTab {
 	case planTabBase:
 		return m.handleBaseTabKey(msg)
+	case planTabLegendaries:
+		return m.handleLegendariesTabKey(msg)
 	}
 	return m, nil
 }

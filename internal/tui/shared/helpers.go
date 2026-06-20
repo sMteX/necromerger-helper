@@ -78,3 +78,11 @@ func PadRight(s string, width int, pad ...string) string {
 	}
 	return s + strings.Repeat(pad[0], width-len(s))
 }
+
+// PadLeft pads a string from the left with a string (or space if unspecified)
+func PadLeft(s string, width int, pad ...string) string {
+	if len(pad) == 0 {
+		pad = []string{" "}
+	}
+	return strings.Repeat(pad[0], width-len(s)) + s
+}

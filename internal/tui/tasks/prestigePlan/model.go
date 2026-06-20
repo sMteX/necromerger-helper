@@ -69,7 +69,8 @@ func (m *Model) Init() tea.Cmd {
 func New() *Model {
 	// testing data
 	m := Model{
-		selectedTab: planTabBase,
+		selectedTab: planTabLegendaries,
+		cursor:      int(fieldLegendariesLichHave),
 		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,
@@ -119,7 +120,7 @@ func New() *Model {
 			models.RuneCosmic: 10000,
 		},
 		currentLegendaries: map[models.LegendaryID]int{
-			models.Lich:        0,
+			models.Lich:        11,
 			models.Gorgon:      0,
 			models.Harpy:       0,
 			models.Reaper:      0,
@@ -175,6 +176,7 @@ func New() *Model {
 	}
 	m.fields = make([]inputField, fieldIndexCount)
 	m.addBaseTabFields()
+	m.addLegendariesTabFields()
 	m.initializeInputModels()
 	return &m
 }
@@ -216,6 +218,56 @@ const (
 	fieldBaseOtherMultiplier
 	fieldBaseGroupBonusCount
 	fieldBaseLeftoverShards
+	// Legendaries fields
+	fieldLegendariesLichHave
+	fieldLegendariesGorgonHave
+	fieldLegendariesHarpyHave
+	fieldLegendariesReaperHave
+	fieldLegendariesCyclopsHave
+	fieldLegendariesArchdemonHave
+	fieldLegendariesTheCursedHave
+	fieldLegendariesTheColossusHave
+	fieldLegendariesTheInfernalHave
+	fieldLegendariesRoboChickenHave
+	fieldLegendariesShieldBotHave
+	fieldLegendariesSoulStalkerHave
+	fieldLegendariesLichPlan
+	fieldLegendariesGorgonPlan
+	fieldLegendariesHarpyPlan
+	fieldLegendariesReaperPlan
+	fieldLegendariesCyclopsPlan
+	fieldLegendariesArchdemonPlan
+	fieldLegendariesTheCursedPlan
+	fieldLegendariesTheColossusPlan
+	fieldLegendariesTheInfernalPlan
+	fieldLegendariesRoboChickenPlan
+	fieldLegendariesShieldBotPlan
+	fieldLegendariesSoulStalkerPlan
+	// Runes fields
+	fieldRunesIce
+	fieldRunesPoison
+	fieldRunesBlood
+	fieldRunesMoon
+	fieldRunesDeath
+	fieldRunesCosmic
+	// Experiments fields
+	fieldExperimentsSeasoning1
+	fieldExperimentsStrength1
+	fieldExperimentsTaste1
+	fieldExperimentsCapacity1
+	fieldExperimentsBodySnatcher
+	fieldExperimentsWeakening
+	fieldExperimentsDamageCap
+	fieldExperimentsIceChest
+	fieldExperimentsPoisonChest
+	fieldExperimentsBloodChest
+	fieldExperimentsMoonChest
+	fieldExperimentsDeathChest
+	fieldExperimentsCosmicChest
+	fieldExperimentsSeasoning2
+	fieldExperimentsStrength2
+	fieldExperimentsTaste2
+	fieldExperimentsCapacity2
 	// special constant that automatically updates and refers to the amount of these constants (like `len(fieldIndex)`)
 	fieldIndexCount
 )
