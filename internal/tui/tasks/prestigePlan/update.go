@@ -57,6 +57,8 @@ func (m *Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		return m.handleLegendariesTabKey(msg)
 	case planTabRunes:
 		return m.handleRunesTabKey(msg)
+	case planTabExperiments:
+		return m.handleExperimentsTabKey(msg)
 	}
 	return m, nil
 }
