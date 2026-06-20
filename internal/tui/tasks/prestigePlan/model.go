@@ -69,8 +69,8 @@ func (m *Model) Init() tea.Cmd {
 func New() *Model {
 	// testing data
 	m := Model{
-		selectedTab: planTabLegendaries,
-		cursor:      int(fieldLegendariesLichHave),
+		selectedTab: planTabRunes,
+		cursor:      int(fieldRunesIce),
 		baseInputs: baseInputs{
 			devourerLevel:   200,
 			featTiers:       27,
@@ -177,6 +177,7 @@ func New() *Model {
 	m.fields = make([]inputField, fieldIndexCount)
 	m.addBaseTabFields()
 	m.addLegendariesTabFields()
+	m.addRunesTabFields()
 	m.initializeInputModels()
 	return &m
 }

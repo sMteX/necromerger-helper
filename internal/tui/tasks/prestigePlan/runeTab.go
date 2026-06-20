@@ -3,28 +3,53 @@ package prestigePlan
 import (
 	"image/color"
 	"math"
+	"strconv"
 	"strings"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
+var runeByFieldType = map[fieldIndex]models.RuneType{
+	fieldRunesIce:    models.RuneIce,
+	fieldRunesPoison: models.RunePoison,
+	fieldRunesBlood:  models.RuneBlood,
+	fieldRunesMoon:   models.RuneMoon,
+	fieldRunesDeath:  models.RuneDeath,
+	fieldRunesCosmic: models.RuneCosmic,
+}
+
+func (m *Model) addRunesTabFields() {
+	for i := fieldRunesIce; i <= fieldRunesCosmic; i++ {
+		r := runeByFieldType[i]
+		m.fields[i] = inputField{
+			label:          string(r),
+			step:           0,
+			width:          6,
+			characterLimit: 6,
+			validate:       inputValidationIntInRange(0, 10000000),
+			initialValue:   strconv.Itoa(m.currentRunes[r]),
+		}
+	}
+}
+
 func (m *Model) renderRuneTab() string {
 	runeColumn := lipgloss.NewStyle().Width(10)
-	valueColumn := lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Right)
+	valueColumn := lipgloss.NewStyle().Width(9)
 
 	lines := []string{
 		lipgloss.NewStyle().Bold(true).Render(
 			runeColumn.Render("Rune") + valueColumn.Render("Have") + valueColumn.Render("Total") + valueColumn.Render("Need"),
 		),
 		strings.Repeat("─", runeColumn.GetWidth()+3*valueColumn.GetWidth()),
-		m.renderRuneTableRow(models.RuneIce),
-		m.renderRuneTableRow(models.RunePoison),
-		m.renderRuneTableRow(models.RuneBlood),
-		m.renderRuneTableRow(models.RuneMoon),
-		m.renderRuneTableRow(models.RuneDeath),
-		m.renderRuneTableRow(models.RuneCosmic),
+		m.renderRuneTableRow(fieldRunesIce),
+		m.renderRuneTableRow(fieldRunesPoison),
+		m.renderRuneTableRow(fieldRunesBlood),
+		m.renderRuneTableRow(fieldRunesMoon),
+		m.renderRuneTableRow(fieldRunesDeath),
+		m.renderRuneTableRow(fieldRunesCosmic),
 	}
 	return lipgloss.JoinVertical(lipgloss.Left,
 		lines...,
@@ -40,22 +65,29 @@ var runeColorMap = map[models.RuneType]color.Color{
 	models.RuneCosmic: shared.Colors.RuneCosmic,
 }
 
-func (m *Model) renderRuneTableRow(rune models.RuneType) string {
+func (m *Model) renderRuneTableRow(i fieldIndex) string {
 	runeColumn := lipgloss.NewStyle().Width(10)
-	valueColumn := lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Right)
+	valueColumn := lipgloss.NewStyle().Width(9)
+	r := runeByFieldType[i]
 
 	needColumn := func() lipgloss.Style {
-		if m.currentRunes[rune] >= m.totalRunesNeeded[rune] {
+		if m.currentRunes[r] >= m.totalRunesNeeded[r] {
 			return valueColumn.Foreground(shared.Colors.Good)
 		}
 		return valueColumn.Foreground(shared.Colors.Bad)
 	}()
 
-	needRunes := int(math.Max(float64(m.totalRunesNeeded[rune]-m.currentRunes[rune]), 0))
+	needRunes := int(math.Max(float64(m.totalRunesNeeded[r]-m.currentRunes[r]), 0))
 
-	return runeColumn.Foreground(runeColorMap[rune]).Render(string(rune)) +
-		valueColumn.Render(shared.FormatNumberLong(m.currentRunes[rune])) +
-		valueColumn.Render(shared.FormatNumberLong(m.totalRunesNeeded[rune])) +
+	valueText := ""
+	if m.cursor == int(i) {
+		valueText = valueColumn.Render(m.currentInput().View())
+	} else {
+		valueText = valueColumn.Render(shared.FormatNumberLong(m.currentRunes[r]))
+	}
+	return runeColumn.Foreground(runeColorMap[r]).Render(string(r)) +
+		valueText +
+		valueColumn.Render(shared.FormatNumberLong(m.totalRunesNeeded[r])) +
 		needColumn.Render(shared.FormatNumberLong(needRunes))
 }
 
@@ -64,5 +96,40 @@ func (m *Model) getRuneTabHelp() []string {
 		shared.Styles.Help.Render("↑ / ↓  navigate"),
 		shared.Styles.Help.Render("F1 - F4  switch tab"),
 		shared.Styles.Help.Render("q / ctrl+c  exit"),
+	}
+}
+
+func (m *Model) handleRunesTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "up":
+		if m.cursor > int(fieldRunesIce) {
+			m.currentInput().Blur()
+			m.cursor--
+			return m, m.currentInput().Focus()
+		}
+		return m, nil
+	case "down":
+		if m.cursor < int(fieldRunesCosmic) {
+			m.currentInput().Blur()
+			m.cursor++
+			return m, m.currentInput().Focus()
+		}
+		return m, nil
+	}
+
+	// Everything else — character input, backspace, and ←/→ cursor movement for
+	// text-only fields — goes to the focused textinput.
+	var cmd tea.Cmd
+	m.fields[m.cursor].input, cmd = m.currentInput().Update(msg)
+	if m.currentInput().Err == nil {
+		m.parseRunesTabFieldValues(fieldIndex(m.cursor), m.currentInput().Value())
+		// TODO: recalculate m.calculatedOutputs from m.baseInputs
+	}
+	return m, cmd
+}
+
+func (m *Model) parseRunesTabFieldValues(i fieldIndex, value string) {
+	if v, err := strconv.Atoi(value); err == nil {
+		m.currentRunes[runeByFieldType[i]] = v
 	}
 }

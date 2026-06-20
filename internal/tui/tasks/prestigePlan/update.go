@@ -12,7 +12,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// bubbletea only sends WindowSizeMsg once, before the user picks a task,
 		// so the prestige planner never gets Init() called by the framework.
 		// Use the first WindowSizeMsg as the init signal to activate the cursor field.
-		if m.selectedTab == planTabBase && !m.currentInput().Focused() {
+		if !m.currentInput().Focused() {
 			return m, m.currentInput().Focus()
 		}
 		return m, nil
@@ -55,6 +55,8 @@ func (m *Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		return m.handleBaseTabKey(msg)
 	case planTabLegendaries:
 		return m.handleLegendariesTabKey(msg)
+	case planTabRunes:
+		return m.handleRunesTabKey(msg)
 	}
 	return m, nil
 }
