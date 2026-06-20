@@ -18,7 +18,7 @@ func (m *Model) addBaseTabFields() {
 			"800", "900", "1000"},
 		width:          8,
 		characterLimit: 4,
-		initialValue:   strconv.Itoa(m.baseInputs.devourerLevel),
+		initialValue:   strconv.Itoa(m.plan.DevourerLevel),
 		validate:       inputValidationIntInRange(1, 1000),
 	}
 	m.fields[fieldBaseFeatTiers] = inputField{
@@ -26,7 +26,7 @@ func (m *Model) addBaseTabFields() {
 		step:           1,
 		width:          7,
 		characterLimit: 2,
-		initialValue:   strconv.Itoa(m.baseInputs.featTiers),
+		initialValue:   strconv.Itoa(m.plan.FeatTiers),
 		validate:       inputValidationIntInRange(1, 35),
 	}
 	m.fields[fieldBaseOtherMultiplier] = inputField{
@@ -34,7 +34,7 @@ func (m *Model) addBaseTabFields() {
 		step:           0,
 		width:          8,
 		characterLimit: 3,
-		initialValue:   strconv.Itoa(int(m.baseInputs.otherMultiplier * 100)),
+		initialValue:   strconv.Itoa(int(m.plan.OtherMultiplier * 100)),
 		validate:       inputValidationIntInRange(100, 1000),
 	}
 	m.fields[fieldBaseGroupBonusCount] = inputField{
@@ -42,7 +42,7 @@ func (m *Model) addBaseTabFields() {
 		step:           1,
 		width:          5,
 		characterLimit: 1,
-		initialValue:   strconv.Itoa(m.baseInputs.groupBonusCount),
+		initialValue:   strconv.Itoa(m.plan.GroupBonusCount),
 		validate:       inputValidationIntInRange(1, 3),
 	}
 	m.fields[fieldBaseLeftoverShards] = inputField{
@@ -50,7 +50,7 @@ func (m *Model) addBaseTabFields() {
 		step:           0,
 		width:          11,
 		characterLimit: 7,
-		initialValue:   strconv.Itoa(m.baseInputs.leftoverShards),
+		initialValue:   strconv.Itoa(m.plan.LeftoverShards),
 		validate:       inputValidationIntInRange(0, 10000000),
 	}
 }
@@ -105,14 +105,10 @@ func (m *Model) handleBaseTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case "left", "right":
-		// For arrow-adjustable fields, ←/→ increment/decrement the value directly.
-		// For text-only fields (step == 0), fall through so the textinput handles
-		// cursor movement within the text.
 		field := m.fields[fieldIndex(m.cursor)]
 		if len(field.options) > 0 {
 			cur := m.currentInput().Value()
 			idx := slices.Index(field.options, cur)
-			// probably safety check
 			if idx < 0 {
 				idx = 0
 			}
@@ -121,13 +117,11 @@ func (m *Model) handleBaseTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			} else if msg.String() == "right" && idx < len(field.options)-1 {
 				idx++
 			} else {
-				// at either end of the options
 				return m, nil
 			}
 			newVal := field.options[idx]
 			m.currentInput().SetValue(newVal)
 			m.parseBaseTabFieldValues(fieldIndex(m.cursor), newVal)
-			// TODO: recalculate m.calculatedOutputs from m.baseInputs
 			return m, nil
 		} else if field.step > 0 {
 			cur, err := strconv.Atoi(m.currentInput().Value())
@@ -142,24 +136,19 @@ func (m *Model) handleBaseTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			newVal := strconv.Itoa(cur)
 			if field.validate != nil {
 				if err := field.validate(newVal); err != nil {
-					// didn't pass validate, don't change anything
 					return m, nil
 				}
 			}
 			m.currentInput().SetValue(newVal)
 			m.parseBaseTabFieldValues(fieldIndex(m.cursor), newVal)
-			// TODO: recalculate m.calculatedOutputs from m.baseInputs
 			return m, nil
 		}
 	}
 
-	// Everything else — character input, backspace, and ←/→ cursor movement for
-	// text-only fields — goes to the focused textinput.
 	var cmd tea.Cmd
 	m.fields[m.cursor].input, cmd = m.currentInput().Update(msg)
 	if m.currentInput().Err == nil {
 		m.parseBaseTabFieldValues(fieldIndex(m.cursor), m.currentInput().Value())
-		// TODO: recalculate m.calculatedOutputs from m.baseInputs
 	}
 	return m, cmd
 }
@@ -168,23 +157,24 @@ func (m *Model) parseBaseTabFieldValues(i fieldIndex, value string) {
 	switch i {
 	case fieldBaseDevourerLevel:
 		if v, err := strconv.Atoi(value); err == nil {
-			m.baseInputs.devourerLevel = v
+			m.plan.DevourerLevel = v
 		}
 	case fieldBaseFeatTiers:
 		if v, err := strconv.Atoi(value); err == nil {
-			m.baseInputs.featTiers = v
+			m.plan.FeatTiers = v
 		}
 	case fieldBaseOtherMultiplier:
 		if v, err := strconv.Atoi(value); err == nil {
-			m.baseInputs.otherMultiplier = float64(v / 100.0)
+			m.plan.OtherMultiplier = float64(v) / 100.0
 		}
 	case fieldBaseGroupBonusCount:
 		if v, err := strconv.Atoi(value); err == nil {
-			m.baseInputs.groupBonusCount = v
+			m.plan.GroupBonusCount = v
 		}
 	case fieldBaseLeftoverShards:
 		if v, err := strconv.Atoi(value); err == nil {
-			m.baseInputs.leftoverShards = v
+			m.plan.LeftoverShards = v
 		}
 	}
+	m.recalculate()
 }

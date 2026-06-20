@@ -35,7 +35,7 @@ func (m *Model) addLegendariesTabFields() {
 			step:           1,
 			width:          5,
 			characterLimit: 2,
-			initialValue:   strconv.Itoa(m.currentLegendaries[legendary.ID]),
+			initialValue:   strconv.Itoa(m.plan.PossessedLegendaries[legendary.ID]),
 			validate:       inputValidationIntInRange(limits[0], limits[1]),
 		}
 	}
@@ -47,7 +47,7 @@ func (m *Model) addLegendariesTabFields() {
 			step:           1,
 			width:          5,
 			characterLimit: 2,
-			initialValue:   strconv.Itoa(m.plannedLegendaries[legendary.ID]),
+			initialValue:   strconv.Itoa(m.plan.LegendaryCounts[legendary.ID]),
 			validate:       inputValidationIntInRange(limits[0], limits[1]),
 		}
 	}
@@ -93,7 +93,7 @@ func (m *Model) renderLegendariesTab() string {
 
 func (m *Model) renderLegendaryGroupHeading(group models.LegendaryGroup, tableWidth int) string {
 	groupHeading := lipgloss.NewStyle().Foreground(shared.Colors.Good).MarginTop(1)
-	return groupHeading.Render(renderGroupHeadingText(fmt.Sprintf("Group %d", group), shared.FormatPercentageBonus(m.calculatedOutputs.legendaryGroupBonuses[group]), tableWidth))
+	return groupHeading.Render(renderGroupHeadingText(fmt.Sprintf("Group %d", group), shared.FormatPercentageBonus(m.result.LegendaryGroupBonuses[group]), tableWidth))
 }
 
 var legendaryToFieldInputs = map[models.LegendaryID][2]fieldIndex{
@@ -115,7 +115,7 @@ func (m *Model) renderLegendaryRow(legendary models.LegendaryID) string {
 	fieldIndexes := legendaryToFieldInputs[legendary]
 
 	haveColumn := func() lipgloss.Style {
-		if m.currentLegendaries[legendary] >= m.plannedLegendaries[legendary] {
+		if m.plan.PossessedLegendaries[legendary] >= m.plan.LegendaryCounts[legendary] {
 			return legendaryTabCountColumn.Foreground(shared.Colors.Good)
 		}
 		return legendaryTabCountColumn.Foreground(shared.Colors.Bad)
@@ -143,7 +143,7 @@ func (m *Model) renderLegendaryRow(legendary models.LegendaryID) string {
 		haveFieldText +
 		legendaryTabArrow +
 		planFieldText +
-		legendaryTabBonusColumn.Render(shared.FormatPercentageBonus(m.calculatedOutputs.legendaryBonuses[legendary]))
+		legendaryTabBonusColumn.Render(shared.FormatPercentageBonus(m.result.LegendaryBonuses[legendary]))
 }
 
 func renderGroupHeadingText(name, bonus string, width int) string {
@@ -267,12 +267,13 @@ func (m *Model) parseLegendariesTabFieldValues(i fieldIndex, value string) {
 	legendary := legendaryIdByFieldIndex[i]
 	if i >= fieldLegendariesLichHave && i <= fieldLegendariesSoulStalkerHave {
 		if v, err := strconv.Atoi(value); err == nil {
-			m.currentLegendaries[legendary] = v
+			m.plan.PossessedLegendaries[legendary] = v
 		}
+		m.recalculate()
 		return
 	}
-
 	if v, err := strconv.Atoi(value); err == nil {
-		m.plannedLegendaries[legendary] = v
+		m.plan.LegendaryCounts[legendary] = v
 	}
+	m.recalculate()
 }

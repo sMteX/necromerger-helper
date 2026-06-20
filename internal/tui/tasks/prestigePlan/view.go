@@ -20,15 +20,16 @@ func (m *Model) View() tea.View {
 
 	totalHeight := lipgloss.Height(header) + lipgloss.Height(tabSelector) + lipgloss.Height(help)
 	mainContentHeight := m.windowHeight - totalHeight - fh
-	summaryWidth := m.summaryWidth()
+	// empirically chosen
+	summaryWidth := 35
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		header,
 		tabSelector,
 		lipgloss.JoinHorizontal(lipgloss.Top,
+			m.renderSummary(summaryWidth, mainContentHeight), // 35 = min width, 16 = min height
 			// TODO: min main content size
 			m.renderMainContent(m.windowWidth-fw-summaryWidth, mainContentHeight),
-			m.renderSummary(summaryWidth, mainContentHeight), // 25 = min width, 16 = min height
 		),
 		// TODO: help, dynamic sizing, min terminal size
 		help,
@@ -36,7 +37,6 @@ func (m *Model) View() tea.View {
 	content = shared.Styles.MainContainer.
 		Width(m.windowWidth).
 		Height(m.windowHeight).
-		//Align(lipgloss.Center, lipgloss.Top).
 		Render(content)
 
 	return tea.View{
@@ -44,12 +44,7 @@ func (m *Model) View() tea.View {
 		AltScreen: true,
 	}
 }
-func (m *Model) summaryWidth() int {
-	availableWidth := m.windowWidth - shared.Styles.MainContainer.GetHorizontalFrameSize()
-	// prefer around 20% of the window width, but >= 25
-	preferred := math.Floor(float64(availableWidth) / 5.0)
-	return int(math.Max(25, preferred))
-}
+
 func (m *Model) renderTabSelector() string {
 	choiceStyle := lipgloss.NewStyle().PaddingRight(3)
 	choiceSelectedStyle := choiceStyle.Bold(true).Foreground(shared.Colors.Good)
@@ -68,44 +63,45 @@ func (m *Model) renderTabSelector() string {
 	}
 	return lipgloss.NewStyle().MarginBottom(1).Render(lipgloss.JoinHorizontal(lipgloss.Top, choices...))
 }
+
 func (m *Model) renderSummary(summaryWidth, summaryHeight int) string {
 	fw := shared.Styles.SubContainer.GetHorizontalFrameSize()
+	const valueWidth = 14
 	var lines []string
-	valueStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
-	labelStyle := lipgloss.NewStyle().Width(summaryWidth - fw - 10)
-
+	valueStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Right)
+	labelStyle := lipgloss.NewStyle().Width(summaryWidth - fw - valueWidth - 1)
 	lines = append(lines, shared.Styles.Header.Render("Time Shard Summary"))
 
 	values := [][]string{
-		{"Base", shared.FormatNumberLong(m.calculatedOutputs.summary.baseShards)},
-		{"Leftovers", shared.FormatNumberLong(m.calculatedOutputs.summary.leftoverShards)},
-		{"× Feats", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.featMultiplier*100))},
-		{"× Leggos", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.legendariesMultiplier*100))},
-		{"× Others", fmt.Sprintf("+%.0f%%", math.Floor(m.calculatedOutputs.summary.othersMultiplier*100))},
+		{"Base", shared.FormatNumberLong(m.result.BaseShards)},
+		{"Leftovers", shared.FormatNumberLong(m.plan.LeftoverShards)},
+		{"× Feats", fmt.Sprintf("+%.0f%%", math.Floor(m.result.FeatMultiplier*100))},
+		{"× Leggos", fmt.Sprintf("+%.0f%%", math.Floor(m.result.LegendMultiplier*100))},
+		{"× Others", fmt.Sprintf("+%.0f%%", math.Floor(m.result.OtherMultiplier*100))},
 	}
 	for _, v := range values {
 		lines = append(lines, lipgloss.JoinHorizontal(lipgloss.Top, labelStyle.Render(v[0]), valueStyle.Render(v[1])))
 	}
 	netStyle := func() lipgloss.Style {
-		if m.calculatedOutputs.summary.netShards > 0 {
+		if m.result.NetShards > 0 {
 			return valueStyle.Foreground(shared.Colors.Good)
 		}
 		return valueStyle.Foreground(shared.Colors.Bad)
 	}()
 	lines = append(lines,
-		strings.Repeat("─", summaryWidth-fw),
+		strings.Repeat("─", summaryWidth-fw-1),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Render("Total"),
-			valueStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.summary.totalShards)),
+			valueStyle.Render(shared.FormatNumberLong(m.result.TotalShards)),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Foreground(shared.Colors.Bad).Render("Spent"),
-			valueStyle.Foreground(shared.Colors.Bad).Render(shared.FormatNumberLong(-m.calculatedOutputs.summary.spentShards)),
+			valueStyle.Foreground(shared.Colors.Bad).Render(shared.FormatNumberLong(-m.result.ExperimentCost)),
 		),
-		strings.Repeat("─", summaryWidth-fw),
+		strings.Repeat("─", summaryWidth-fw-1),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			labelStyle.Render("Net"),
-			netStyle.Render(shared.FormatNumberLong(m.calculatedOutputs.summary.netShards)),
+			netStyle.Render(shared.FormatNumberLong(m.result.NetShards)),
 		),
 	)
 	return shared.Styles.SubContainer.

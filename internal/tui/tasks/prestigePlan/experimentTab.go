@@ -40,7 +40,7 @@ func (m *Model) addExperimentsTabFields() {
 			step:           1,
 			width:          1,
 			characterLimit: 1,
-			initialValue:   strconv.Itoa(m.plannedExperiments[e.ID]),
+			initialValue:   strconv.Itoa(m.plan.ExperimentLevels[e.ID]),
 			validate:       inputValidationIntInRange(0, maxLevel),
 		}
 	}
@@ -99,13 +99,13 @@ func (m *Model) renderExperimentRow(i fieldIndex) string {
 	e := experimentsByFieldIndex[i]
 	// TODO: careful with indices, `plannedExperiments[...]` can be 0 - not planned
 	var currentLevel *models.ExperimentLevel
-	if m.plannedExperiments[e.ID] > 0 {
+	if m.plan.ExperimentLevels[e.ID] > 0 {
 		// let's assume the `plannedExperiments[]` is either 0 (not planned) or in bounds (after subtracting 1)
-		currentLevel = &e.Levels[m.plannedExperiments[e.ID]-1]
+		currentLevel = &e.Levels[m.plan.ExperimentLevels[e.ID]-1]
 	}
 	var nextLevel *models.ExperimentLevel
-	if m.plannedExperiments[e.ID] < len(e.Levels) {
-		nextLevel = &e.Levels[m.plannedExperiments[e.ID]]
+	if m.plan.ExperimentLevels[e.ID] < len(e.Levels) {
+		nextLevel = &e.Levels[m.plan.ExperimentLevels[e.ID]]
 	}
 
 	currentCost := "──"
@@ -138,7 +138,7 @@ func (m *Model) renderExperimentsRowLevelInput(i fieldIndex) string {
 		}
 		return experimentsLevelColumn.Foreground(shared.Colors.Good).Render(fmt.Sprintf("< %s >", valueText))
 	}
-	return experimentsLevelColumn.Render(fmt.Sprintf("lvl %d", m.plannedExperiments[e.ID]))
+	return experimentsLevelColumn.Render(fmt.Sprintf("lvl %d", m.plan.ExperimentLevels[e.ID]))
 }
 
 func (m *Model) getEffectText(experiment models.ExperimentID, tier models.ExperimentTier, level *models.ExperimentLevel) string {
@@ -222,6 +222,7 @@ func (m *Model) handleExperimentsTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd
 func (m *Model) parseExperimentsTabFieldValues(i fieldIndex, value string) {
 	e := experimentsByFieldIndex[i]
 	if v, err := strconv.Atoi(value); err == nil {
-		m.plannedExperiments[e.ID] = v
+		m.plan.ExperimentLevels[e.ID] = v
 	}
+	m.recalculate()
 }

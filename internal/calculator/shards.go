@@ -7,25 +7,72 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 )
 
+type PrestigePlanResult struct {
+	BaseShards     int
+	TotalShards    int
+	ExperimentCost int
+	NetShards      int
+
+	FeatMultiplier   float64
+	LegendMultiplier float64
+	OtherMultiplier  float64
+
+	LegendaryBonuses      map[models.LegendaryID]float64
+	LegendaryGroupBonuses map[models.LegendaryGroup]float64
+
+	RuneTotal  models.RuneCosts
+	RuneNeeded models.RuneCosts
+}
+
+func Calculate(plan models.Plan) PrestigePlanResult {
+	baseShards := data.DevourerBaseShards[plan.DevourerLevel]
+	featMultiplier := 1.0 + float64(plan.FeatTiers)*0.10
+	legMultiplier, legBonuses, groupBonuses := calculateLegendBreakdown(plan)
+	otherMultiplier := 1.0 + plan.OtherMultiplier
+
+	totalShards := int(math.Floor(float64(baseShards)*featMultiplier*legMultiplier*otherMultiplier)) + plan.LeftoverShards
+	expCost := CalculateExperimentCost(plan)
+	runeTotal, runeNeeded := CalculateTotalRunes(plan)
+
+	return PrestigePlanResult{
+		BaseShards:            baseShards,
+		FeatMultiplier:        featMultiplier,
+		LegendMultiplier:      legMultiplier,
+		OtherMultiplier:       otherMultiplier,
+		TotalShards:           totalShards,
+		ExperimentCost:        expCost,
+		NetShards:             totalShards - expCost,
+		LegendaryBonuses:      legBonuses,
+		LegendaryGroupBonuses: groupBonuses,
+		RuneTotal:             runeTotal,
+		RuneNeeded:            runeNeeded,
+	}
+}
+
 func CalculateTimeShards(plan models.Plan) int {
 	base := data.DevourerBaseShards[plan.DevourerLevel]
 	if base == 0 {
 		return 0
 	}
-
 	featMultiplier := 1.0 + (float64(plan.FeatTiers) * 0.10)
 	legMultiplier := CalculateLegendMultiplier(plan)
 	otherMultiplier := 1.0 + plan.OtherMultiplier
-
 	total := float64(base) * featMultiplier * legMultiplier * otherMultiplier
 	return int(math.Floor(total)) + plan.LeftoverShards
 }
 
 func CalculateLegendMultiplier(plan models.Plan) float64 {
-	legBonus := 0.0
+	multiplier, _, _ := calculateLegendBreakdown(plan)
+	return multiplier
+}
+
+func calculateLegendBreakdown(plan models.Plan) (multiplier float64, legBonuses map[models.LegendaryID]float64, groupBonuses map[models.LegendaryGroup]float64) {
+	legBonuses = make(map[models.LegendaryID]float64)
+	groupBonuses = make(map[models.LegendaryGroup]float64)
+
+	totalBonus := 0.0
 	groupMinCounts := make(map[models.LegendaryGroup]int)
-	groups := []models.LegendaryGroup{models.Group1, models.Group2, models.Group3, models.Group4}
-	for _, g := range groups {
+	for _, g := range []models.LegendaryGroup{models.Group1, models.Group2, models.Group3, models.Group4} {
 		groupMinCounts[g] = math.MaxInt32
 	}
 
@@ -36,32 +83,34 @@ func CalculateLegendMultiplier(plan models.Plan) float64 {
 			if leg.MaxInstances > 0 && bonusCount > leg.MaxInstances {
 				bonusCount = leg.MaxInstances
 			}
-
-			legBonus += leg.FirstBonus
+			indBonus := leg.FirstBonus
 			if bonusCount > 1 {
-				legBonus += float64(bonusCount-1) * leg.Subsequent
+				indBonus += float64(bonusCount-1) * leg.Subsequent
 			}
+			legBonuses[leg.ID] = indBonus
+			totalBonus += indBonus
 		}
-
 		if count < groupMinCounts[leg.Group] {
 			groupMinCounts[leg.Group] = count
 		}
 	}
 
-	groupBonuses := map[models.LegendaryGroup]float64{
+	groupBonusRates := map[models.LegendaryGroup]float64{
 		models.Group1: 0.20, models.Group2: 0.40, models.Group3: 0.80, models.Group4: 0.60,
 	}
 
-	for group, minCount := range groupMinCounts {
+	for _, group := range []models.LegendaryGroup{models.Group1, models.Group2, models.Group3, models.Group4} {
+		minCount := groupMinCounts[group]
 		if minCount == math.MaxInt32 || minCount == 0 {
 			continue
 		}
-		// The number of times group bonus is claimed is limited by the feature level
-		// and how many of each we actually have.
 		allowedClaims := 1 + plan.GroupBonusCount
 		claims := int(math.Min(float64(minCount), float64(allowedClaims)))
-		legBonus += float64(claims) * groupBonuses[group]
+		gb := float64(claims) * groupBonusRates[group]
+		groupBonuses[group] = gb
+		totalBonus += gb
 	}
 
-	return 1.0 + legBonus
+	multiplier = 1.0 + totalBonus
+	return
 }

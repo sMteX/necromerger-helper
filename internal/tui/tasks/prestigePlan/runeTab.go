@@ -2,7 +2,6 @@ package prestigePlan
 
 import (
 	"image/color"
-	"math"
 	"strconv"
 	"strings"
 
@@ -30,7 +29,7 @@ func (m *Model) addRunesTabFields() {
 			width:          6,
 			characterLimit: 6,
 			validate:       inputValidationIntInRange(0, 10000000),
-			initialValue:   strconv.Itoa(m.currentRunes[r]),
+			initialValue:   strconv.Itoa(m.plan.PossessedRunes[r]),
 		}
 	}
 }
@@ -71,23 +70,23 @@ func (m *Model) renderRuneTableRow(i fieldIndex) string {
 	r := runeByFieldType[i]
 
 	needColumn := func() lipgloss.Style {
-		if m.currentRunes[r] >= m.totalRunesNeeded[r] {
+		if m.plan.PossessedRunes[r] >= m.result.RuneTotal[r] {
 			return valueColumn.Foreground(shared.Colors.Good)
 		}
 		return valueColumn.Foreground(shared.Colors.Bad)
 	}()
 
-	needRunes := int(math.Max(float64(m.totalRunesNeeded[r]-m.currentRunes[r]), 0))
+	needRunes := m.result.RuneNeeded[r]
 
 	valueText := ""
 	if m.cursor == int(i) {
 		valueText = valueColumn.Render(m.currentInput().View())
 	} else {
-		valueText = valueColumn.Render(shared.FormatNumberLong(m.currentRunes[r]))
+		valueText = valueColumn.Render(shared.FormatNumberLong(m.plan.PossessedRunes[r]))
 	}
 	return runeColumn.Foreground(runeColorMap[r]).Render(string(r)) +
 		valueText +
-		valueColumn.Render(shared.FormatNumberLong(m.totalRunesNeeded[r])) +
+		valueColumn.Render(shared.FormatNumberLong(m.result.RuneTotal[r])) +
 		needColumn.Render(shared.FormatNumberLong(needRunes))
 }
 
@@ -130,6 +129,7 @@ func (m *Model) handleRunesTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 
 func (m *Model) parseRunesTabFieldValues(i fieldIndex, value string) {
 	if v, err := strconv.Atoi(value); err == nil {
-		m.currentRunes[runeByFieldType[i]] = v
+		m.plan.PossessedRunes[runeByFieldType[i]] = v
 	}
+	m.recalculate()
 }
