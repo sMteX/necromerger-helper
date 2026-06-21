@@ -19,12 +19,12 @@ func (m Model) View() tea.View {
 	leftContent := m.renderLeft()
 	rightContent := m.vp.View()
 
-	leftStyle := stylePanelBorder.Width(m.leftWidth).Height(m.height - 2)
-	rightStyle := stylePanelBorder.Width(m.rightWidth).Height(m.height - 2)
+	leftStyle := stylePanelBorder.Width(m.leftWidth).Height(m.height)
+	rightStyle := stylePanelBorder.Width(m.rightWidth).Height(m.height)
 	if m.focusedPanel == 0 {
-		leftStyle = stylePanelBorderFocused.Width(m.leftWidth).Height(m.height - 2)
+		leftStyle = stylePanelBorderFocused.Width(m.leftWidth).Height(m.height)
 	} else {
-		rightStyle = stylePanelBorderFocused.Width(m.rightWidth).Height(m.height - 2)
+		rightStyle = stylePanelBorderFocused.Width(m.rightWidth).Height(m.height)
 	}
 
 	left := leftStyle.Render(leftContent)

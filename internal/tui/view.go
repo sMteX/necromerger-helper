@@ -11,10 +11,9 @@ func (m *AppModel) renderMainMenu() tea.View {
 		shared.Styles.Header.Render("NecroMerger helper"),
 		m.renderMainMenuChoices(),
 	)
-	fw, fh := shared.Styles.MainContainer.GetFrameSize()
 	content = shared.Styles.MainContainer.
-		Width(m.windowWidth-fw).
-		Height(m.windowHeight-fh).
+		Width(m.windowWidth).
+		Height(m.windowHeight).
 		Align(lipgloss.Center, lipgloss.Top).
 		Render(content)
 

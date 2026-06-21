@@ -40,18 +40,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) layoutPanels() {
-	// Each panel: 2 border chars + 2 padding chars = 4 overhead; two panels = 8 total overhead.
-	inner := m.width - 8
-	m.leftWidth = inner / 3
+	// Width()/Height() set the total box size in lipgloss v2 (frame included),
+	// so we assign the full terminal dimensions and let lipgloss handle the border/padding.
+	m.leftWidth = m.width / 3
 	if m.leftWidth < 34 {
 		m.leftWidth = 34
 	}
-	m.rightWidth = inner - m.leftWidth
+	m.rightWidth = m.width - m.leftWidth
 	if m.rightWidth < 40 {
 		m.rightWidth = 40
 	}
 
-	vpHeight := m.height - 4 // top+bottom border + top+bottom padding
+	// Viewport fills the content area of the right panel: total height minus
+	// the top+bottom border (2 chars; no top/bottom padding in stylePanelBorder).
+	vpHeight := m.height - 2
 	if vpHeight < 1 {
 		vpHeight = 1
 	}
