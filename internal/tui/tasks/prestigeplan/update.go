@@ -7,7 +7,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/persistence"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/planmenu"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/menu"
 )
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -78,7 +78,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) openMenu(startAtSave bool) tea.Cmd {
 	m.currentInput().Blur()
 	plans, _ := persistence.ListPlans(m.plansDir)
-	m.menu = planmenu.New(planmenu.Config{
+	m.menu = menu.New(menu.Config{
 		PlansDir:    m.plansDir,
 		Plans:       plans,
 		Dirty:       m.planDirty,
@@ -103,13 +103,13 @@ func (m *Model) quickSave() tea.Cmd {
 	return m.openMenu(true)
 }
 
-func (m *Model) handleMenuResult(result *planmenu.Action) tea.Cmd {
+func (m *Model) handleMenuResult(result *menu.Action) tea.Cmd {
 	switch result.Type {
-	case planmenu.ActionNew:
+	case menu.ActionNew:
 		return m.newPlan()
-	case planmenu.ActionLoad:
+	case menu.ActionLoad:
 		return m.loadPlan(result.Path)
-	case planmenu.ActionSave:
+	case menu.ActionSave:
 		// Batch the save (which returns a timer cmd) with re-focusing the input.
 		return tea.Batch(m.savePlan(result.Name, result.Notes, result.Path), m.currentInput().Focus())
 	default:

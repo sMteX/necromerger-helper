@@ -1,4 +1,4 @@
-package planmenu
+package menu
 
 import (
 	"charm.land/bubbles/v2/textinput"

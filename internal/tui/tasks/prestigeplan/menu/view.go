@@ -1,4 +1,4 @@
-package planmenu
+package menu
 
 import (
 	"fmt"

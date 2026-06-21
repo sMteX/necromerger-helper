@@ -9,7 +9,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/persistence"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/planmenu"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/menu"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/base"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/experiments"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/legendaries"
@@ -52,8 +52,8 @@ type Model struct {
 	// (models.Plan) doesn't carry metadata timestamps.
 	loadedPlan *persistence.SavedPlan
 
-	plansDir string          // resolved once in New(); used when listing/saving plans
-	menu     *planmenu.Model // non-nil while the plan menu modal is open
+	plansDir string      // resolved once in New(); used when listing/saving plans
+	menu     *menu.Model // non-nil while the plan menu modal is open
 }
 
 func (m *Model) Init() tea.Cmd {
