@@ -124,7 +124,8 @@ func (m *Model) handleTabUpdates(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.baseTab, cmd = m.baseTab.Update(msg)
 		return m, cmd
 	case planTabLegendaries:
-		return m.handleLegendariesTabKey(msg)
+		m.legendariesTab, cmd = m.legendariesTab.Update(msg)
+		return m, cmd
 	case planTabRunes:
 		return m.handleRunesTabKey(msg)
 	case planTabExperiments:

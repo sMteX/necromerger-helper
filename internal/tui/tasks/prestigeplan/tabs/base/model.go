@@ -26,7 +26,12 @@ func (m *Model) Init() tea.Cmd {
 
 func NewModel() *Model {
 	m := &Model{
-		fields: make([]shared.InputField, fieldIndexCount),
+		fields:          make([]shared.InputField, fieldIndexCount),
+		DevourerLevel:   200,
+		FeatTiers:       27,
+		OtherMultiplier: 1.72,
+		GroupBonusCount: 1,
+		LeftoverShards:  123456,
 	}
 	m.fields[fieldDevourerLevel] = shared.InputField{
 		Label: "Devourer Level",

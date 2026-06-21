@@ -1,7 +1,6 @@
-package base
+package legendaries
 
 import (
-	"slices"
 	"strconv"
 
 	"charm.land/bubbletea/v2"
@@ -20,39 +19,36 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 func (m *Model) handleKeyPress(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch msg.String() {
 	case "up":
-		if m.cursor > int(fieldDevourerLevel) {
+		if m.cursor > int(fieldLichHave) && m.cursor != int(fieldLichPlan) {
 			m.CurrentInput().Blur()
 			m.cursor--
 			return m, m.CurrentInput().Focus()
 		}
 		return m, nil
 	case "down":
-		if m.cursor < int(fieldLeftoverShards) {
+		if m.cursor < int(fieldSoulStalkerPlan) && m.cursor != int(fieldSoulStalkerHave) {
 			m.CurrentInput().Blur()
 			m.cursor++
 			return m, m.CurrentInput().Focus()
 		}
 		return m, nil
+	case "tab":
+		if m.cursor >= int(fieldLichHave) && m.cursor <= int(fieldSoulStalkerHave) {
+			m.CurrentInput().Blur()
+			m.cursor += int(fieldLichPlan) - int(fieldLichHave)
+			return m, m.CurrentInput().Focus()
+		}
+		return m, nil
+	case "shift+tab":
+		if m.cursor >= int(fieldLichPlan) && m.cursor <= int(fieldSoulStalkerPlan) {
+			m.CurrentInput().Blur()
+			m.cursor -= int(fieldLichPlan) - int(fieldLichHave)
+			return m, m.CurrentInput().Focus()
+		}
+		return m, nil
 	case "left", "right":
 		field := m.currentField()
-		if len(field.Options) > 0 {
-			cur := m.CurrentInput().Value()
-			idx := slices.Index(field.Options, cur)
-			if idx < 0 {
-				idx = 0
-			}
-			if msg.String() == "left" && idx > 0 {
-				idx--
-			} else if msg.String() == "right" && idx < len(field.Options)-1 {
-				idx++
-			} else {
-				return m, nil
-			}
-			newVal := field.Options[idx]
-			m.CurrentInput().SetValue(newVal)
-			m.parseFieldValues(fieldIndex(m.cursor), newVal)
-			return m, nil
-		} else if field.Step > 0 {
+		if field.Step > 0 {
 			cur, err := strconv.Atoi(m.CurrentInput().Value())
 			if err != nil {
 				return m, nil
@@ -83,26 +79,14 @@ func (m *Model) handleKeyPress(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 }
 
 func (m *Model) parseFieldValues(i fieldIndex, value string) {
-	switch i {
-	case fieldDevourerLevel:
+	legendary := legendaryIdByFieldIndex[i]
+	if i >= fieldLichHave && i <= fieldSoulStalkerHave {
 		if v, err := strconv.Atoi(value); err == nil {
-			m.DevourerLevel = v
+			m.PossessedLegendaries[legendary] = v
 		}
-	case fieldFeatTiers:
-		if v, err := strconv.Atoi(value); err == nil {
-			m.FeatTiers = v
-		}
-	case fieldOtherMultiplier:
-		if v, err := strconv.Atoi(value); err == nil {
-			m.OtherMultiplier = float64(v) / 100.0
-		}
-	case fieldGroupBonusCount:
-		if v, err := strconv.Atoi(value); err == nil {
-			m.GroupBonusCount = v
-		}
-	case fieldLeftoverShards:
-		if v, err := strconv.Atoi(value); err == nil {
-			m.LeftoverShards = v
-		}
+		return
+	}
+	if v, err := strconv.Atoi(value); err == nil {
+		m.LegendaryCounts[legendary] = v
 	}
 }

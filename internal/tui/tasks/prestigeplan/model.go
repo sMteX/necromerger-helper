@@ -6,6 +6,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/base"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/legendaries"
 )
 
 type planTab int8
@@ -21,9 +22,10 @@ type Model struct {
 	selectedTab               planTab
 	windowHeight, windowWidth int
 
-	baseTab *base.Model
-	plan    models.Plan
-	result  calculator.PrestigePlanResult
+	baseTab        *base.Model
+	legendariesTab *legendaries.Model
+	plan           models.Plan
+	result         calculator.PrestigePlanResult
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -36,23 +38,10 @@ func (m *Model) recalculate() {
 
 func New() *Model {
 	m := &Model{
-		selectedTab: planTabExperiments,
-		baseTab:     base.NewModel(),
+		selectedTab:    planTabExperiments,
+		baseTab:        base.NewModel(),
+		legendariesTab: legendaries.NewModel(),
 		plan: models.Plan{
-			LegendaryCounts: map[models.LegendaryID]int{
-				models.Lich:        11,
-				models.Gorgon:      10,
-				models.Harpy:       1,
-				models.Reaper:      1,
-				models.Cyclops:     1,
-				models.Archdemon:   4,
-				models.TheCursed:   1,
-				models.TheColossus: 1,
-				models.TheInfernal: 1,
-				models.RoboChicken: 4,
-				models.ShieldBot:   4,
-				models.SoulStalker: 15,
-			},
 			ExperimentLevels: map[models.ExperimentID]int{
 				models.ExpSeasoning:    6,
 				models.ExpStrength:     2,
@@ -80,23 +69,8 @@ func New() *Model {
 				models.RuneDeath:  20000,
 				models.RuneCosmic: 10000,
 			},
-			PossessedLegendaries: map[models.LegendaryID]int{
-				models.Lich:        11,
-				models.Gorgon:      0,
-				models.Harpy:       0,
-				models.Reaper:      0,
-				models.Cyclops:     0,
-				models.Archdemon:   4,
-				models.TheCursed:   1,
-				models.TheColossus: 1,
-				models.TheInfernal: 1,
-				models.RoboChicken: 4,
-				models.ShieldBot:   4,
-				models.SoulStalker: 4,
-			},
 		},
 	}
-	m.addLegendariesTabFields()
 	m.addRunesTabFields()
 	m.addExperimentsTabFields()
 	m.recalculate()
@@ -108,6 +82,8 @@ func (m *Model) currentInput() *textinput.Model {
 	switch m.selectedTab {
 	case planTabBase:
 		return m.baseTab.CurrentInput()
+	case planTabLegendaries:
+		return m.legendariesTab.CurrentInput()
 	}
 	return nil
 }
