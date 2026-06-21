@@ -2,7 +2,7 @@ package tui
 
 import (
 	"charm.land/lipgloss/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 var (

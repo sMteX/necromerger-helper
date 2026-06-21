@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 // FormatNumberLong formats an integer with comma separators.

@@ -3,7 +3,7 @@ package calculator
 import (
 	"testing"
 
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 func TestCalculateTotalRunes(t *testing.T) {

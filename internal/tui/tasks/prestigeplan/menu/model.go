@@ -3,8 +3,8 @@ package menu
 import (
 	"charm.land/bubbles/v2/textinput"
 	"charm.land/lipgloss/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/persistence"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/persistence"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 // menuState drives which screen is currently shown inside the modal.

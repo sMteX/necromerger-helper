@@ -3,8 +3,8 @@ package calculator
 import (
 	"math"
 
-	"github.com/sMteX/necro-prestige-planner/internal/data"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/data"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 // Station base caps per level (index 0 = L1, ..., index 5 = L6).

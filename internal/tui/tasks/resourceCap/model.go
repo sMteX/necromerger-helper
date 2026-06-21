@@ -6,8 +6,8 @@ import (
 	"charm.land/bubbles/v2/textinput"
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/calculator"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/calculator"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 // servOResources is the cycle order for the Serv-O resource selector.

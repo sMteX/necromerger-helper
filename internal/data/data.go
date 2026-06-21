@@ -1,6 +1,6 @@
 package data
 
-import "github.com/sMteX/necro-prestige-planner/internal/models"
+import "github.com/sMteX/necromerger-helper/internal/models"
 
 var (
 	ExperimentSeasoning = models.Experiment{

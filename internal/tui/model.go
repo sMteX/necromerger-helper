@@ -2,8 +2,8 @@ package tui
 
 import (
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/resourceCap"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/resourceCap"
 )
 
 type taskType int8

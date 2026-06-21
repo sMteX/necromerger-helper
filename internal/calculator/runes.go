@@ -3,8 +3,8 @@ package calculator
 import (
 	"math"
 
-	"github.com/sMteX/necro-prestige-planner/internal/data"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/data"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed models.RuneCosts) {

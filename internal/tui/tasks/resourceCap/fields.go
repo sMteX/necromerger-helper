@@ -3,7 +3,7 @@ package resourceCap
 import (
 	"fmt"
 
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 // Field indices.

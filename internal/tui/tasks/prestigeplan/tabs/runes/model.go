@@ -3,9 +3,9 @@ package runes
 import (
 	"strconv"
 
-	"github.com/sMteX/necro-prestige-planner/internal/calculator"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/calculator"
+	"github.com/sMteX/necromerger-helper/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 type Model struct {

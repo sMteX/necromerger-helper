@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/tui"
+	"github.com/sMteX/necromerger-helper/internal/tui"
 )
 
 func main() {

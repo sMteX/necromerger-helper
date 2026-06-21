@@ -5,9 +5,9 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/persistence"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/menu"
+	"github.com/sMteX/necromerger-helper/internal/persistence"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/menu"
 )
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

@@ -6,14 +6,14 @@ import (
 
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/calculator"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
-	"github.com/sMteX/necro-prestige-planner/internal/persistence"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/menu"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/base"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/experiments"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/legendaries"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/runes"
+	"github.com/sMteX/necromerger-helper/internal/calculator"
+	"github.com/sMteX/necromerger-helper/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/persistence"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/menu"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/tabs/base"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/tabs/experiments"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/tabs/legendaries"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan/tabs/runes"
 )
 
 type planTab int8

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 // SavedPlan is the on-disk JSON representation of a plan. It is intentionally

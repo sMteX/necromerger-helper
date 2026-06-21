@@ -3,7 +3,7 @@ package resourceCap
 import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/models"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

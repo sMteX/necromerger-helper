@@ -3,9 +3,9 @@ package experiments
 import (
 	"strconv"
 
-	"github.com/sMteX/necro-prestige-planner/internal/data"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/data"
+	"github.com/sMteX/necromerger-helper/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 type Model struct {

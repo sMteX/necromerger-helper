@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"charm.land/lipgloss/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 // innerWidth is the content width passed to boxStyle.Width() on each render.

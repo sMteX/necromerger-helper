@@ -4,8 +4,8 @@ import (
 	"image/color"
 
 	"charm.land/lipgloss/v2"
-	"github.com/sMteX/necro-prestige-planner/internal/models"
-	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
+	"github.com/sMteX/necromerger-helper/internal/models"
+	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
 // ── Resource colours ─────────────────────────────────────────────────────────
