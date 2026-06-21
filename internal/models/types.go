@@ -117,7 +117,7 @@ type Plan struct {
 	Name                 string               `json:"name"`
 	DevourerLevel        int                  `json:"devourerLevel"`
 	FeatTiers            int                  `json:"featTiers"`
-	OtherMultiplier      float64              `json:"otherMultiplier"`  // The "Other" category (skins, etc.)
+	OtherMultiplier      float64              `json:"otherMultiplier"`  // The "Other" category (skins, etc.) - will already include the base 100% => e.g. 1.72
 	GroupBonusCount      int                  `json:"groupBonusCount"`  // Number of times group bonuses can be claimed (default 1)
 	LeftoverShards       int                  `json:"leftoverShards"`   // Shards remaining from previous prestige
 	LegendaryCounts      map[LegendaryID]int  `json:"legendaryCounts"`  // the planned amount of legendaries

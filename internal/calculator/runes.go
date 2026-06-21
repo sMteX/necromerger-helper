@@ -43,12 +43,10 @@ func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed model
 		}
 	}
 
-	// Calculate total runes for EVERYTHING targeted (regardless of possession)
-	for id, count := range totalNeeded {
+	// Runes to craft only the legendaries we still need to buy (before subtracting possessed runes).
+	// This is what the UI shows as "Total" — the gross rune cost of the missing legendaries.
+	for id, count := range toBuy {
 		recipe := data.LegendaryRecipes[id]
-		if recipe.StationID == "" {
-			continue
-		}
 		multiplier := int(math.Pow(2, float64(recipe.Levels)))
 		if recipe.ReturnsL1 {
 			multiplier -= 1
@@ -59,21 +57,8 @@ func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed model
 		}
 	}
 
-	// Calculate "Needed" runes (only for what we need to buy, minus possessed runes)
-	neededRunes := make(models.RuneCosts)
-	for id, count := range toBuy {
-		recipe := data.LegendaryRecipes[id]
-		multiplier := int(math.Pow(2, float64(recipe.Levels)))
-		if recipe.ReturnsL1 {
-			multiplier -= 1
-		}
-		stationCost := data.StationCosts[recipe.StationID]
-		for runeType, amount := range stationCost {
-			neededRunes[runeType] += amount * multiplier * count
-		}
-	}
-
-	for runeType, amount := range neededRunes {
+	// "Needed" = Total minus what the player already has in inventory.
+	for runeType, amount := range total {
 		possessed := plan.PossessedRunes[runeType]
 		if amount > possessed {
 			needed[runeType] = amount - possessed

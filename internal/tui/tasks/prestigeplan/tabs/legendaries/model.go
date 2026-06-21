@@ -3,27 +3,20 @@ package legendaries
 import (
 	"strconv"
 
-	"charm.land/bubbles/v2/textinput"
-	tea "charm.land/bubbletea/v2"
+	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 type Model struct {
-	cursor int
-	fields []shared.InputField
+	shared.TabModel
 
 	// part of the `model.Plan` this tab changes
 	LegendaryCounts      map[models.LegendaryID]int
 	PossessedLegendaries map[models.LegendaryID]int
-	// ensure these are updated too
-	LegendaryBonuses      map[models.LegendaryID]float64
-	LegendaryGroupBonuses map[models.LegendaryGroup]float64
-}
 
-func (m *Model) Init() tea.Cmd {
-	return nil
+	result *calculator.PrestigePlanResult
 }
 
 var legendaryIdByFieldIndex = map[fieldIndex]models.LegendaryID{
@@ -54,9 +47,9 @@ var legendaryIdByFieldIndex = map[fieldIndex]models.LegendaryID{
 	fieldSoulStalkerPlan: models.SoulStalker,
 }
 
-func NewModel() *Model {
+func NewModel(resultPtr *calculator.PrestigePlanResult) *Model {
 	m := &Model{
-		fields: make([]shared.InputField, fieldIndexCount),
+		TabModel: shared.NewTabModel(int(fieldIndexCount)),
 		LegendaryCounts: map[models.LegendaryID]int{
 			models.Lich:        11,
 			models.Gorgon:      10,
@@ -85,6 +78,7 @@ func NewModel() *Model {
 			models.ShieldBot:   4,
 			models.SoulStalker: 4,
 		},
+		result: resultPtr,
 	}
 
 	legendaryCountLimits := map[models.LegendaryID][2]int{
@@ -104,7 +98,7 @@ func NewModel() *Model {
 	for i := fieldLichHave; i <= fieldSoulStalkerHave; i++ {
 		legendary := data.LegendariesById[legendaryIdByFieldIndex[i]]
 		limits := legendaryCountLimits[legendary.ID]
-		m.fields[i] = shared.InputField{
+		m.Fields[i] = shared.InputField{
 			Label:          legendary.Name,
 			Step:           1,
 			Width:          5,
@@ -116,7 +110,7 @@ func NewModel() *Model {
 	for i := fieldLichPlan; i <= fieldSoulStalkerPlan; i++ {
 		legendary := data.LegendariesById[legendaryIdByFieldIndex[i]]
 		limits := legendaryCountLimits[legendary.ID]
-		m.fields[i] = shared.InputField{
+		m.Fields[i] = shared.InputField{
 			Label:          legendary.Name,
 			Step:           1,
 			Width:          5,
@@ -126,18 +120,8 @@ func NewModel() *Model {
 		}
 	}
 
-	for i, field := range m.fields {
-		m.fields[i].Input = field.CreateInput()
-	}
+	m.InitializeInputs()
 	return m
-}
-
-func (m *Model) currentField() *shared.InputField {
-	return &m.fields[m.cursor]
-}
-
-func (m *Model) CurrentInput() *textinput.Model {
-	return &m.currentField().Input
 }
 
 type fieldIndex int8

@@ -3,25 +3,18 @@ package runes
 import (
 	"strconv"
 
-	"charm.land/bubbles/v2/textinput"
-	tea "charm.land/bubbletea/v2"
+	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 type Model struct {
-	cursor int
-	fields []shared.InputField
+	shared.TabModel
 
 	// part of the `model.Plan` this tab changes
 	PossessedRunes map[models.RuneType]int
-	// ensure these are updated too
-	RuneTotal  models.RuneCosts
-	RuneNeeded models.RuneCosts
-}
 
-func (m *Model) Init() tea.Cmd {
-	return nil
+	result *calculator.PrestigePlanResult
 }
 
 var runeByFieldType = map[fieldIndex]models.RuneType{
@@ -33,9 +26,9 @@ var runeByFieldType = map[fieldIndex]models.RuneType{
 	fieldCosmic: models.RuneCosmic,
 }
 
-func NewModel() *Model {
+func NewModel(resultPtr *calculator.PrestigePlanResult) *Model {
 	m := &Model{
-		fields: make([]shared.InputField, fieldIndexCount),
+		TabModel: shared.NewTabModel(int(fieldIndexCount)),
 		PossessedRunes: map[models.RuneType]int{
 			models.RuneIce:    10,
 			models.RunePoison: 100,
@@ -44,10 +37,11 @@ func NewModel() *Model {
 			models.RuneDeath:  20000,
 			models.RuneCosmic: 10000,
 		},
+		result: resultPtr,
 	}
 	for i := fieldIce; i <= fieldCosmic; i++ {
 		r := runeByFieldType[i]
-		m.fields[i] = shared.InputField{
+		m.Fields[i] = shared.InputField{
 			Label:          string(r),
 			Step:           0,
 			Width:          6,
@@ -56,18 +50,8 @@ func NewModel() *Model {
 			InitialValue:   strconv.Itoa(m.PossessedRunes[r]),
 		}
 	}
-	for i, field := range m.fields {
-		m.fields[i].Input = field.CreateInput()
-	}
+	m.InitializeInputs()
 	return m
-}
-
-func (m *Model) currentField() *shared.InputField {
-	return &m.fields[m.cursor]
-}
-
-func (m *Model) CurrentInput() *textinput.Model {
-	return &m.currentField().Input
 }
 
 type fieldIndex int8

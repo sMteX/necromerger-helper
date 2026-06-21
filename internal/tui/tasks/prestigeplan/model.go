@@ -29,7 +29,7 @@ type Model struct {
 	runesTab       *runes.Model
 	experimentsTab *experiments.Model
 
-	result calculator.PrestigePlanResult
+	result *calculator.PrestigePlanResult
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -37,15 +37,7 @@ func (m *Model) Init() tea.Cmd {
 }
 
 func (m *Model) recalculate() {
-	m.result = calculator.Calculate(m.assemblePlan())
-	// redistribute the models
-	// TODO: pass a pointer to the result to submodels instead?
-	m.legendariesTab.LegendaryBonuses = m.result.LegendaryBonuses
-	m.legendariesTab.LegendaryGroupBonuses = m.result.LegendaryGroupBonuses
-	m.runesTab.RuneTotal = m.result.RuneTotal
-	m.runesTab.RuneNeeded = m.result.RuneNeeded
-	m.experimentsTab.LegendaryBonuses = m.result.LegendaryBonuses
-	m.experimentsTab.LegendaryGroupBonuses = m.result.LegendaryGroupBonuses
+	*m.result = calculator.Calculate(m.assemblePlan())
 }
 
 func (m *Model) assemblePlan() models.Plan {
@@ -63,11 +55,13 @@ func (m *Model) assemblePlan() models.Plan {
 }
 
 func New() *Model {
+	resultPtr := new(calculator.PrestigePlanResult)
 	m := &Model{
 		selectedTab:    planTabExperiments,
+		result:         resultPtr,
 		baseTab:        base.NewModel(),
-		legendariesTab: legendaries.NewModel(),
-		runesTab:       runes.NewModel(),
+		legendariesTab: legendaries.NewModel(resultPtr),
+		runesTab:       runes.NewModel(resultPtr),
 		experimentsTab: experiments.NewModel(),
 	}
 	m.recalculate()

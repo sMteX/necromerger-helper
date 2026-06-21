@@ -3,26 +3,16 @@ package experiments
 import (
 	"strconv"
 
-	"charm.land/bubbles/v2/textinput"
-	tea "charm.land/bubbletea/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/data"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 type Model struct {
-	cursor int
-	fields []shared.InputField
+	shared.TabModel
 
 	// part of the `model.Plan` this tab changes
 	ExperimentLevels map[models.ExperimentID]int
-	// ensure these are updated too
-	LegendaryBonuses      map[models.LegendaryID]float64
-	LegendaryGroupBonuses map[models.LegendaryGroup]float64
-}
-
-func (m *Model) Init() tea.Cmd {
-	return nil
 }
 
 var experimentsByFieldIndex = map[fieldIndex]models.Experiment{
@@ -47,7 +37,7 @@ var experimentsByFieldIndex = map[fieldIndex]models.Experiment{
 
 func NewModel() *Model {
 	m := &Model{
-		fields: make([]shared.InputField, fieldIndexCount),
+		TabModel: shared.NewTabModel(int(fieldIndexCount)),
 		ExperimentLevels: map[models.ExperimentID]int{
 			models.ExpSeasoning:    6,
 			models.ExpStrength:     2,
@@ -72,7 +62,7 @@ func NewModel() *Model {
 	for i := fieldSeasoning1; i <= fieldCapacity2; i++ {
 		e := experimentsByFieldIndex[i]
 		maxLevel := e.Levels[len(e.Levels)-1].Level
-		m.fields[i] = shared.InputField{
+		m.Fields[i] = shared.InputField{
 			Step:           1,
 			Width:          1,
 			CharacterLimit: 1,
@@ -81,18 +71,8 @@ func NewModel() *Model {
 		}
 	}
 
-	for i, field := range m.fields {
-		m.fields[i].Input = field.CreateInput()
-	}
+	m.InitializeInputs()
 	return m
-}
-
-func (m *Model) currentField() *shared.InputField {
-	return &m.fields[m.cursor]
-}
-
-func (m *Model) CurrentInput() *textinput.Model {
-	return &m.currentField().Input
 }
 
 type fieldIndex int8

@@ -93,7 +93,7 @@ func (m *Model) renderRow(i fieldIndex) string {
 
 func (m *Model) renderExperimentsRowLevelInput(i fieldIndex) string {
 	e := experimentsByFieldIndex[i]
-	if m.cursor == int(i) {
+	if m.Cursor == int(i) {
 		current := m.CurrentInput().Value()
 		valueText := "none"
 		if current != "0" {
@@ -118,7 +118,7 @@ func (m *Model) getEffectText(experiment models.ExperimentID, tier models.Experi
 
 func (m *Model) GetHelpItems() []string {
 	return []string{
-		shared.Styles.Help.Render("↑ / ↓  change legendary"),
+		shared.Styles.Help.Render("↑ / ↓  change experiment"),
 		shared.Styles.Help.Render("← / →  change level"),
 		shared.Styles.Help.Render("F1 - F4  switch tab"),
 		shared.Styles.Help.Render("q / ctrl+c  exit"),

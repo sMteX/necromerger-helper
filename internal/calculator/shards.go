@@ -29,9 +29,8 @@ func Calculate(plan models.Plan) PrestigePlanResult {
 	baseShards := data.DevourerBaseShards[plan.DevourerLevel]
 	featMultiplier := 1.0 + float64(plan.FeatTiers)*0.10
 	legMultiplier, legBonuses, groupBonuses := calculateLegendBreakdown(plan)
-	otherMultiplier := 1.0 + plan.OtherMultiplier
 
-	totalShards := int(math.Floor(float64(baseShards)*featMultiplier*legMultiplier*otherMultiplier)) + plan.LeftoverShards
+	totalShards := int(math.Floor(float64(baseShards)*featMultiplier*legMultiplier*plan.OtherMultiplier)) + plan.LeftoverShards
 	expCost := CalculateExperimentCost(plan)
 	runeTotal, runeNeeded := CalculateTotalRunes(plan)
 
@@ -40,7 +39,7 @@ func Calculate(plan models.Plan) PrestigePlanResult {
 		LeftoverShards:        plan.LeftoverShards,
 		FeatMultiplier:        featMultiplier,
 		LegendMultiplier:      legMultiplier,
-		OtherMultiplier:       otherMultiplier,
+		OtherMultiplier:       plan.OtherMultiplier,
 		TotalShards:           totalShards,
 		ExperimentCost:        expCost,
 		NetShards:             totalShards - expCost,
@@ -58,8 +57,7 @@ func CalculateTimeShards(plan models.Plan) int {
 	}
 	featMultiplier := 1.0 + (float64(plan.FeatTiers) * 0.10)
 	legMultiplier := CalculateLegendMultiplier(plan)
-	otherMultiplier := 1.0 + plan.OtherMultiplier
-	total := float64(base) * featMultiplier * legMultiplier * otherMultiplier
+	total := float64(base) * featMultiplier * legMultiplier * plan.OtherMultiplier
 	return int(math.Floor(total)) + plan.LeftoverShards
 }
 
@@ -106,8 +104,15 @@ func calculateLegendBreakdown(plan models.Plan) (multiplier float64, legBonuses 
 		if minCount == math.MaxInt32 || minCount == 0 {
 			continue
 		}
-		allowedClaims := 1 + plan.GroupBonusCount
-		claims := int(math.Min(float64(minCount), float64(allowedClaims)))
+		allowedClaims := plan.GroupBonusCount
+		var claims int
+		if group == models.Group3 {
+			// Group 3 legendaries are each capped at 1 copy, so minCount is always 1 when
+			// the set is complete. The game still grants the full allowedClaims for this group.
+			claims = allowedClaims
+		} else {
+			claims = int(math.Min(float64(minCount), float64(allowedClaims)))
+		}
 		gb := float64(claims) * groupBonusRates[group]
 		groupBonuses[group] = gb
 		totalBonus += gb

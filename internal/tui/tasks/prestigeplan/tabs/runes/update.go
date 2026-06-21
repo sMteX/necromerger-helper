@@ -10,34 +10,22 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	if keyPressMsg, ok := msg.(tea.KeyPressMsg); ok {
 		return m.handleKeyPress(keyPressMsg)
 	}
+
 	// Non-key messages (cursor blink ticks) must reach the active textinput.
-	var cmd tea.Cmd
-	m.currentField().Input, cmd = m.CurrentInput().Update(msg)
-	return m, cmd
+	return m, m.HandleNonKeyMsg(msg)
 }
 
 func (m *Model) handleKeyPress(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch msg.String() {
 	case "up":
-		if m.cursor > int(fieldIce) {
-			m.CurrentInput().Blur()
-			m.cursor--
-			return m, m.CurrentInput().Focus()
-		}
-		return m, nil
+		return m, m.HandleUpKey(int(fieldIce))
 	case "down":
-		if m.cursor < int(fieldCosmic) {
-			m.CurrentInput().Blur()
-			m.cursor++
-			return m, m.CurrentInput().Focus()
-		}
-		return m, nil
+		return m, m.HandleDownKey(int(fieldCosmic))
 	}
 
-	var cmd tea.Cmd
-	m.currentField().Input, cmd = m.CurrentInput().Update(msg)
-	if m.CurrentInput().Err == nil {
-		m.parseFieldValues(fieldIndex(m.cursor), m.CurrentInput().Value())
+	cmd, changed := m.HandleInputKeyMsg(msg)
+	if changed {
+		m.parseFieldValues(fieldIndex(m.Cursor), m.CurrentInput().Value())
 	}
 	return m, cmd
 }

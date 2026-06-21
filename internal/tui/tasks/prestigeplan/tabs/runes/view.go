@@ -40,24 +40,24 @@ func (m *Model) View() string {
 func (m *Model) renderRuneRow(i fieldIndex) string {
 	r := runeByFieldType[i]
 
+	needRunes := m.result.RuneNeeded[r]
+
 	needColumn := func() lipgloss.Style {
-		if m.PossessedRunes[r] >= m.RuneTotal[r] {
+		if needRunes == 0 {
 			return valueColumn.Foreground(shared.Colors.Good)
 		}
 		return valueColumn.Foreground(shared.Colors.Bad)
 	}()
 
-	needRunes := m.RuneNeeded[r]
-
 	valueText := ""
-	if m.cursor == int(i) {
+	if m.Cursor == int(i) {
 		valueText = valueColumn.Render(m.CurrentInput().View())
 	} else {
 		valueText = valueColumn.Render(shared.FormatNumberLong(m.PossessedRunes[r]))
 	}
 	return runeColumn.Foreground(runeColorMap[r]).Render(string(r)) +
 		valueText +
-		valueColumn.Render(shared.FormatNumberLong(m.RuneTotal[r])) +
+		valueColumn.Render(shared.FormatNumberLong(m.result.RuneTotal[r])) +
 		needColumn.Render(shared.FormatNumberLong(needRunes))
 }
 

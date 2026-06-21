@@ -10,56 +10,27 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	if keyPressMsg, ok := msg.(tea.KeyPressMsg); ok {
 		return m.handleKeyPress(keyPressMsg)
 	}
+
 	// Non-key messages (cursor blink ticks) must reach the active textinput.
-	var cmd tea.Cmd
-	m.currentField().Input, cmd = m.CurrentInput().Update(msg)
-	return m, cmd
+	return m, m.HandleNonKeyMsg(msg)
 }
 
 func (m *Model) handleKeyPress(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch msg.String() {
 	case "up":
-		if m.cursor > int(fieldSeasoning1) {
-			m.CurrentInput().Blur()
-			m.cursor--
-			return m, m.CurrentInput().Focus()
-		}
-		return m, nil
+		return m, m.HandleUpKey(int(fieldSeasoning1))
 	case "down":
-		if m.cursor < int(fieldCapacity2) {
-			m.CurrentInput().Blur()
-			m.cursor++
-			return m, m.CurrentInput().Focus()
+		return m, m.HandleDownKey(int(fieldCapacity2))
+	case "left", "right":
+		if newVal, changed := m.HandleStepKeys(msg.String()); changed {
+			m.parseFieldValues(fieldIndex(m.Cursor), newVal)
 		}
 		return m, nil
-	case "left", "right":
-		field := m.currentField()
-		if field.Step > 0 {
-			cur, err := strconv.Atoi(m.CurrentInput().Value())
-			if err != nil {
-				return m, nil
-			}
-			if msg.String() == "left" {
-				cur -= field.Step
-			} else {
-				cur += field.Step
-			}
-			newVal := strconv.Itoa(cur)
-			if field.Validate != nil {
-				if err := field.Validate(newVal); err != nil {
-					return m, nil
-				}
-			}
-			m.CurrentInput().SetValue(newVal)
-			m.parseFieldValues(fieldIndex(m.cursor), newVal)
-			return m, nil
-		}
 	}
 
-	var cmd tea.Cmd
-	m.currentField().Input, cmd = m.CurrentInput().Update(msg)
-	if m.CurrentInput().Err == nil {
-		m.parseFieldValues(fieldIndex(m.cursor), m.CurrentInput().Value())
+	cmd, changed := m.HandleInputKeyMsg(msg)
+	if changed {
+		m.parseFieldValues(fieldIndex(m.Cursor), m.CurrentInput().Value())
 	}
 	return m, cmd
 }

@@ -122,16 +122,13 @@ func (m *Model) handleTabUpdates(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.selectedTab {
 	case planTabBase:
 		m.baseTab, cmd = m.baseTab.Update(msg)
-		return m, cmd
 	case planTabLegendaries:
 		m.legendariesTab, cmd = m.legendariesTab.Update(msg)
-		return m, cmd
 	case planTabRunes:
 		m.runesTab, cmd = m.runesTab.Update(msg)
-		return m, cmd
 	case planTabExperiments:
 		m.experimentsTab, cmd = m.experimentsTab.Update(msg)
-		return m, cmd
 	}
-	return m, nil
+	m.recalculate()
+	return m, cmd
 }

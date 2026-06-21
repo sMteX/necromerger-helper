@@ -19,8 +19,8 @@ func (m *Model) renderInput(i fieldIndex) string {
 	labelStyle := lipgloss.NewStyle().Width(30)
 	valueStyle := lipgloss.NewStyle().Width(10)
 
-	field := m.fields[i]
-	if m.cursor == int(i) {
+	field := m.Fields[i]
+	if m.Cursor == int(i) {
 		if field.Step > 0 || len(field.Options) > 0 {
 			return labelStyle.Foreground(shared.Colors.Good).Render(field.Label) + valueStyle.Foreground(shared.Colors.Good).AlignHorizontal(lipgloss.Left).Render(shared.PadRight("< "+field.Input.Value()+" >", valueStyle.GetWidth()))
 		}

@@ -50,7 +50,7 @@ func (m *Model) View() string {
 
 func (m *Model) renderGroupHeading(group models.LegendaryGroup, tableWidth int) string {
 	groupHeading := lipgloss.NewStyle().Foreground(shared.Colors.Good).MarginTop(1)
-	return groupHeading.Render(groupHeadingText(fmt.Sprintf("Group %d", group), shared.FormatPercentageBonus(m.LegendaryGroupBonuses[group]), tableWidth))
+	return groupHeading.Render(groupHeadingText(fmt.Sprintf("Group %d", group), shared.FormatPercentageBonus(m.result.LegendaryGroupBonuses[group]), tableWidth))
 }
 
 var legendaryToFieldInputs = map[models.LegendaryID][2]fieldIndex{
@@ -78,10 +78,10 @@ func (m *Model) renderRow(legendary models.LegendaryID) string {
 		return countColumn.Foreground(shared.Colors.Bad)
 	}()
 
-	haveField, planField := m.fields[fieldIndexes[0]], m.fields[fieldIndexes[1]]
+	haveField, planField := m.Fields[fieldIndexes[0]], m.Fields[fieldIndexes[1]]
 	haveFieldText, planFieldText := "", ""
-	haveFocused := m.cursor == int(fieldIndexes[0])
-	planFocused := m.cursor == int(fieldIndexes[1])
+	haveFocused := m.Cursor == int(fieldIndexes[0])
+	planFocused := m.Cursor == int(fieldIndexes[1])
 	// have field text
 	if haveFocused {
 		haveFieldText = haveColumn.Render(shared.PadLeft("< "+haveField.Input.Value()+" >", haveColumn.GetWidth()))
@@ -100,7 +100,7 @@ func (m *Model) renderRow(legendary models.LegendaryID) string {
 		haveFieldText +
 		arrow +
 		planFieldText +
-		bonusColumn.Render(shared.FormatPercentageBonus(m.LegendaryBonuses[legendary]))
+		bonusColumn.Render(shared.FormatPercentageBonus(m.result.LegendaryBonuses[legendary]))
 }
 
 func groupHeadingText(name, bonus string, width int) string {

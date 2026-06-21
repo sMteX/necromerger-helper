@@ -3,14 +3,11 @@ package base
 import (
 	"strconv"
 
-	"charm.land/bubbles/v2/textinput"
-	tea "charm.land/bubbletea/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
 type Model struct {
-	cursor int
-	fields []shared.InputField
+	shared.TabModel
 
 	// part of the `model.Plan` this tab changes
 	DevourerLevel   int
@@ -20,20 +17,16 @@ type Model struct {
 	LeftoverShards  int
 }
 
-func (m *Model) Init() tea.Cmd {
-	return nil
-}
-
 func NewModel() *Model {
 	m := &Model{
-		fields:          make([]shared.InputField, fieldIndexCount),
+		TabModel:        shared.NewTabModel(int(fieldIndexCount)),
 		DevourerLevel:   200,
 		FeatTiers:       27,
 		OtherMultiplier: 1.72,
 		GroupBonusCount: 1,
 		LeftoverShards:  123456,
 	}
-	m.fields[fieldDevourerLevel] = shared.InputField{
+	m.Fields[fieldDevourerLevel] = shared.InputField{
 		Label: "Devourer Level",
 		Options: []string{"35", "40", "45", "50", "55", "60", "65", "70",
 			"75", "80", "85", "90", "95", "100", "150",
@@ -44,7 +37,7 @@ func NewModel() *Model {
 		InitialValue:   strconv.Itoa(m.DevourerLevel),
 		Validate:       shared.InputValidationIntInRange(1, 1000),
 	}
-	m.fields[fieldFeatTiers] = shared.InputField{
+	m.Fields[fieldFeatTiers] = shared.InputField{
 		Label:          "Max Feat Tier",
 		Step:           1,
 		Width:          7,
@@ -52,7 +45,7 @@ func NewModel() *Model {
 		InitialValue:   strconv.Itoa(m.FeatTiers),
 		Validate:       shared.InputValidationIntInRange(1, 35),
 	}
-	m.fields[fieldOtherMultiplier] = shared.InputField{
+	m.Fields[fieldOtherMultiplier] = shared.InputField{
 		Label:          "'Others' Multiplier [%]",
 		Step:           0,
 		Width:          8,
@@ -60,7 +53,7 @@ func NewModel() *Model {
 		InitialValue:   strconv.Itoa(int(m.OtherMultiplier * 100)),
 		Validate:       shared.InputValidationIntInRange(100, 1000),
 	}
-	m.fields[fieldGroupBonusCount] = shared.InputField{
+	m.Fields[fieldGroupBonusCount] = shared.InputField{
 		Label:          "Leg. Group Bonus Count",
 		Step:           1,
 		Width:          5,
@@ -68,7 +61,7 @@ func NewModel() *Model {
 		InitialValue:   strconv.Itoa(m.GroupBonusCount),
 		Validate:       shared.InputValidationIntInRange(1, 3),
 	}
-	m.fields[fieldLeftoverShards] = shared.InputField{
+	m.Fields[fieldLeftoverShards] = shared.InputField{
 		Label:          "Leftover Shards",
 		Step:           0,
 		Width:          11,
@@ -76,18 +69,8 @@ func NewModel() *Model {
 		InitialValue:   strconv.Itoa(m.LeftoverShards),
 		Validate:       shared.InputValidationIntInRange(0, 10000000),
 	}
-	for i, field := range m.fields {
-		m.fields[i].Input = field.CreateInput()
-	}
+	m.InitializeInputs()
 	return m
-}
-
-func (m *Model) currentField() *shared.InputField {
-	return &m.fields[m.cursor]
-}
-
-func (m *Model) CurrentInput() *textinput.Model {
-	return &m.currentField().Input
 }
 
 type fieldIndex int8
