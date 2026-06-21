@@ -23,13 +23,13 @@ var runeByFieldType = map[fieldIndex]models.RuneType{
 func (m *Model) addRunesTabFields() {
 	for i := fieldRunesIce; i <= fieldRunesCosmic; i++ {
 		r := runeByFieldType[i]
-		m.fields[i] = inputField{
-			label:          string(r),
-			step:           0,
-			width:          6,
-			characterLimit: 6,
-			validate:       inputValidationIntInRange(0, 10000000),
-			initialValue:   strconv.Itoa(m.plan.PossessedRunes[r]),
+		m.fields[i] = shared.InputField{
+			Label:          string(r),
+			Step:           0,
+			Width:          6,
+			CharacterLimit: 6,
+			Validate:       shared.InputValidationIntInRange(0, 10000000),
+			InitialValue:   strconv.Itoa(m.plan.PossessedRunes[r]),
 		}
 	}
 }
@@ -119,7 +119,7 @@ func (m *Model) handleRunesTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	// Everything else — character input, backspace, and ←/→ cursor movement for
 	// text-only fields — goes to the focused textinput.
 	var cmd tea.Cmd
-	m.fields[m.cursor].input, cmd = m.currentInput().Update(msg)
+	m.fields[m.cursor].Input, cmd = m.currentInput().Update(msg)
 	if m.currentInput().Err == nil {
 		m.parseRunesTabFieldValues(fieldIndex(m.cursor), m.currentInput().Value())
 		// TODO: recalculate m.calculatedOutputs from m.baseInputs

@@ -16,17 +16,36 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// bubbletea only sends WindowSizeMsg once, before the user picks a task,
 		// so the prestige planner never gets Init() called by the framework.
 		// Use the first WindowSizeMsg as the init signal to activate the cursor field.
+		// TODO: not sure here, if this should work after we put back the resource cap planner too
 		if !m.currentInput().Focused() {
 			return m, m.currentInput().Focus()
 		}
 		return m, nil
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+		case "f12":
+			m.debugDump()
+			return m, nil
+		case "f1", "f2", "f3", "f4":
+			// blur the previous input
+			m.currentInput().Blur()
+			switch msg.String() {
+			case "f1":
+				m.selectedTab = planTabBase
+			case "f2":
+				m.selectedTab = planTabLegendaries
+			case "f3":
+				m.selectedTab = planTabRunes
+			case "f4":
+				m.selectedTab = planTabExperiments
+			}
+			// focus the new input - will refer to something else after switching the tab
+			return m, m.currentInput().Focus()
+		}
 	}
-	// Non-key messages (cursor blink ticks) must reach the active textinput.
-	var cmd tea.Cmd
-	m.fields[fieldIndex(m.cursor)].input, cmd = m.currentInput().Update(msg)
-	return m, cmd
+	return m.handleTabUpdates(msg)
 }
 
 func (m *Model) debugDump() {
@@ -98,37 +117,12 @@ func (m *Model) debugDump() {
 	log.Println("======================")
 }
 
-func (m *Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
-	switch msg.String() {
-	case "ctrl+c", "q":
-		return m, tea.Quit
-	case "f12":
-		m.debugDump()
-		return m, nil
-	case "f1", "f2", "f3", "f4":
-		// blur the previous input
-		m.currentInput().Blur()
-		switch msg.String() {
-		case "f1":
-			m.selectedTab = planTabBase
-			m.cursor = int(fieldBaseDevourerLevel)
-		case "f2":
-			m.selectedTab = planTabLegendaries
-			m.cursor = int(fieldLegendariesLichHave)
-		case "f3":
-			m.selectedTab = planTabRunes
-			m.cursor = int(fieldRunesIce)
-		case "f4":
-			m.selectedTab = planTabExperiments
-			m.cursor = int(fieldExperimentsSeasoning1)
-		}
-		// focus the new input
-		return m, m.currentInput().Focus()
-	}
-
+func (m *Model) handleTabUpdates(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch m.selectedTab {
 	case planTabBase:
-		return m.handleBaseTabKey(msg)
+		m.baseTab, cmd = m.baseTab.Update(msg)
+		return m, cmd
 	case planTabLegendaries:
 		return m.handleLegendariesTabKey(msg)
 	case planTabRunes:

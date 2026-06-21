@@ -36,12 +36,12 @@ func (m *Model) addExperimentsTabFields() {
 	for i := fieldExperimentsSeasoning1; i <= fieldExperimentsCapacity2; i++ {
 		e := experimentsByFieldIndex[i]
 		maxLevel := e.Levels[len(e.Levels)-1].Level
-		m.fields[i] = inputField{
-			step:           1,
-			width:          1,
-			characterLimit: 1,
-			initialValue:   strconv.Itoa(m.plan.ExperimentLevels[e.ID]),
-			validate:       inputValidationIntInRange(0, maxLevel),
+		m.fields[i] = shared.InputField{
+			Step:           1,
+			Width:          1,
+			CharacterLimit: 1,
+			InitialValue:   strconv.Itoa(m.plan.ExperimentLevels[e.ID]),
+			Validate:       shared.InputValidationIntInRange(0, maxLevel),
 		}
 	}
 }
@@ -183,19 +183,19 @@ func (m *Model) handleExperimentsTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd
 		// For text-only fields (step == 0), fall through so the textinput handles
 		// cursor movement within the text.
 		field := m.fields[fieldIndex(m.cursor)]
-		if field.step > 0 {
+		if field.Step > 0 {
 			cur, err := strconv.Atoi(m.currentInput().Value())
 			if err != nil {
 				return m, nil
 			}
 			if msg.String() == "left" {
-				cur -= field.step
+				cur -= field.Step
 			} else {
-				cur += field.step
+				cur += field.Step
 			}
 			newVal := strconv.Itoa(cur)
-			if field.validate != nil {
-				if err := field.validate(newVal); err != nil {
+			if field.Validate != nil {
+				if err := field.Validate(newVal); err != nil {
 					// didn't pass validate, don't change anything
 					return m, nil
 				}
@@ -211,7 +211,7 @@ func (m *Model) handleExperimentsTabKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd
 	// Everything else — character input, backspace, and ←/→ cursor movement for
 	// text-only fields — goes to the focused textinput.
 	var cmd tea.Cmd
-	m.fields[m.cursor].input, cmd = m.currentInput().Update(msg)
+	m.fields[m.cursor].Input, cmd = m.currentInput().Update(msg)
 	if m.currentInput().Err == nil {
 		m.parseExperimentsTabFieldValues(fieldIndex(m.cursor), m.currentInput().Value())
 		// TODO: recalculate m.calculatedOutputs from m.baseInputs

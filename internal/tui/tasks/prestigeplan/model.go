@@ -1,13 +1,11 @@
 package prestigeplan
 
 import (
-	"fmt"
-	"strconv"
-
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"github.com/sMteX/necro-prestige-planner/internal/calculator"
 	"github.com/sMteX/necro-prestige-planner/internal/models"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/base"
 )
 
 type planTab int8
@@ -23,11 +21,9 @@ type Model struct {
 	selectedTab               planTab
 	windowHeight, windowWidth int
 
-	cursor int
-	fields []inputField
-
-	plan   models.Plan
-	result calculator.PrestigePlanResult
+	baseTab *base.Model
+	plan    models.Plan
+	result  calculator.PrestigePlanResult
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -41,13 +37,8 @@ func (m *Model) recalculate() {
 func New() *Model {
 	m := &Model{
 		selectedTab: planTabExperiments,
-		cursor:      int(fieldExperimentsSeasoning1),
+		baseTab:     base.NewModel(),
 		plan: models.Plan{
-			DevourerLevel:   200,
-			FeatTiers:       27,
-			OtherMultiplier: 1.72,
-			GroupBonusCount: 1,
-			LeftoverShards:  123456,
 			LegendaryCounts: map[models.LegendaryID]int{
 				models.Lich:        11,
 				models.Gorgon:      10,
@@ -105,42 +96,20 @@ func New() *Model {
 			},
 		},
 	}
-	m.fields = make([]inputField, fieldIndexCount)
-	m.addBaseTabFields()
 	m.addLegendariesTabFields()
 	m.addRunesTabFields()
 	m.addExperimentsTabFields()
-	m.initializeInputModels()
 	m.recalculate()
 	return m
 }
 
-func (m *Model) initializeInputModels() {
-	for i, field := range m.fields {
-		f := textinput.New()
-		f.Prompt = ""
-		f.CharLimit = field.characterLimit
-		f.Validate = field.validate
-		f.SetVirtualCursor(true)
-		f.SetWidth(field.width)
-		f.SetValue(field.initialValue)
-		m.fields[i].input = f
-	}
-}
-
+// currentInput returns the current input model for the currently selected tab
 func (m *Model) currentInput() *textinput.Model {
-	return &m.fields[m.cursor].input
-}
-
-type inputField struct {
-	label          string   // not going to be used every time, but it's convenient to have it here
-	step           int      // step == 0 means the field is text-only; step > 0 enables ←/→ increment/decrement.
-	options        []string // if len(options) > 0, step is ignored and the field is a select-like
-	width          int
-	characterLimit int
-	validate       func(string) error
-	initialValue   string
-	input          textinput.Model
+	switch m.selectedTab {
+	case planTabBase:
+		return m.baseTab.CurrentInput()
+	}
+	return nil
 }
 
 type fieldIndex int8
@@ -205,16 +174,3 @@ const (
 	// special constant that automatically updates and refers to the amount of these constants (like `len(fieldIndex)`)
 	fieldIndexCount
 )
-
-func inputValidationIntInRange(min, max int) func(string) error {
-	return func(s string) error {
-		v, err := strconv.Atoi(s)
-		if err != nil {
-			return fmt.Errorf("must be a whole number")
-		}
-		if v < min || v > max {
-			return fmt.Errorf("must be between %d and %d", min, max)
-		}
-		return nil
-	}
-}
