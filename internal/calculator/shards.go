@@ -9,6 +9,7 @@ import (
 
 type PrestigePlanResult struct {
 	BaseShards     int
+	LeftoverShards int
 	TotalShards    int
 	ExperimentCost int
 	NetShards      int
@@ -36,6 +37,7 @@ func Calculate(plan models.Plan) PrestigePlanResult {
 
 	return PrestigePlanResult{
 		BaseShards:            baseShards,
+		LeftoverShards:        plan.LeftoverShards,
 		FeatMultiplier:        featMultiplier,
 		LegendMultiplier:      legMultiplier,
 		OtherMultiplier:       otherMultiplier,

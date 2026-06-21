@@ -74,7 +74,7 @@ func (m *Model) renderSummary(summaryWidth, summaryHeight int) string {
 
 	values := [][]string{
 		{"Base", shared.FormatNumberLong(m.result.BaseShards)},
-		{"Leftovers", shared.FormatNumberLong(m.plan.LeftoverShards)},
+		{"Leftovers", shared.FormatNumberLong(m.result.LeftoverShards)},
 		{"× Feats", fmt.Sprintf("+%.0f%%", math.Floor(m.result.FeatMultiplier*100))},
 		{"× Leggos", fmt.Sprintf("+%.0f%%", math.Floor(m.result.LegendMultiplier*100))},
 		{"× Others", fmt.Sprintf("+%.0f%%", math.Floor(m.result.OtherMultiplier*100))},
@@ -120,7 +120,7 @@ func (m *Model) renderMainContent(maxWidth, maxHeight int) string {
 	case planTabRunes:
 		content = m.runesTab.View()
 	case planTabExperiments:
-		content = m.renderExperimentsTab()
+		content = m.experimentsTab.View()
 	default:
 		content = "Main content placeholder"
 	}
@@ -139,7 +139,7 @@ func (m *Model) renderHelp() string {
 	case planTabRunes:
 		units = m.runesTab.GetHelpItems()
 	case planTabExperiments:
-		units = m.getExperimentsTabHelp()
+		units = m.experimentsTab.GetHelpItems()
 	default:
 		units = []string{
 			shared.Styles.Help.Render("↑ / ↓  navigate"),

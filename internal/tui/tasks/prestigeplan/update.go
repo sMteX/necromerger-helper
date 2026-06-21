@@ -50,24 +50,24 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *Model) debugDump() {
 	log.Println("===== DEBUG DUMP =====")
-	log.Printf("window: %dx%d  tab: %d  cursor: %d", m.windowWidth, m.windowHeight, m.selectedTab, m.cursor)
+	log.Printf("window: %dx%d  tab: %d", m.windowWidth, m.windowHeight, m.selectedTab)
 	log.Println("--- plan ---")
 	log.Printf("  DevourerLevel=%d  FeatTiers=%d  OtherMultiplier=%.4f  GroupBonusCount=%d  LeftoverShards=%d",
-		m.plan.DevourerLevel, m.plan.FeatTiers, m.plan.OtherMultiplier, m.plan.GroupBonusCount, m.plan.LeftoverShards)
+		m.baseTab.DevourerLevel, m.baseTab.FeatTiers, m.baseTab.OtherMultiplier, m.baseTab.GroupBonusCount, m.baseTab.LeftoverShards)
 	log.Println("  LegendaryCounts:")
-	for k, v := range m.plan.LegendaryCounts {
+	for k, v := range m.legendariesTab.LegendaryCounts {
 		log.Printf("    %v = %d", k, v)
 	}
 	log.Println("  PossessedLegendaries:")
-	for k, v := range m.plan.PossessedLegendaries {
+	for k, v := range m.legendariesTab.PossessedLegendaries {
 		log.Printf("    %v = %d", k, v)
 	}
 	log.Println("  ExperimentLevels:")
-	for k, v := range m.plan.ExperimentLevels {
+	for k, v := range m.experimentsTab.ExperimentLevels {
 		log.Printf("    %v = %d", k, v)
 	}
 	log.Println("  PossessedRunes:")
-	for k, v := range m.plan.PossessedRunes {
+	for k, v := range m.runesTab.PossessedRunes {
 		log.Printf("    %v = %d", k, v)
 	}
 	log.Println("--- result ---")
@@ -130,7 +130,8 @@ func (m *Model) handleTabUpdates(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.runesTab, cmd = m.runesTab.Update(msg)
 		return m, cmd
 	case planTabExperiments:
-		return m.handleExperimentsTabKey(msg)
+		m.experimentsTab, cmd = m.experimentsTab.Update(msg)
+		return m, cmd
 	}
 	return m, nil
 }
