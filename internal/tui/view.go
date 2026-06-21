@@ -19,7 +19,8 @@ func (m *AppModel) renderMainMenu() tea.View {
 		Render(content)
 
 	return tea.View{
-		Content: content,
+		Content:   content,
+		AltScreen: true,
 	}
 }
 

@@ -28,16 +28,9 @@ var runeByFieldType = map[fieldIndex]models.RuneType{
 
 func NewModel(resultPtr *calculator.PrestigePlanResult) *Model {
 	m := &Model{
-		TabModel: shared.NewTabModel(int(fieldIndexCount)),
-		PossessedRunes: map[models.RuneType]int{
-			models.RuneIce:    10,
-			models.RunePoison: 100,
-			models.RuneBlood:  1000,
-			models.RuneMoon:   10000,
-			models.RuneDeath:  20000,
-			models.RuneCosmic: 10000,
-		},
-		result: resultPtr,
+		TabModel:       shared.NewTabModel(int(fieldIndexCount)),
+		PossessedRunes: make(map[models.RuneType]int),
+		result:         resultPtr,
 	}
 	for i := fieldIce; i <= fieldCosmic; i++ {
 		r := runeByFieldType[i]

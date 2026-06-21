@@ -147,7 +147,7 @@ func New() *Model {
 	resultPtr := new(calculator.PrestigePlanResult)
 	plansDir, _ := persistence.DefaultPlansDir()
 	m := &Model{
-		selectedTab:    planTabExperiments,
+		selectedTab:    planTabBase,
 		result:         resultPtr,
 		baseTab:        base.NewModel(),
 		legendariesTab: legendaries.NewModel(resultPtr),

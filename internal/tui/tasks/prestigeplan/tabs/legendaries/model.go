@@ -66,36 +66,10 @@ var legendaryIdByFieldIndex = map[fieldIndex]models.LegendaryID{
 
 func NewModel(resultPtr *calculator.PrestigePlanResult) *Model {
 	m := &Model{
-		TabModel: shared.NewTabModel(int(fieldIndexCount)),
-		LegendaryCounts: map[models.LegendaryID]int{
-			models.Lich:        11,
-			models.Gorgon:      10,
-			models.Harpy:       1,
-			models.Reaper:      1,
-			models.Cyclops:     1,
-			models.Archdemon:   4,
-			models.TheCursed:   1,
-			models.TheColossus: 1,
-			models.TheInfernal: 1,
-			models.RoboChicken: 4,
-			models.ShieldBot:   4,
-			models.SoulStalker: 15,
-		},
-		PossessedLegendaries: map[models.LegendaryID]int{
-			models.Lich:        11,
-			models.Gorgon:      0,
-			models.Harpy:       0,
-			models.Reaper:      0,
-			models.Cyclops:     0,
-			models.Archdemon:   4,
-			models.TheCursed:   1,
-			models.TheColossus: 1,
-			models.TheInfernal: 1,
-			models.RoboChicken: 4,
-			models.ShieldBot:   4,
-			models.SoulStalker: 4,
-		},
-		result: resultPtr,
+		TabModel:             shared.NewTabModel(int(fieldIndexCount)),
+		LegendaryCounts:      make(map[models.LegendaryID]int),
+		PossessedLegendaries: make(map[models.LegendaryID]int),
+		result:               resultPtr,
 	}
 
 	legendaryCountLimits := map[models.LegendaryID][2]int{

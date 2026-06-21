@@ -22,11 +22,10 @@ type Model struct {
 func NewModel() *Model {
 	m := &Model{
 		TabModel:        shared.NewTabModel(int(fieldIndexCount)),
-		DevourerLevel:   200,
-		FeatTiers:       27,
-		OtherMultiplier: 1.72,
+		DevourerLevel:   35,
+		FeatTiers:       1,
+		OtherMultiplier: 1,
 		GroupBonusCount: 1,
-		LeftoverShards:  123456,
 	}
 	m.Fields[fieldDevourerLevel] = shared.InputField{
 		Label: "Devourer Level",

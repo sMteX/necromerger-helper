@@ -1,6 +1,2 @@
 .idea
-tmp
-.env
-.bin
-ui/dist
-ui/node_modules
+debug.log

@@ -17,16 +17,15 @@ func (m *AppModel) handleUpdateMainMenu(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down":
-			// TODO: dynamic, menu items
-			if m.cursor < 1 {
+			if m.cursor < int(taskTypeCount)-1 {
 				m.cursor++
 			}
 		case "enter":
 			var t taskType
-			switch m.cursor {
-			case 0:
+			switch taskType(m.cursor) {
+			case taskResourceCap:
 				t = taskResourceCap
-			case 1:
+			case taskPrestigePlan:
 				t = taskPrestigePlan
 			}
 			m.currentTask = &t

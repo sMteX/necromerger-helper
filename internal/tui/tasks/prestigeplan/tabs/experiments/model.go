@@ -37,26 +37,8 @@ var experimentsByFieldIndex = map[fieldIndex]models.Experiment{
 
 func NewModel() *Model {
 	m := &Model{
-		TabModel: shared.NewTabModel(int(fieldIndexCount)),
-		ExperimentLevels: map[models.ExperimentID]int{
-			models.ExpSeasoning:    6,
-			models.ExpStrength:     2,
-			models.ExpTaste:        6,
-			models.ExpCapacity:     6,
-			models.ExpBodySnatcher: 1,
-			models.ExpWeakening:    4,
-			models.ExpDamageCap:    2,
-			models.ExpIceChest:     6,
-			models.ExpPoisonChest:  7,
-			models.ExpBloodChest:   6,
-			models.ExpMoonChest:    6,
-			models.ExpDeathChest:   6,
-			models.ExpCosmicChest:  5,
-			models.ExpSeasoning2:   2,
-			models.ExpStrength2:    2,
-			models.ExpTaste2:       2,
-			models.ExpCapacity2:    1,
-		},
+		TabModel:         shared.NewTabModel(int(fieldIndexCount)),
+		ExperimentLevels: make(map[models.ExperimentID]int),
 	}
 
 	for i := fieldSeasoning1; i <= fieldCapacity2; i++ {
