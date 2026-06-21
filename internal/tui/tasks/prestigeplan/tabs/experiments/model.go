@@ -75,6 +75,16 @@ func NewModel() *Model {
 	return m
 }
 
+// LoadFrom replaces the tab's experiment levels with those from a loaded plan,
+// updating both the model map and the textinput display values.
+func (m *Model) LoadFrom(plan models.Plan) {
+	m.ExperimentLevels = plan.ExperimentLevels
+	for i := fieldSeasoning1; i <= fieldCapacity2; i++ {
+		e := experimentsByFieldIndex[i]
+		m.Fields[i].Input.SetValue(strconv.Itoa(plan.ExperimentLevels[e.ID]))
+	}
+}
+
 type fieldIndex int8
 
 const (

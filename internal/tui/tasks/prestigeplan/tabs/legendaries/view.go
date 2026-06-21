@@ -117,7 +117,5 @@ func (m *Model) GetHelpItems() []string {
 		shared.Styles.Help.Render("↑ / ↓  change legendary"),
 		shared.Styles.Help.Render("Tab / Shift+Tab  change have/planned"),
 		shared.Styles.Help.Render("← / →  change value"),
-		shared.Styles.Help.Render("F1 - F4  switch tab"),
-		shared.Styles.Help.Render("q / ctrl+c  exit"),
 	}
 }

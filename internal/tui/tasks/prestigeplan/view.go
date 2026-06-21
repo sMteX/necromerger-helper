@@ -14,7 +14,7 @@ func (m *Model) View() tea.View {
 	fw, fh := shared.Styles.MainContainer.GetFrameSize()
 
 	// elements with more or less fixed size - will be subtracted from the available space to figure out the main content
-	header := shared.Styles.Header.Render("Prestige planner")
+	header := shared.Styles.Header.Render(m.headerText())
 	tabSelector := m.renderTabSelector()
 	help := m.renderHelp()
 
@@ -39,10 +39,42 @@ func (m *Model) View() tea.View {
 		Height(m.windowHeight).
 		Render(content)
 
+	if m.menu != nil {
+		// Render the modal overlay centered over the full terminal area.
+		// lipgloss v2 has no whitespace-background option, so the underlying
+		// content shows through around the modal box.
+		content = lipgloss.Place(
+			m.windowWidth, m.windowHeight,
+			lipgloss.Center, lipgloss.Center,
+			m.menu.View(),
+		)
+	}
+
 	return tea.View{
 		Content:   content,
 		AltScreen: true,
 	}
+}
+
+func (m *Model) headerText() string {
+	dimStyle := lipgloss.NewStyle().Foreground(shared.Colors.Dim)
+	var namePart string
+	if m.planName == "" {
+		// No plan has been named yet — show a dim placeholder instead of nothing.
+		namePart = dimStyle.Render("unnamed plan")
+	} else {
+		namePart = m.planName
+		if m.planDirty {
+			// Asterisk signals unsaved changes, same convention as most editors.
+			namePart += " *"
+		}
+	}
+	header := "Prestige planner  ·  " + namePart
+	if m.saveStatus != "" {
+		// Short-lived toast (e.g. "Saved") appended after the name.
+		header += "  " + dimStyle.Render(m.saveStatus)
+	}
+	return header
 }
 
 func (m *Model) renderTabSelector() string {
@@ -104,6 +136,17 @@ func (m *Model) renderSummary(summaryWidth, summaryHeight int) string {
 			netStyle.Render(shared.FormatNumberLong(m.result.NetShards)),
 		),
 	)
+	if m.planNotes != "" {
+		// Notes are appended below the shard summary with a separator line,
+		// rendered dim so they don't compete visually with the numbers above.
+		noteStyle := lipgloss.NewStyle().
+			Width(summaryWidth - fw - 1).
+			Foreground(shared.Colors.Dim)
+		lines = append(lines,
+			strings.Repeat("─", summaryWidth-fw-1),
+			noteStyle.Render(m.planNotes),
+		)
+	}
 	return shared.Styles.SubContainer.
 		Width(summaryWidth).
 		Height(summaryHeight).
@@ -140,14 +183,15 @@ func (m *Model) renderHelp() string {
 		units = m.runesTab.GetHelpItems()
 	case planTabExperiments:
 		units = m.experimentsTab.GetHelpItems()
-	default:
-		units = []string{
-			shared.Styles.Help.Render("↑ / ↓  navigate"),
-			shared.Styles.Help.Render("← / →  navigate"),
-			shared.Styles.Help.Render("F1 - F4  switch tab"),
-			shared.Styles.Help.Render("q / ctrl+c  exit"),
-		}
 	}
+
+	units = append(units,
+		shared.Styles.Help.Render("F1 - F4  switch tab"),
+		shared.Styles.Help.Render("x  open menu"),
+		shared.Styles.Help.Render("ctrl+s  quick save"),
+		shared.Styles.Help.Render("q / ctrl+c  exit"),
+	)
+
 	var lines []string
 
 	separator := shared.Styles.Help.Render("  ·  ")

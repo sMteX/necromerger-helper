@@ -64,7 +64,5 @@ func (m *Model) renderRuneRow(i fieldIndex) string {
 func (m *Model) GetHelpItems() []string {
 	return []string{
 		shared.Styles.Help.Render("↑ / ↓  navigate"),
-		shared.Styles.Help.Render("F1 - F4  switch tab"),
-		shared.Styles.Help.Render("q / ctrl+c  exit"),
 	}
 }

@@ -54,6 +54,16 @@ func NewModel(resultPtr *calculator.PrestigePlanResult) *Model {
 	return m
 }
 
+// LoadFrom replaces the tab's possessed-rune counts with those from a loaded plan,
+// updating both the model map and the textinput display values.
+func (m *Model) LoadFrom(plan models.Plan) {
+	m.PossessedRunes = plan.PossessedRunes
+	for i := fieldIce; i <= fieldCosmic; i++ {
+		r := runeByFieldType[i]
+		m.Fields[i].Input.SetValue(strconv.Itoa(plan.PossessedRunes[r]))
+	}
+}
+
 type fieldIndex int8
 
 const (

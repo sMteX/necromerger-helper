@@ -31,7 +31,9 @@ func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed model
 		}
 	}
 
-	// How many of each station-produced legendary we need to buy
+	// How many of each station-produced legendary we still need to craft.
+	// Non-station legendaries (e.g. those obtained from drops) are skipped —
+	// they have no rune cost.
 	toBuy := make(map[models.LegendaryID]int)
 	for id, recipe := range data.LegendaryRecipes {
 		if recipe.StationID == "" {
@@ -43,10 +45,13 @@ func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed model
 		}
 	}
 
-	// Runes to craft only the legendaries we still need to buy (before subtracting possessed runes).
-	// This is what the UI shows as "Total" — the gross rune cost of the missing legendaries.
+	// "Total" = gross rune cost to craft only the legendaries we're missing.
+	// We intentionally do NOT include legendaries already possessed here, so
+	// that Total - Have = Need is a meaningful equation in the UI.
 	for id, count := range toBuy {
 		recipe := data.LegendaryRecipes[id]
+		// Each level doubles the cost; if the recipe returns the L1 legendary
+		// after upgrading, subtract one copy's worth of cost.
 		multiplier := int(math.Pow(2, float64(recipe.Levels)))
 		if recipe.ReturnsL1 {
 			multiplier -= 1
@@ -57,7 +62,8 @@ func CalculateTotalRunes(plan models.Plan) (total models.RuneCosts, needed model
 		}
 	}
 
-	// "Needed" = Total minus what the player already has in inventory.
+	// "Needed" = Total minus what the player already has in their rune inventory.
+	// Clamped to 0 — if possessed exceeds total, no runes are needed.
 	for runeType, amount := range total {
 		possessed := plan.PossessedRunes[runeType]
 		if amount > possessed {

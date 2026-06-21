@@ -9,6 +9,23 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/tui/shared"
 )
 
+// LoadFrom replaces the tab's values with those from a loaded plan.
+// The field indices are split into two ranges: Have fields (what the player
+// currently owns) and Plan fields (target counts). Both the model maps and the
+// textinput display values are updated.
+func (m *Model) LoadFrom(plan models.Plan) {
+	m.LegendaryCounts = plan.LegendaryCounts
+	m.PossessedLegendaries = plan.PossessedLegendaries
+	for i := fieldLichHave; i <= fieldSoulStalkerHave; i++ {
+		id := legendaryIdByFieldIndex[i]
+		m.Fields[i].Input.SetValue(strconv.Itoa(plan.PossessedLegendaries[id]))
+	}
+	for i := fieldLichPlan; i <= fieldSoulStalkerPlan; i++ {
+		id := legendaryIdByFieldIndex[i]
+		m.Fields[i].Input.SetValue(strconv.Itoa(plan.LegendaryCounts[id]))
+	}
+}
+
 type Model struct {
 	shared.TabModel
 

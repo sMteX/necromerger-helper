@@ -120,7 +120,5 @@ func (m *Model) GetHelpItems() []string {
 	return []string{
 		shared.Styles.Help.Render("↑ / ↓  change experiment"),
 		shared.Styles.Help.Render("← / →  change level"),
-		shared.Styles.Help.Render("F1 - F4  switch tab"),
-		shared.Styles.Help.Render("q / ctrl+c  exit"),
 	}
 }
