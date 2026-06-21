@@ -7,6 +7,7 @@ import (
 	"github.com/sMteX/necro-prestige-planner/internal/models"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/base"
 	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/legendaries"
+	"github.com/sMteX/necro-prestige-planner/internal/tui/tasks/prestigeplan/tabs/runes"
 )
 
 type planTab int8
@@ -24,6 +25,7 @@ type Model struct {
 
 	baseTab        *base.Model
 	legendariesTab *legendaries.Model
+	runesTab       *runes.Model
 	plan           models.Plan
 	result         calculator.PrestigePlanResult
 }
@@ -41,6 +43,7 @@ func New() *Model {
 		selectedTab:    planTabExperiments,
 		baseTab:        base.NewModel(),
 		legendariesTab: legendaries.NewModel(),
+		runesTab:       runes.NewModel(),
 		plan: models.Plan{
 			ExperimentLevels: map[models.ExperimentID]int{
 				models.ExpSeasoning:    6,
@@ -71,7 +74,6 @@ func New() *Model {
 			},
 		},
 	}
-	m.addRunesTabFields()
 	m.addExperimentsTabFields()
 	m.recalculate()
 	return m

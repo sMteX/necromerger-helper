@@ -118,7 +118,7 @@ func (m *Model) renderMainContent(maxWidth, maxHeight int) string {
 	case planTabLegendaries:
 		content = m.legendariesTab.View()
 	case planTabRunes:
-		content = m.renderRuneTab()
+		content = m.runesTab.View()
 	case planTabExperiments:
 		content = m.renderExperimentsTab()
 	default:
@@ -137,7 +137,7 @@ func (m *Model) renderHelp() string {
 	case planTabLegendaries:
 		units = m.legendariesTab.GetHelpItems()
 	case planTabRunes:
-		units = m.getRuneTabHelp()
+		units = m.runesTab.GetHelpItems()
 	case planTabExperiments:
 		units = m.getExperimentsTabHelp()
 	default:
