@@ -9,10 +9,10 @@ import (
 
 // innerWidth is the content width passed to boxStyle.Width() on each render.
 // The box border + padding adds to this, so the total modal width is larger.
-const innerWidth = 30
+const innerWidth = 40
 
 var (
-	boxStyle      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(shared.Colors.Border).Padding(0, 2)
+	boxStyle      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(shared.Colors.Border).Padding(1, 3)
 	titleStyle    = lipgloss.NewStyle().Bold(true).Foreground(shared.Colors.Border).MarginBottom(1)
 	selectedStyle = lipgloss.NewStyle().Foreground(shared.Colors.Good)
 	hintStyle     = shared.Styles.Help.MarginTop(1)

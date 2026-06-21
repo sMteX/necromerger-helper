@@ -86,11 +86,6 @@ func (m *Model) openMenu(startAtSave bool) tea.Cmd {
 		Name:        m.planName,
 		Notes:       m.planNotes,
 	})
-	if startAtSave {
-		// Focus is handled inside planmenu.New when StartAtSave is true —
-		// no cmd needed from here.
-		return nil
-	}
 	return nil
 }
 

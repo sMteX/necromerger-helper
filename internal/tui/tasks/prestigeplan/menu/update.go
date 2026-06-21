@@ -5,22 +5,21 @@ import (
 )
 
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
-	keyMsg, isKey := msg.(tea.KeyPressMsg)
-	if !isKey {
-		// Non-key messages are cursor blink ticks. Only the name editor needs
-		// them; other states have no active textinput.
-		if m.state == stateNameEditor {
-			var cmd tea.Cmd
-			if m.nameFocus {
-				m.nameInput, cmd = m.nameInput.Update(msg)
-			} else {
-				m.notesInput, cmd = m.notesInput.Update(msg)
-			}
-			return m, cmd
-		}
-		return m, nil
+	if keyMsg, isKey := msg.(tea.KeyPressMsg); isKey {
+		return m.handleKey(keyMsg)
 	}
-	return m.handleKey(keyMsg)
+	// Non-key messages are cursor blink ticks. Only the name editor needs
+	// them; other states have no active textinput.
+	if m.state == stateNameEditor {
+		var cmd tea.Cmd
+		if m.isNameFocused {
+			m.nameInput, cmd = m.nameInput.Update(msg)
+		} else {
+			m.notesInput, cmd = m.notesInput.Update(msg)
+		}
+		return m, cmd
+	}
+	return m, nil
 }
 
 func (m *Model) handleKey(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
@@ -116,8 +115,8 @@ func (m *Model) handleNameEditorKey(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch msg.String() {
 	case "tab", "shift+tab":
 		// Toggle focus between the name and notes inputs.
-		m.nameFocus = !m.nameFocus
-		if m.nameFocus {
+		m.isNameFocused = !m.isNameFocused
+		if m.isNameFocused {
 			m.notesInput.Blur()
 			return m, m.nameInput.Focus()
 		}
@@ -139,14 +138,14 @@ func (m *Model) handleNameEditorKey(msg tea.KeyPressMsg) (*Model, tea.Cmd) {
 		// Cancel the save and go back to the top menu, leaving the inputs as-is.
 		m.nameInput.Blur()
 		m.notesInput.Blur()
-		m.nameFocus = true
+		m.isNameFocused = true
 		m.state = stateMenu
 		return m, nil
 	}
 
 	// Any other key goes to whichever textinput is currently focused.
 	var cmd tea.Cmd
-	if m.nameFocus {
+	if m.isNameFocused {
 		m.nameInput, cmd = m.nameInput.Update(msg)
 	} else {
 		m.notesInput, cmd = m.notesInput.Update(msg)

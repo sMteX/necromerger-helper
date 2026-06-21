@@ -77,10 +77,10 @@ type Model struct {
 	menuCursor menuItem
 	listCursor int
 
-	nameInput  textinput.Model
-	notesInput textinput.Model
-	nameFocus  bool   // true = name input is active, false = notes input
-	saveTitle  string // "Save plan" or "Save plan as" depending on the flow
+	nameInput     textinput.Model
+	notesInput    textinput.Model
+	isNameFocused bool   // true = name input is active, false = notes input
+	saveTitle     string // "Save plan" or "Save plan as" depending on the flow
 
 	confirmCursor  confirmOption
 	pendingConfirm struct {
@@ -94,7 +94,6 @@ type Model struct {
 }
 
 func New(cfg Config) *Model {
-	// Apply a dim colour to placeholder text so it's visually distinct from real input.
 	placeholderStyle := lipgloss.NewStyle().Foreground(shared.Colors.Dim)
 
 	nameInput := textinput.New()
@@ -120,11 +119,11 @@ func New(cfg Config) *Model {
 	notesInput.SetStyles(styles)
 
 	m := &Model{
-		cfg:        cfg,
-		nameInput:  nameInput,
-		notesInput: notesInput,
-		nameFocus:  true,
-		saveTitle:  "Save plan",
+		cfg:           cfg,
+		nameInput:     nameInput,
+		notesInput:    notesInput,
+		isNameFocused: true,
+		saveTitle:     "Save plan",
 	}
 
 	if cfg.StartAtSave {
