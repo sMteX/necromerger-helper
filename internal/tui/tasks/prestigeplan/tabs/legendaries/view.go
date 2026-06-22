@@ -10,6 +10,10 @@ import (
 	"github.com/sMteX/necromerger-helper/internal/tui/shared"
 )
 
+// 7 * 8 board = 56
+// NecroMerger, Unstable Rift, Store-O, empty space => can't be thrown out => 52 max
+const maxLegendaryCount = 52
+
 var (
 	nameColumn  = lipgloss.NewStyle().Width(12)
 	countColumn = lipgloss.NewStyle().Width(8).AlignHorizontal(lipgloss.Right)
@@ -44,6 +48,7 @@ func (m *Model) View() string {
 		m.renderRow(models.RoboChicken),
 		m.renderRow(models.ShieldBot),
 		m.renderRow(models.SoulStalker),
+		m.renderTotalRow(),
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, lines...)
 }
@@ -110,6 +115,29 @@ func groupHeadingText(name, bonus string, width int) string {
 	// Group 4 = 7 chars, not incl. padding
 	innerFillLength := width - 2*2 - 2*2 - lipgloss.Width(name) - lipgloss.Width(bonus)
 	return fmt.Sprintf("── %s %s %s ──", name, strings.Repeat("─", innerFillLength), bonus)
+}
+
+func (m *Model) totalLegendaryCount() int {
+	total := 0
+	for _, c := range m.LegendaryCounts {
+		total += c
+	}
+	return total
+}
+func (m *Model) renderTotalRow() string {
+	total := m.totalLegendaryCount()
+	margin := nameColumn.GetWidth() + countColumn.GetWidth()
+	color := shared.Colors.Good
+	if total >= maxLegendaryCount {
+		color = shared.Colors.Bad
+	}
+	return lipgloss.NewStyle().
+		MarginLeft(margin).
+		AlignHorizontal(lipgloss.Right).
+		Foreground(color).
+		// arrow can't be in the margin because the text goes into its column too
+		Width(lipgloss.Width(arrow) + countColumn.GetWidth()).
+		Render(fmt.Sprintf("Total: %d  ", total))
 }
 
 func (m *Model) GetHelpItems() []string {
