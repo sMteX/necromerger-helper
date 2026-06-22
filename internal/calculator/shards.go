@@ -107,9 +107,8 @@ func calculateLegendBreakdown(plan models.Plan) (multiplier float64, legBonuses 
 		allowedClaims := plan.GroupBonusCount
 		var claims int
 		if group == models.Group3 {
-			// Group 3 legendaries are each capped at 1 copy, so minCount is always 1 when
-			// the set is complete. The game still grants the full allowedClaims for this group.
-			claims = allowedClaims
+			// Group 3 legendaries can only be claimed once, regardless of the group hack
+			claims = 1
 		} else {
 			claims = int(math.Min(float64(minCount), float64(allowedClaims)))
 		}

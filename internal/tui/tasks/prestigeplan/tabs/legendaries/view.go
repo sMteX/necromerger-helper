@@ -128,7 +128,7 @@ func (m *Model) renderTotalRow() string {
 	total := m.totalLegendaryCount()
 	margin := nameColumn.GetWidth() + countColumn.GetWidth()
 	color := shared.Colors.Good
-	if total >= maxLegendaryCount {
+	if total > maxLegendaryCount {
 		color = shared.Colors.Bad
 	}
 	return lipgloss.NewStyle().
