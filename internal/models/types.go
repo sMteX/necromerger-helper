@@ -135,3 +135,75 @@ type LegendaryRecipe struct {
 }
 
 type RuneCosts map[RuneType]int
+
+// ── Champion summoning ────────────────────────────────────────────────────────
+
+type ChampionID string
+
+const (
+	ChampionPeasant ChampionID = "peasant"
+	ChampionKnight  ChampionID = "knight"
+	ChampionCleric  ChampionID = "cleric"
+	ChampionPaladin ChampionID = "paladin"
+	ChampionRival   ChampionID = "rival"
+)
+
+type CreatureID string
+
+const (
+	CreatureSkeleton    CreatureID = "skeleton"
+	CreatureZombie      CreatureID = "zombie"
+	CreatureMummy       CreatureID = "mummy"
+	CreatureEyeMonster  CreatureID = "eye_monster"
+	CreatureWerewolf    CreatureID = "werewolf"
+	CreatureBat         CreatureID = "bat"
+	CreatureShade       CreatureID = "shade"
+	CreatureBanshee     CreatureID = "banshee"
+	CreatureGhoul       CreatureID = "ghoul"
+	CreatureImp         CreatureID = "imp"
+	CreatureAbomination CreatureID = "abomination"
+	CreatureDemon       CreatureID = "demon"
+)
+
+type ChampionType struct {
+	ID        ChampionID
+	Name      string
+	Threshold int
+	Creatures []CreatureID
+}
+
+// CreatureType describes a farmable creature and its summoning point values.
+// MergePoints[k] = points awarded when merging 2x Lk into L(k+1),
+// where L1 is created by merging 2x L2-parts (index 0).
+type CreatureType struct {
+	ID          CreatureID
+	Name        string
+	MergePoints []int
+}
+
+type PartLevel int
+
+const (
+	PartLevelOne PartLevel = 1
+	PartLevelTwo PartLevel = 2
+)
+
+type StationDrop struct {
+	CreatureID  CreatureID
+	PartLevel   PartLevel
+	Probability float64
+}
+
+type StationVariant struct {
+	Level  int
+	Hacked bool
+	Cost   int
+	Drops  []StationDrop
+}
+
+type SummoningStation struct {
+	ID       StationID
+	Name     string
+	Resource ResourceType
+	Variants []StationVariant
+}
