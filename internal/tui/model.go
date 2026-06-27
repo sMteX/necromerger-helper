@@ -4,6 +4,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/sMteX/necromerger-helper/internal/tui/tasks/prestigeplan"
 	"github.com/sMteX/necromerger-helper/internal/tui/tasks/resourceCap"
+	"github.com/sMteX/necromerger-helper/internal/tui/tasks/stationefficiency"
 )
 
 type taskType int8
@@ -11,6 +12,7 @@ type taskType int8
 const (
 	taskResourceCap taskType = iota
 	taskPrestigePlan
+	taskStationEfficiency
 	taskTypeCount
 )
 
@@ -22,11 +24,13 @@ type AppModel struct {
 
 	resourceCapModel  resourceCap.Model
 	prestigePlanModel *prestigeplan.Model
+	stationEfficiencyModel *stationefficiency.Model
 }
 
 func (m *AppModel) Init() tea.Cmd {
 	m.resourceCapModel = resourceCap.New()
 	m.prestigePlanModel = prestigeplan.New()
+	m.stationEfficiencyModel = stationefficiency.New()
 	return nil
 }
 
@@ -43,6 +47,10 @@ func (m *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		newModel, cmd := m.prestigePlanModel.Update(msg)
 		m.prestigePlanModel = newModel.(*prestigeplan.Model)
 		return m, cmd
+	case taskStationEfficiency:
+		newModel, cmd := m.stationEfficiencyModel.Update(msg)
+		m.stationEfficiencyModel = newModel.(*stationefficiency.Model)
+		return m, cmd
 	default:
 		panic("unknown task type")
 	}
@@ -57,6 +65,8 @@ func (m *AppModel) View() tea.View {
 		return m.resourceCapModel.View()
 	case taskPrestigePlan:
 		return m.prestigePlanModel.View()
+	case taskStationEfficiency:
+		return m.stationEfficiencyModel.View()
 	default:
 		panic("unknown task type")
 	}

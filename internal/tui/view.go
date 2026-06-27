@@ -24,7 +24,7 @@ func (m *AppModel) renderMainMenu() tea.View {
 }
 
 func (m *AppModel) renderMainMenuChoices() string {
-	choices := []string{"Resource cap", "Prestige plan"}
+	choices := []string{"Resource cap", "Prestige plan", "Station efficiency"}
 	var styledChoices []string
 	for i, choice := range choices {
 		if i == m.cursor {

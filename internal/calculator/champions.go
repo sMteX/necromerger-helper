@@ -103,14 +103,15 @@ func CalculateChampionEfficiency(input ChampionEfficiencyInput) ChampionEfficien
 
 			totalPoints := float64(taps) * expectedPointsPerTap * speedMultiplier
 			expectedSummons := totalPoints / float64(champion.Threshold)
-
-			results = append(results, StationEfficiencyResult{
-				StationName:     station.Name,
-				Level:           variant.Level,
-				Hacked:          variant.Hacked,
-				Resource:        station.Resource,
-				ExpectedSummons: expectedSummons,
-			})
+			if expectedSummons > 0 {
+				results = append(results, StationEfficiencyResult{
+					StationName:     station.Name,
+					Level:           variant.Level,
+					Hacked:          variant.Hacked,
+					Resource:        station.Resource,
+					ExpectedSummons: expectedSummons,
+				})
+			}
 		}
 	}
 

@@ -11,7 +11,8 @@ type colors struct {
 
 	RuneIce, RunePoison, RuneBlood, RuneMoon, RuneDeath, RuneCosmic color.Color
 
-	Border color.Color
+	Mana, Slime, Darkness color.Color
+	Border                color.Color
 }
 type styles struct {
 	MainContainer, SubContainer, Header, Help lipgloss.Style
@@ -29,6 +30,9 @@ var (
 		RuneDeath:  lipgloss.Color("#6200b3"),
 		RuneCosmic: lipgloss.Color("#ee00ff"),
 		Border:     lipgloss.Color("#7D56F4"),
+		Mana:       lipgloss.Color("#60A5FA"), // blue
+		Slime:      lipgloss.Color("#6EE7B7"), // green
+		Darkness:   lipgloss.Color("#A78BFA"),
 	}
 	Styles = styles{
 		MainContainer: lipgloss.NewStyle().

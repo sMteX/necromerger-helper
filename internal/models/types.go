@@ -141,11 +141,11 @@ type RuneCosts map[RuneType]int
 type ChampionID string
 
 const (
-	ChampionPeasant ChampionID = "peasant"
-	ChampionKnight  ChampionID = "knight"
-	ChampionCleric  ChampionID = "cleric"
-	ChampionPaladin ChampionID = "paladin"
-	ChampionRival   ChampionID = "rival"
+	ChampionPeasant ChampionID = "Peasant"
+	ChampionKnight  ChampionID = "Knight"
+	ChampionCleric  ChampionID = "Cleric"
+	ChampionPaladin ChampionID = "Paladin"
+	ChampionRival   ChampionID = "Rival"
 )
 
 type CreatureID string
